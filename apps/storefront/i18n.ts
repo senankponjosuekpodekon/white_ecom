@@ -8,7 +8,8 @@ export const isValidLocale = (locale: string): locale is Locale =>
   locales.includes(locale as Locale);
 
 export default getRequestConfig(async ({ locale }) => {
-  const safeLocale = isValidLocale(locale) ? locale : defaultLocale;
+  const safeLocale =
+    locale && isValidLocale(locale) ? locale : defaultLocale;
 
   return {
     locale: safeLocale,

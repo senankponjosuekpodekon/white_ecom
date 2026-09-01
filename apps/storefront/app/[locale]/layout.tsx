@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { locales, defaultLocale, type Locale } from "@/i18n";
@@ -21,9 +20,9 @@ export default async function LocaleLayout({
   params,
 }: {
   children: React.ReactNode;
-  params: { locale: string };
+  params: { locale: string } | Promise<{ locale: string }>;
 }) {
-  const { locale: raw } = await (params as any);
+  const { locale: raw } = await params;
   const locale = locales.includes(raw as Locale) ? (raw as Locale) : defaultLocale;
 
   const config = await getStoreConfig().catch(() => ({

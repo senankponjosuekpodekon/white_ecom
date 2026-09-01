@@ -5,9 +5,9 @@ import { getStoreConfig } from "@/lib/get-store-config";
 export default async function Home({
   params,
 }: {
-  params: { locale: string };
+  params: { locale: string } | Promise<{ locale: string }>;
 }) {
-  const { locale: raw } = await (params as any);
+  const { locale: raw } = await params;
   const locale = locales.includes(raw as Locale) ? (raw as Locale) : defaultLocale;
   const t = await getTranslations({ locale, namespace: "home" });
   const config = await getStoreConfig().catch(() => ({
