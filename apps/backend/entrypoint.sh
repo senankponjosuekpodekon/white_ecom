@@ -2,4 +2,4 @@
 set -e
 
 npx medusa db:migrate
-npx medusa develop
+npx medusa start

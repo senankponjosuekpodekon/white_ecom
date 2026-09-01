@@ -29,6 +29,12 @@ services:
       AUTH_CORS: http://localhost:3000
       JWT_SECRET: local-jwt-secret
       COOKIE_SECRET: local-cookie-secret
+      STORE_NAME: White Shop
+      PRIMARY_COLOR: "#111111"
+      LOGO_URL: ""
+      STORE_FONT: Inter
+      DEFAULT_LANGUAGE: fr
+      SUPPORTED_LANGUAGES: fr,en
     ports:
       - "9000:9000"
     depends_on:
@@ -39,12 +45,11 @@ services:
     build:
       context: .
       dockerfile: apps/storefront/Dockerfile
-      network: host
     env_file:
       - .env.storefront
     environment:
       MEDUSA_BACKEND_URL: http://backend:9000
-      NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: pk_local
+      NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: pk_5c328ce90bc55ba4df7101f655c08b7e4b870875051600e69ef40f671bcab75b
     ports:
       - "3000:3000"
     depends_on:

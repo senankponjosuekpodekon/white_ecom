@@ -21,24 +21,19 @@ const defaultConfig: StoreConfig = {
 
 export const getStoreConfig = cache(async (): Promise<StoreConfig> => {
   try {
-    const { store } = await medusaClient.client.fetch<{
-      store: Record<string, unknown>;
-    }>("/store/store", {
-      method: "GET",
-      query: {
-        fields: "name,metadata",
-      },
-    });
-
-    const metadata = (store.metadata ?? {}) as Record<string, unknown>;
+    const config = await medusaClient.client.fetch<StoreConfig>(
+      "/store/store-config",
+      { method: "GET" }
+    );
 
     return {
-      name: (store.name as string) ?? defaultConfig.name,
-      primaryColor: (metadata.primary_color as string) ?? defaultConfig.primaryColor,
-      logoUrl: (metadata.logo_url as string) ?? defaultConfig.logoUrl,
-      font: (metadata.font as string) ?? defaultConfig.font,
-      defaultLanguage: (metadata.default_language as string) ?? defaultConfig.defaultLanguage,
-      supportedLanguages: (metadata.supported_languages as string[]) ?? defaultConfig.supportedLanguages,
+      name: config.name ?? defaultConfig.name,
+      primaryColor: config.primaryColor ?? defaultConfig.primaryColor,
+      logoUrl: config.logoUrl ?? defaultConfig.logoUrl,
+      font: config.font ?? defaultConfig.font,
+      defaultLanguage: config.defaultLanguage ?? defaultConfig.defaultLanguage,
+      supportedLanguages:
+        config.supportedLanguages ?? defaultConfig.supportedLanguages,
     };
   } catch {
     return defaultConfig;
