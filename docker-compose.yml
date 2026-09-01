@@ -49,7 +49,6 @@ services:
       - .env.storefront
     environment:
       MEDUSA_BACKEND_URL: http://backend:9000
-      NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: pk_5c328ce90bc55ba4df7101f655c08b7e4b870875051600e69ef40f671bcab75b
     ports:
       - "3000:3000"
     depends_on:
