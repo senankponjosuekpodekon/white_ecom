@@ -1,0 +1,56 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: white_local
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d white_local"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+
+  backend:
+    build:
+      context: ./apps/backend
+    env_file:
+      - .env.backend
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/white_local
+      REDIS_URL: redis://redis:6379
+      STORE_CORS: http://localhost:3000
+      ADMIN_CORS: http://localhost:9000,http://localhost:3000
+      AUTH_CORS: http://localhost:3000
+      JWT_SECRET: local-jwt-secret
+      COOKIE_SECRET: local-cookie-secret
+    ports:
+      - "9000:9000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  storefront:
+    build:
+      context: ./apps/storefront
+    env_file:
+      - .env.storefront
+    environment:
+      MEDUSA_BACKEND_URL: http://backend:9000
+      NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: pk_local
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:

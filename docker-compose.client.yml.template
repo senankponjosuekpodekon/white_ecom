@@ -1,0 +1,54 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: white_${CLIENT_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redisdata:/data
+
+  backend:
+    image: white-shop-backend:${IMAGE_TAG:-latest}
+    env_file: ./clients/${CLIENT_NAME}/.env.backend
+    environment:
+      DATABASE_URL: postgres://${DB_USER}:${DB_PASSWORD}@postgres:5432/white_${CLIENT_NAME}
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: ["/app/entrypoint.sh"]
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${CLIENT_NAME}-backend.rule=Host(`${DOMAIN}`) && PathPrefix(`/admin`,`/api`,`/store`,`/auth`)"
+      - "traefik.http.routers.${CLIENT_NAME}-backend.tls.certresolver=letsencrypt"
+      - "traefik.http.services.${CLIENT_NAME}-backend.loadbalancer.server.port=9000"
+
+  storefront:
+    image: white-shop-storefront:${IMAGE_TAG:-latest}
+    env_file: ./clients/${CLIENT_NAME}/.env.storefront
+    environment:
+      MEDUSA_BACKEND_URL: http://backend:9000
+    depends_on:
+      - backend
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${CLIENT_NAME}-storefront.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.${CLIENT_NAME}-storefront.tls.certresolver=letsencrypt"
+      - "traefik.http.services.${CLIENT_NAME}-storefront.loadbalancer.server.port=3000"
+
+volumes:
+  pgdata:
+  redisdata:

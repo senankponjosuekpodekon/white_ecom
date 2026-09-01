@@ -1,0 +1,18 @@
+{
+  "home": {
+    "title": "Bienvenue",
+    "subtitle": "Découvrez notre catalogue"
+  },
+  "product": {
+    "addToCart": "Ajouter au panier",
+    "outOfStock": "Rupture de stock"
+  },
+  "cart": {
+    "title": "Votre panier",
+    "empty": "Votre panier est vide"
+  },
+  "checkout": {
+    "pay": "Payer",
+    "securePayment": "Paiement sécurisé par Stripe"
+  }
+}
