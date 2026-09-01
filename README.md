@@ -13,38 +13,92 @@ Plateforme e-commerce multi-clients basée sur **Medusa v2** et **Next.js 14**.
 
 ---
 
-## Démarrage rapide
+## Démarrage rapide (autre machine)
 
 ### Prérequis
 
-- Node.js 20+
-- npm (le package manager est verrouillé dans `package.json`)
-- Docker et Docker Compose (optionnel, mais recommandé)
+- Node.js 20
+- npm
+- Docker et Docker Compose
 
-### Installation
+### 1. Cloner et installer
 
 ```bash
+git clone <repo>
+cd white_ecom
 npm install
 ```
 
-### Lancer en local avec Docker
+### 2. Créer les fichiers d’environnement
+
+`docker-compose.yml` attend `.env.backend` et `.env.storefront` à la racine. Crée-les :
+
+**`.env.backend`**
 
 ```bash
-# Build et démarrage
-npm run build -w @dtc/backend
-npm run build -w @dtc/storefront
-docker compose up -d
+STORE_CORS=http://localhost:3000
+ADMIN_CORS=http://localhost:3000,http://localhost:9000
+AUTH_CORS=http://localhost:3000
+REDIS_URL=redis://redis:6379
+JWT_SECRET=local-jwt-secret
+COOKIE_SECRET=local-cookie-secret
+DATABASE_URL=postgres://postgres:postgres@postgres:5432/white_local?ssl=false&sslmode=disable
+DB_NAME=white_local
 
-# Migrations et seed
-docker compose exec backend npx medusa db:migrate
-docker compose exec backend npx medusa user -e admin@example.com -p password
+# White-label store config (served by GET /store/store-config)
+STORE_NAME=White Shop
+PRIMARY_COLOR=#111111
+LOGO_URL=
+STORE_FONT=Inter
+DEFAULT_LANGUAGE=fr
+SUPPORTED_LANGUAGES=fr,en
+```
+
+**`.env.storefront`**
+
+```bash
+MEDUSA_BACKEND_URL=http://localhost:9000
+NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=pk_xxxx
+```
+
+La clé `NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY` est générée une fois le backend démarré (voir étape 4).
+
+### 3. Build et lancer Docker
+
+```bash
+docker compose up -d --build
 ```
 
 - Storefront : `http://localhost:3000`
 - API Medusa : `http://localhost:9000`
-- Admin Medusa : `http://localhost:9000/app`
 
-### Lancer en développement (hors Docker)
+### 4. Créer un admin + une clé publishable
+
+```bash
+# Admin user
+docker compose exec backend npx medusa user -e admin@example.com -p password
+
+# Login et récupération du token
+TOKEN=$(curl -s -X POST http://localhost:9000/auth/user/emailpass \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"admin@example.com","password":"password"}' | jq -r '.token')
+
+# Créer la clé publishable
+curl -s -X POST http://localhost:9000/admin/api-keys \
+  -H "Authorization: Bearer $TOKEN" \
+  -H 'Content-Type: application/json' \
+  -d '{"title":"Storefront Key","type":"publishable"}'
+```
+
+Copie la valeur `token` (`pk_...`) dans `.env.storefront`, puis redémarre le storefront :
+
+```bash
+docker compose up -d storefront
+```
+
+---
+
+## Lancer en développement (hors Docker)
 
 ```bash
 # Terminal 1
@@ -56,16 +110,11 @@ npm run storefront:dev
 
 ---
 
-## Scripts de déploiement
+## Scripts de déploiement client
 
 ```bash
-# Créer un nouveau client
 ./scripts/new-client.sh boutique-jean boutique-jean.com
-
-# Déployer un client
 ./scripts/deploy-client.sh boutique-jean
-
-# Sauvegarder la base d'un client
 ./scripts/backup-client.sh boutique-jean
 ```
 
@@ -83,5 +132,6 @@ npm run storefront:dev
 
 ## Notes
 
-- `getStoreConfig` est actuellement en stub pour permettre le build statique ; il sera branché au backend une fois l'API démarrée.
+- `getStoreConfig` appelle `/store/store-config` (custom route) et fallback sur les valeurs par défaut en cas d’erreur.
+- L’admin UI est désactivé en mode `medusa start` ; exécute `npx medusa develop` pour l’activer.
 - Les fichiers `.env.*` ne sont jamais commités.
