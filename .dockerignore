@@ -1,0 +1,8 @@
+**/.git
+**/.next
+**/.medusa
+**/.turbo
+**/.env
+**/.env.*
+clients
+*.log

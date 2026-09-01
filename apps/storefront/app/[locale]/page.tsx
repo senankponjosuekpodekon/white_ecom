@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import { locales, defaultLocale, type Locale } from "@/i18n";
 import { getStoreConfig } from "@/lib/get-store-config";
 
 export default async function Home({
@@ -6,7 +7,8 @@ export default async function Home({
 }: {
   params: { locale: string };
 }) {
-  const { locale } = params;
+  const { locale: raw } = await (params as any);
+  const locale = locales.includes(raw as Locale) ? (raw as Locale) : defaultLocale;
   const t = await getTranslations({ locale, namespace: "home" });
   const config = await getStoreConfig().catch(() => ({
     name: "White Shop",

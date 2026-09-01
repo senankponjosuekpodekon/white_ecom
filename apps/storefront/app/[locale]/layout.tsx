@@ -23,8 +23,8 @@ export default async function LocaleLayout({
   children: React.ReactNode;
   params: { locale: string };
 }) {
-  const { locale } = params;
-  if (!locales.includes(locale as Locale)) notFound();
+  const { locale: raw } = await (params as any);
+  const locale = locales.includes(raw as Locale) ? (raw as Locale) : defaultLocale;
 
   const config = await getStoreConfig().catch(() => ({
     name: "White Shop",
