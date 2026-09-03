@@ -20,8 +20,17 @@
     "total": "Total",
     "checkout": "Passer commande"
   },
+  "nav": {
+    "products": "Produits",
+    "cart": "Panier"
+  },
   "checkout": {
+    "title": "Paiement",
     "pay": "Payer",
-    "securePayment": "Paiement sécurisé par Stripe"
+    "securePayment": "Paiement sécurisé par Stripe",
+    "missingPayment": "Impossible d'initialiser le paiement.",
+    "missingStripeKey": "Clé Stripe publique manquante.",
+    "paymentFailed": "Le paiement a échoué. Veuillez réessayer.",
+    "processing": "Traitement en cours…"
   }
 }

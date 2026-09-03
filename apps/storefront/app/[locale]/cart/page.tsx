@@ -57,14 +57,12 @@ export default async function CartPage({
               {cart.total.toFixed(2)} {cart.currency_code.toUpperCase()}
             </span>
           </div>
-          <form action={`/${locale}/checkout`}>
-            <button
-              type="submit"
-              className="w-full px-4 py-3 bg-black text-white rounded hover:bg-gray-800"
-            >
-              {t("checkout")}
-            </button>
-          </form>
+          <Link
+            href={`/${locale}/checkout`}
+            className="block w-full text-center px-4 py-3 bg-black text-white rounded hover:bg-gray-800"
+          >
+            {t("checkout")}
+          </Link>
         </div>
       )}
     </main>

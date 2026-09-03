@@ -20,8 +20,17 @@
     "total": "Total",
     "checkout": "Checkout"
   },
+  "nav": {
+    "products": "Products",
+    "cart": "Cart"
+  },
   "checkout": {
+    "title": "Checkout",
     "pay": "Pay",
-    "securePayment": "Secure payment by Stripe"
+    "securePayment": "Secure payment by Stripe",
+    "missingPayment": "Could not initialize payment.",
+    "missingStripeKey": "Missing Stripe public key.",
+    "paymentFailed": "Payment failed. Please try again.",
+    "processing": "Processing…"
   }
 }

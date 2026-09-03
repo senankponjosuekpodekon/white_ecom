@@ -3,10 +3,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { locales, defaultLocale, type Locale } from "@/i18n";
 import { getStoreConfig } from "@/lib/get-store-config";
-
-export async function generateStaticParams() {
-  return locales.map((locale) => ({ locale }));
-}
+import { Header } from "@/components/Header";
 
 export async function generateMetadata(): Promise<Metadata> {
   const config = await getStoreConfig().catch(() => null);
@@ -44,6 +41,7 @@ export default async function LocaleLayout({
     >
       <body className="antialiased" style={{ fontFamily: config.font }}>
         <NextIntlClientProvider messages={messages} locale={locale}>
+          <Header name={config.name} locale={locale} />
           {children}
         </NextIntlClientProvider>
       </body>
