@@ -26,10 +26,13 @@ services:
     environment:
       DATABASE_URL: postgres://${DB_USER:-postgres}:${DB_PASSWORD:-postgres}@postgres:5432/white_${CLIENT_NAME}
       REDIS_URL: redis://redis:6379
+      CLIENT_NAME: ${CLIENT_NAME}
     depends_on:
       postgres:
         condition: service_healthy
     command: ["/app/entrypoint.sh"]
+    volumes:
+      - ./clients/${CLIENT_NAME}/config.json:/app/clients/${CLIENT_NAME}/config.json:ro
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.${CLIENT_NAME}-backend.rule=Host(`${DOMAIN}`) && PathPrefix(`/admin`,`/api`,`/store`,`/auth`)"

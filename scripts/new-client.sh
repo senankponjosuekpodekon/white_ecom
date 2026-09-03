@@ -19,7 +19,12 @@ cat > "clients/${CLIENT_NAME}/config.json" <<EOF
 {
   "name": "${CLIENT_NAME}",
   "domain": "${DOMAIN}",
-  "locale": "fr"
+  "locale": "fr",
+  "primaryColor": "#111111",
+  "logoUrl": "",
+  "font": "Inter",
+  "defaultLanguage": "fr",
+  "supportedLanguages": ["fr", "en"]
 }
 EOF
 

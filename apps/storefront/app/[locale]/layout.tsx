@@ -41,7 +41,7 @@ export default async function LocaleLayout({
     >
       <body className="antialiased" style={{ fontFamily: config.font }}>
         <NextIntlClientProvider messages={messages} locale={locale}>
-          <Header name={config.name} locale={locale} />
+          <Header name={config.name} logoUrl={config.logoUrl} locale={locale} />
           {children}
         </NextIntlClientProvider>
       </body>
