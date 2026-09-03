@@ -32,7 +32,14 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
     STORE_FONT,
     DEFAULT_LANGUAGE,
     SUPPORTED_LANGUAGES,
+    DESIGN_PRESET,
   } = process.env;
+
+  const design = fileConfig.design ?? {};
+  const resolvedDesign = {
+    preset: design.preset ?? DESIGN_PRESET ?? "modern",
+    ...design,
+  };
 
   res.json({
     name: fileConfig.name ?? STORE_NAME ?? "White Shop",
@@ -43,5 +50,6 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
     supportedLanguages:
       fileConfig.supportedLanguages ??
       SUPPORTED_LANGUAGES?.split(",") ?? ["fr"],
+    design: resolvedDesign,
   });
 }

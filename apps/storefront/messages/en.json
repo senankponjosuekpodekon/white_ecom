@@ -5,7 +5,23 @@
   },
   "home": {
     "title": "Welcome",
-    "subtitle": "Discover our catalogue"
+    "subtitle": "Discover our catalogue",
+    "heroTitle": "Find what you need",
+    "heroSubtitle": "A curated selection designed to make your day easier.",
+    "cta": "Explore catalogue",
+    "featuresTitle": "Why choose us",
+    "feature1Title": "Verified quality",
+    "feature1Text": "We carefully select every product.",
+    "feature2Title": "Fast delivery",
+    "feature2Text": "Shipped within 48h for most orders.",
+    "feature3Title": "Customer service",
+    "feature3Text": "A team available to support you.",
+    "valueTitle": "A modern and reliable shopping experience",
+    "valueText": "Our platform is built for speed, security, and simplicity.",
+    "proofTitle": "They trust us",
+    "ctaTitle": "Ready to order?",
+    "ctaSubtitle": "Browse our catalogue and take advantage of our offers today.",
+    "ctaButton": "See products"
   },
   "products": {
     "title": "Our products",

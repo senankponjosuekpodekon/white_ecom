@@ -48,7 +48,7 @@ function Form({ locale }: { locale: Locale }) {
       <button
         type="submit"
         disabled={!stripe || loading}
-        className="w-full px-4 py-3 bg-black text-white rounded hover:bg-gray-800 disabled:opacity-50"
+        className="w-full btn-primary disabled:opacity-50"
       >
         {loading ? t("processing") : t("pay")}
       </button>

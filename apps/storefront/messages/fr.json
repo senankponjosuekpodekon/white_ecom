@@ -5,7 +5,23 @@
   },
   "home": {
     "title": "Bienvenue",
-    "subtitle": "Découvrez notre catalogue"
+    "subtitle": "Découvrez notre catalogue",
+    "heroTitle": "Trouvez ce qu'il vous faut",
+    "heroSubtitle": "Une sélection soignée, pensée pour vous simplifier le quotidien.",
+    "cta": "Explorer le catalogue",
+    "featuresTitle": "Pourquoi nous choisir",
+    "feature1Title": "Qualité vérifiée",
+    "feature1Text": "Nous sélectionnons chaque produit avec soin.",
+    "feature2Title": "Livraison rapide",
+    "feature2Text": "Expédition sous 48h pour la plupart des commandes.",
+    "feature3Title": "Service client",
+    "feature3Text": "Une équipe disponible pour vous accompagner.",
+    "valueTitle": "Une expérience d'achat moderne et fiable",
+    "valueText": "Notre plateforme est conçue pour vous offrir rapidité, sécurité et simplicité.",
+    "proofTitle": "Ils nous font confiance",
+    "ctaTitle": "Prêt à commander ?",
+    "ctaSubtitle": "Parcourez notre catalogue et profitez dès maintenant de nos offres.",
+    "ctaButton": "Voir les produits"
   },
   "products": {
     "title": "Nos produits",

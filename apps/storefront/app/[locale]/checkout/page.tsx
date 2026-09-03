@@ -7,6 +7,13 @@ import { locales, defaultLocale, type Locale } from "@/i18n";
 import { CheckoutForm } from "@/components/CheckoutForm";
 import { completeManualPaymentAction } from "./actions";
 
+function formatPrice(amount: number, currency: string) {
+  return new Intl.NumberFormat("fr-FR", {
+    style: "currency",
+    currency: currency.toUpperCase(),
+  }).format(amount / 100);
+}
+
 export const dynamic = "force-dynamic";
 
 export default async function CheckoutPage({
@@ -28,20 +35,22 @@ export default async function CheckoutPage({
   const shippingOptions = await getShippingOptions(cart.id);
 
   return (
-    <main className="min-h-screen p-8">
+    <main className="min-h-screen p-8 section-gradient">
       <div className="max-w-xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6">{t("title")}</h1>
-        <p className="mb-6 text-gray-600">
-          {t("total")}: {cart.total.toFixed(2)} {cart.currency_code.toUpperCase()}
+        <h1 className="text-3xl font-heading font-bold mb-6 text-[var(--color-foreground)]">
+          {t("title")}
+        </h1>
+        <p className="mb-6 text-[var(--color-muted)]">
+          {t("total")}: {formatPrice(cart.total, cart.currency_code)}
         </p>
 
         {clientSecret ? (
           <CheckoutForm clientSecret={clientSecret} locale={locale} />
         ) : (
-          <p className="text-sm text-gray-600 mb-4">{t("stripeDisabled")}</p>
+          <p className="text-sm text-[var(--color-muted)] mb-4">{t("stripeDisabled")}</p>
         )}
 
-        <div className="mt-8 border-t pt-6">
+        <div className="mt-8 border-t border-[var(--color-border)] pt-6">
           {shippingOptions.length === 0 ? (
             <p className="text-red-600">{t("noShipping")}</p>
           ) : (
@@ -50,14 +59,14 @@ export default async function CheckoutPage({
               <input type="hidden" name="locale" value={locale} />
 
               <div>
-                <p className="font-semibold mb-3">{t("selectShipping")}</p>
+                <p className="font-semibold mb-3 text-[var(--color-foreground)]">{t("selectShipping")}</p>
                 <div className="space-y-2">
                   {shippingOptions.map((option) => (
                     <label
                       key={option.id}
-                      className="flex items-center justify-between p-3 border rounded cursor-pointer hover:bg-gray-50"
+                      className="flex items-center justify-between p-3 border border-[var(--color-border)] rounded-lg cursor-pointer bg-white hover:bg-[var(--color-surface)] transition-colors"
                     >
-                      <span className="flex items-center gap-3">
+                      <span className="flex items-center gap-3 text-[var(--color-foreground)]">
                         <input
                           type="radio"
                           name="optionId"
@@ -67,19 +76,15 @@ export default async function CheckoutPage({
                         />
                         <span>{option.name}</span>
                       </span>
-                      <span className="text-sm text-gray-600">
-                        {option.amount.toFixed(2)}{" "}
-                        {option.currency_code.toUpperCase()}
+                      <span className="text-sm text-[var(--color-muted)]">
+                        {formatPrice(option.amount, option.currency_code)}
                       </span>
                     </label>
                   ))}
                 </div>
               </div>
 
-              <button
-                type="submit"
-                className="w-full px-4 py-3 bg-gray-800 text-white rounded hover:bg-gray-700"
-              >
+              <button type="submit" className="w-full btn-primary">
                 {t("payManually")}
               </button>
             </form>

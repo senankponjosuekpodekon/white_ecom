@@ -4,6 +4,13 @@ import Link from "next/link";
 import { getCart } from "@/lib/cart";
 import { locales, defaultLocale, type Locale } from "@/i18n";
 
+function formatPrice(amount: number, currency: string) {
+  return new Intl.NumberFormat("fr-FR", {
+    style: "currency",
+    currency: currency.toUpperCase(),
+  }).format(amount / 100);
+}
+
 export const dynamic = "force-dynamic";
 
 export default async function CartPage({
@@ -18,53 +25,53 @@ export default async function CartPage({
   const cart = await getCart();
 
   return (
-    <main className="min-h-screen p-8">
-      <h1 className="text-3xl font-bold mb-8">{t("title")}</h1>
-      {(!cart || cart.items.length === 0) ? (
-        <div className="space-y-4">
-          <p className="text-gray-600">{t("empty")}</p>
-          <Link
-            href={`/${locale}/products`}
-            className="inline-block px-4 py-2 bg-black text-white rounded hover:bg-gray-800"
-          >
-            {t("continueShopping")}
-          </Link>
-        </div>
-      ) : (
-        <div className="space-y-6">
-          <ul className="divide-y">
-            {cart.items.map((item) => (
-              <li
-                key={item.id}
-                className="py-4 flex justify-between items-center"
-              >
-                <div>
-                  <p className="font-semibold">{item.title}</p>
-                  <p className="text-sm text-gray-600">
-                    {t("quantity")}: {item.quantity}
-                  </p>
-                </div>
-                <p className="font-medium">
-                  {(item.unit_price * item.quantity).toFixed(2)}{" "}
-                  {cart.currency_code.toUpperCase()}
-                </p>
-              </li>
-            ))}
-          </ul>
-          <div className="flex justify-between border-t pt-4">
-            <span className="text-lg font-semibold">{t("total")}</span>
-            <span className="text-lg font-semibold">
-              {cart.total.toFixed(2)} {cart.currency_code.toUpperCase()}
-            </span>
+    <main className="min-h-screen p-8 section-gradient">
+      <div className="max-w-3xl mx-auto">
+        <h1 className="text-3xl font-heading font-bold mb-8 text-[var(--color-foreground)]">
+          {t("title")}
+        </h1>
+        {(!cart || cart.items.length === 0) ? (
+          <div className="space-y-4">
+            <p className="text-[var(--color-muted)]">{t("empty")}</p>
+            <Link href={`/${locale}/products`} className="btn-primary">
+              {t("continueShopping")}
+            </Link>
           </div>
-          <Link
-            href={`/${locale}/checkout`}
-            className="block w-full text-center px-4 py-3 bg-black text-white rounded hover:bg-gray-800"
-          >
-            {t("checkout")}
-          </Link>
-        </div>
-      )}
+        ) : (
+          <div className="space-y-6">
+            <ul className="divide-y divide-[var(--color-border)]">
+              {cart.items.map((item) => (
+                <li
+                  key={item.id}
+                  className="py-4 flex justify-between items-center"
+                >
+                  <div>
+                    <p className="font-semibold text-[var(--color-foreground)]">{item.title}</p>
+                    <p className="text-sm text-[var(--color-muted)]">
+                      {t("quantity")}: {item.quantity}
+                    </p>
+                  </div>
+                  <p className="font-medium text-[var(--color-foreground)]">
+                    {formatPrice(item.unit_price * item.quantity, cart.currency_code)}
+                  </p>
+                </li>
+              ))}
+            </ul>
+            <div className="flex justify-between border-t border-[var(--color-border)] pt-4">
+              <span className="text-lg font-semibold text-[var(--color-foreground)]">{t("total")}</span>
+              <span className="text-lg font-semibold text-[var(--color-primary)]">
+                {formatPrice(cart.total, cart.currency_code)}
+              </span>
+            </div>
+            <Link
+              href={`/${locale}/checkout`}
+              className="block w-full text-center btn-primary"
+            >
+              {t("checkout")}
+            </Link>
+          </div>
+        )}
+      </div>
     </main>
   );
 }

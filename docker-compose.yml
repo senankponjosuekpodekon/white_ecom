@@ -61,11 +61,12 @@ services:
       ADMIN_EMAIL: admin@example.com
       ADMIN_PASSWORD: password
       STORE_NAME: White Shop
-      PRIMARY_COLOR: "#111111"
+      PRIMARY_COLOR: "#3B82F6"
       LOGO_URL: ""
       STORE_FONT: Inter
       DEFAULT_LANGUAGE: fr
       SUPPORTED_LANGUAGES: fr,en
+      DESIGN_PRESET: modern
     restart: unless-stopped
     ports:
       - "9000:9000"

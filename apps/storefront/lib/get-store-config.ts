@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { medusaClient } from "./medusa-client";
+import { presets, defaultPreset, mergeDesignConfig, DesignFullConfig } from "./design";
 
 export type StoreConfig = {
   name: string;
@@ -8,32 +9,50 @@ export type StoreConfig = {
   font: string;
   defaultLanguage: string;
   supportedLanguages: string[];
+  design: DesignFullConfig;
 };
+
+type RawConfig = Partial<StoreConfig> & {
+  design?: {
+    preset?: string;
+    [key: string]: unknown;
+  };
+};
+
+function resolveDesign(raw?: RawConfig["design"]): DesignFullConfig {
+  const presetName = raw?.preset ?? "modern";
+  const base = presets[presetName] ?? defaultPreset;
+  return mergeDesignConfig(base, raw as Parameters<typeof mergeDesignConfig>[1]);
+}
 
 const defaultConfig: StoreConfig = {
   name: "White Shop",
-  primaryColor: "#111111",
+  primaryColor: defaultPreset.colors.primary,
   logoUrl: "",
-  font: "Inter",
+  font: defaultPreset.typography.body,
   defaultLanguage: "fr",
   supportedLanguages: ["fr"],
+  design: defaultPreset,
 };
 
 export const getStoreConfig = cache(async (): Promise<StoreConfig> => {
   try {
-    const config = await medusaClient.client.fetch<StoreConfig>(
+    const config = await medusaClient.client.fetch<RawConfig>(
       "/store/store-config",
       { method: "GET" }
     );
 
+    const design = resolveDesign(config.design);
+
     return {
       name: config.name ?? defaultConfig.name,
-      primaryColor: config.primaryColor ?? defaultConfig.primaryColor,
+      primaryColor: config.primaryColor ?? design.colors.primary,
       logoUrl: config.logoUrl ?? defaultConfig.logoUrl,
-      font: config.font ?? defaultConfig.font,
+      font: config.font ?? design.typography.body,
       defaultLanguage: config.defaultLanguage ?? defaultConfig.defaultLanguage,
       supportedLanguages:
         config.supportedLanguages ?? defaultConfig.supportedLanguages,
+      design,
     };
   } catch {
     return defaultConfig;
