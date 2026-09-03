@@ -3,13 +3,22 @@
     "title": "Bienvenue",
     "subtitle": "Découvrez notre catalogue"
   },
+  "products": {
+    "title": "Nos produits",
+    "noProducts": "Aucun produit disponible"
+  },
   "product": {
     "addToCart": "Ajouter au panier",
-    "outOfStock": "Rupture de stock"
+    "outOfStock": "Rupture de stock",
+    "variants": "Variantes"
   },
   "cart": {
     "title": "Votre panier",
-    "empty": "Votre panier est vide"
+    "empty": "Votre panier est vide",
+    "continueShopping": "Continuer les achats",
+    "quantity": "Quantité",
+    "total": "Total",
+    "checkout": "Passer commande"
   },
   "checkout": {
     "pay": "Payer",

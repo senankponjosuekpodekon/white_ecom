@@ -3,13 +3,22 @@
     "title": "Welcome",
     "subtitle": "Discover our catalogue"
   },
+  "products": {
+    "title": "Our products",
+    "noProducts": "No products available"
+  },
   "product": {
     "addToCart": "Add to cart",
-    "outOfStock": "Out of stock"
+    "outOfStock": "Out of stock",
+    "variants": "Variants"
   },
   "cart": {
     "title": "Your cart",
-    "empty": "Your cart is empty"
+    "empty": "Your cart is empty",
+    "continueShopping": "Continue shopping",
+    "quantity": "Quantity",
+    "total": "Total",
+    "checkout": "Checkout"
   },
   "checkout": {
     "pay": "Pay",
