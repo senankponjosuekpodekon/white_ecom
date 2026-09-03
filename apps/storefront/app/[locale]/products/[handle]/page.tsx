@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { FadeImage } from "@/components/FadeImage";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
@@ -167,7 +167,7 @@ export default async function ProductPage({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
           <div className="relative h-96 rounded-2xl overflow-hidden shadow-lg">
             {product.thumbnail ? (
-              <Image
+              <FadeImage
                 src={product.thumbnail}
                 alt={product.title}
                 fill

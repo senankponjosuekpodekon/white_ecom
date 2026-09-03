@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { FadeImage } from "@/components/FadeImage";
 import Link from "next/link";
 import { DesignFullConfig } from "@/lib/design";
 import { Product } from "@/lib/types";
@@ -38,7 +38,7 @@ export function ProductCard({
       <Link href={`/${locale}/products/${product.handle}`} className="block">
         <div className="relative overflow-hidden h-56">
           {product.thumbnail ? (
-            <Image
+            <FadeImage
               src={product.thumbnail}
               alt={product.title}
               fill

@@ -6,7 +6,8 @@ import {
   getIdentifier,
   getGoogleProductCategory,
   getMetadataValue,
-} from "../route"
+  type Product,
+} from "../../../../../utils/feed"
 
 const baseProduct = {
   id: "prod_123",
@@ -18,7 +19,7 @@ const baseProduct = {
   variants: [],
   images: [],
   categories: [],
-}
+} as Product
 
 const baseVariant = {
   id: "variant_123",
@@ -55,46 +56,46 @@ describe("feed helpers", () => {
   describe("getAvailability", () => {
     it("returns preorder when allow_backorder is true", () => {
       const variant = { ...baseVariant, allow_backorder: true }
-      expect(getAvailability(variant as any)).toBe("preorder")
+      expect(getAvailability(variant)).toBe("preorder")
     })
 
     it("returns in stock when manage_inventory is false", () => {
       const variant = { ...baseVariant, manage_inventory: false }
-      expect(getAvailability(variant as any)).toBe("in stock")
+      expect(getAvailability(variant)).toBe("in stock")
     })
 
     it("returns out of stock when inventory is 0", () => {
       const variant = { ...baseVariant, inventory_quantity: 0 }
-      expect(getAvailability(variant as any)).toBe("out of stock")
+      expect(getAvailability(variant)).toBe("out of stock")
     })
   })
 
   describe("getCondition", () => {
     it("defaults to new", () => {
-      expect(getCondition(baseProduct as any, baseVariant as any)).toBe("new")
+      expect(getCondition(baseProduct, baseVariant)).toBe("new")
     })
 
     it("respects metadata condition", () => {
       const product = { ...baseProduct, metadata: { condition: "used" } }
-      expect(getCondition(product as any, baseVariant as any)).toBe("used")
+      expect(getCondition(product, baseVariant)).toBe("used")
     })
 
     it("ignores invalid condition values", () => {
       const product = { ...baseProduct, metadata: { condition: "broken" } }
-      expect(getCondition(product as any, baseVariant as any)).toBe("new")
+      expect(getCondition(product, baseVariant)).toBe("new")
     })
   })
 
   describe("getIdentifier", () => {
     it("uses mpn from variant metadata when available", () => {
       const variant = { ...baseVariant, metadata: { mpn: "META-MPN" } }
-      const result = getIdentifier(baseProduct as any, variant as any)
+      const result = getIdentifier(baseProduct, variant)
       expect(result.mpn).toBe("META-MPN")
       expect(result.exists).toBe("yes")
     })
 
     it("falls back to variant sku for mpn", () => {
-      const result = getIdentifier(baseProduct as any, baseVariant as any)
+      const result = getIdentifier(baseProduct, baseVariant)
       expect(result.mpn).toBe("TSHIRT-S-BLACK")
     })
   })
@@ -102,11 +103,11 @@ describe("feed helpers", () => {
   describe("getGoogleProductCategory", () => {
     it("uses metadata google_product_category first", () => {
       const product = { ...baseProduct, metadata: { google_product_category: "Cat > A" } }
-      expect(getGoogleProductCategory(product as any, "")).toBe("Cat > A")
+      expect(getGoogleProductCategory(product, "")).toBe("Cat > A")
     })
 
     it("falls back to default category", () => {
-      expect(getGoogleProductCategory(baseProduct as any, "Default > Category")).toBe("Default > Category")
+      expect(getGoogleProductCategory(baseProduct, "Default > Category")).toBe("Default > Category")
     })
   })
 
@@ -114,12 +115,12 @@ describe("feed helpers", () => {
     it("prefers variant metadata over product metadata", () => {
       const product = { ...baseProduct, metadata: { color: "red" } }
       const variant = { ...baseVariant, metadata: { color: "black" } }
-      expect(getMetadataValue(product as any, variant as any, ["color"])).toBe("black")
+      expect(getMetadataValue(product, variant, ["color"])).toBe("black")
     })
 
     it("falls back to product metadata", () => {
       const product = { ...baseProduct, metadata: { color: "red" } }
-      expect(getMetadataValue(product as any, baseVariant as any, ["color"])).toBe("red")
+      expect(getMetadataValue(product, baseVariant, ["color"])).toBe("red")
     })
   })
 })

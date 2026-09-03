@@ -146,7 +146,7 @@ npm run storefront:dev
 
 ### Google Merchant
 
-- `GET /store/feed/google` : CSV avec toutes les colonnes requises
+- `GET /store/feed/{google,facebook,pinterest,tiktok}` : CSVs adaptés à chaque plateforme
 - Gestion des attributs : `condition`, `color`, `size`, `age_group`, `gender`, `gtin`, `mpn`, `google_product_category`
 - Disponibilité calculée depuis l’inventaire Medusa
 
