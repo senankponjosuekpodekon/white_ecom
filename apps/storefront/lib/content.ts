@@ -33,6 +33,19 @@ export type LocalizedContent = {
     privacy?: string;
     legal?: string;
   };
+  contact?: {
+    title?: string;
+    intro?: string;
+    email?: string;
+    phone?: string;
+    address?: string;
+    hours?: string;
+    social?: Array<{ name: string; url: string }>;
+  };
+  legal?: {
+    mentions?: string;
+    terms?: string;
+  };
   footer?: {
     text?: string;
     links?: Array<{ label: string; href: string }>;

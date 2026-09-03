@@ -27,6 +27,8 @@ White Ecom is a multi-tenant, white-label storefront. A single Medusa backend ca
 - **CSS variables**: `app/[locale]/layout.tsx` injects `--color-*` and `--font-*` from the active design; Tailwind uses them.
 - **SEO**: metadata, OpenGraph, `robots.ts`, `sitemap.ts`, JSON-LD Product schema, hreflang/canonical.
 - **Product feeds**: `GET /store/feed/{google,facebook,pinterest,tiktok}` returns CSVs tailored to each platform (Google Merchant, Meta Commerce Manager, Pinterest Catalog, TikTok Catalog).
+- **Storefront pages**: `/[locale]/` (home), `/[locale]/products`, `/[locale]/products/[handle]`, `/[locale]/cart`, `/[locale]/checkout`, `/[locale]/checkout/result`, `/[locale]/shipping`, `/[locale]/returns`, `/[locale]/privacy`, `/[locale]/contact`, `/[locale]/legal`, `/[locale]/terms`.
+- **Configurable content**: `content.json` drives hero, features, value proposition, social proof, CTA, policies, legal pages, and contact info per client.
 - **Google Ads**: `gtagId` in `content.json` injects the tag; events tracked: `view_item_list`, `view_item`, `add_to_cart`, `begin_checkout`, `purchase`.
 - **Policies**: `content.policies` drives `/shipping`, `/returns`, `/privacy`.
 

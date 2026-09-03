@@ -32,6 +32,19 @@ export type LocalizedContent = {
     privacy?: string;
     legal?: string;
   };
+  contact?: {
+    title?: string;
+    intro?: string;
+    email?: string;
+    phone?: string;
+    address?: string;
+    hours?: string;
+    social?: Array<{ name: string; url: string }>;
+  };
+  legal?: {
+    mentions?: string;
+    terms?: string;
+  };
   footer?: {
     text?: string;
     links?: Array<{ label: string; href: string }>;
@@ -94,12 +107,31 @@ const defaultLocalizedContent: LocalizedContent = {
     privacy: "Nous ne vendons ni ne partageons vos données personnelles. Vos informations sont sécurisées.",
     legal: "Raison sociale, SIRET et informations légales à compléter selon votre entreprise.",
   },
+  contact: {
+    title: "Contactez-nous",
+    intro: "Une question ? Notre équipe est là pour vous aider.",
+    email: "contact@example.com",
+    phone: "+33 1 23 45 67 89",
+    address: "12 rue du Commerce, 75000 Paris, France",
+    hours: "Lundi - Vendredi : 9h - 18h",
+    social: [
+      { name: "Instagram", url: "https://instagram.com" },
+      { name: "Facebook", url: "https://facebook.com" },
+    ],
+  },
+  legal: {
+    mentions: "Mentions légales à compléter (éditeur, hébergeur, SIRET, etc.).",
+    terms: "Conditions de service à compléter (CGV, responsabilités, paiement, livraison, rétractation).",
+  },
   footer: {
     text: "Tous droits réservés.",
     links: [
       { label: "Livraison", href: "/shipping" },
       { label: "Retours", href: "/returns" },
       { label: "Confidentialité", href: "/privacy" },
+      { label: "Contact", href: "/contact" },
+      { label: "Mentions légales", href: "/legal" },
+      { label: "CGV", href: "/terms" },
     ],
   },
   merchant: {
@@ -155,12 +187,31 @@ const defaultEnglishContent: LocalizedContent = {
     privacy: "We do not sell or share your personal data. Your information is secure.",
     legal: "Company name, registration number and legal information to be completed according to your business.",
   },
+  contact: {
+    title: "Contact us",
+    intro: "Have a question? Our team is here to help.",
+    email: "contact@example.com",
+    phone: "+33 1 23 45 67 89",
+    address: "12 Commerce Street, 75000 Paris, France",
+    hours: "Monday - Friday: 9am - 6pm",
+    social: [
+      { name: "Instagram", url: "https://instagram.com" },
+      { name: "Facebook", url: "https://facebook.com" },
+    ],
+  },
+  legal: {
+    mentions: "Legal mentions to be completed (publisher, host, registration number, etc.).",
+    terms: "Terms of service to be completed (sales, liability, payment, delivery, withdrawal).",
+  },
   footer: {
     text: "All rights reserved.",
     links: [
       { label: "Shipping", href: "/shipping" },
       { label: "Returns", href: "/returns" },
       { label: "Privacy", href: "/privacy" },
+      { label: "Contact", href: "/contact" },
+      { label: "Legal mentions", href: "/legal" },
+      { label: "Terms", href: "/terms" },
     ],
   },
   merchant: {

@@ -144,6 +144,12 @@ npm run storefront:dev
 - Hreflang + canonical par page
 - `public/llms.txt` pour les crawlers LLM
 
+### Pages storefront
+
+- `/[locale]/` (home), `/[locale]/products`, `/[locale]/products/[handle]`, `/[locale]/cart`, `/[locale]/checkout`
+- Politiques : `/[locale]/shipping`, `/[locale]/returns`, `/[locale]/privacy`, `/[locale]/legal`, `/[locale]/terms`
+- Contact : `/[locale]/contact` avec email, téléphone, adresse, horaires, réseaux sociaux depuis `content.json`
+
 ### Google Merchant
 
 - `GET /store/feed/{google,facebook,pinterest,tiktok}` : CSVs adaptés à chaque plateforme

@@ -48,6 +48,21 @@
     "privacyTitle": "Privacy",
     "privacy": "Privacy policy to be completed."
   },
+  "contact": {
+    "title": "Contact",
+    "intro": "Have a question? Get in touch.",
+    "emailLabel": "Email",
+    "phoneLabel": "Phone",
+    "addressLabel": "Address",
+    "hoursLabel": "Opening hours",
+    "socialLabel": "Social media"
+  },
+  "legal": {
+    "mentionsTitle": "Legal mentions",
+    "mentions": "Legal mentions to be completed.",
+    "termsTitle": "Terms of service",
+    "terms": "Terms of service to be completed."
+  },
   "checkout": {
     "title": "Checkout",
     "pay": "Pay",

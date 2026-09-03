@@ -48,6 +48,21 @@
     "privacyTitle": "Confidentialité",
     "privacy": "Politique de confidentialité à compléter."
   },
+  "contact": {
+    "title": "Contact",
+    "intro": "Une question ? Contactez-nous.",
+    "emailLabel": "Email",
+    "phoneLabel": "Téléphone",
+    "addressLabel": "Adresse",
+    "hoursLabel": "Horaires",
+    "socialLabel": "Réseaux sociaux"
+  },
+  "legal": {
+    "mentionsTitle": "Mentions légales",
+    "mentions": "Mentions légales à compléter.",
+    "termsTitle": "Conditions de service",
+    "terms": "Conditions de service à compléter."
+  },
   "checkout": {
     "title": "Paiement",
     "pay": "Payer",

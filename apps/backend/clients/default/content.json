@@ -17,6 +17,18 @@
     },
     "ads": {
       "gtagId": ""
+    },
+    "contact": {
+      "title": "Contactez-nous",
+      "intro": "Une question ? Notre équipe est là pour vous aider.",
+      "email": "contact@example.com",
+      "phone": "+33 1 23 45 67 89",
+      "address": "12 rue du Commerce, 75000 Paris, France",
+      "hours": "Lundi - Vendredi : 9h - 18h"
+    },
+    "legal": {
+      "mentions": "Mentions légales à compléter.",
+      "terms": "Conditions de service à compléter."
     }
   },
   "en": {
@@ -37,6 +49,18 @@
     },
     "ads": {
       "gtagId": ""
+    },
+    "contact": {
+      "title": "Contact us",
+      "intro": "Have a question? Our team is here to help.",
+      "email": "contact@example.com",
+      "phone": "+33 1 23 45 67 89",
+      "address": "12 Commerce Street, 75000 Paris, France",
+      "hours": "Monday - Friday: 9am - 6pm"
+    },
+    "legal": {
+      "mentions": "Legal mentions to be completed.",
+      "terms": "Terms of service to be completed."
     }
   }
 }
