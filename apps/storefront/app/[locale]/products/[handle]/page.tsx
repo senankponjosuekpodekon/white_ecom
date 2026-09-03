@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { getProduct } from "@/lib/get-product";
@@ -29,17 +30,22 @@ export default async function ProductPage({
     <main className="min-h-screen p-8 section-gradient">
       <div className="max-w-5xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
-          {product.thumbnail ? (
-            <img
-              src={product.thumbnail}
-              alt={product.title}
-              className="w-full h-96 object-cover rounded-2xl shadow-lg"
-            />
-          ) : (
-            <div className="w-full h-96 bg-[var(--color-surface)] rounded-2xl flex items-center justify-center text-[var(--color-muted)] text-6xl font-heading">
-              {product.title.charAt(0).toUpperCase()}
-            </div>
-          )}
+          <div className="relative h-96 rounded-2xl overflow-hidden shadow-lg">
+            {product.thumbnail ? (
+              <Image
+                src={product.thumbnail}
+                alt={product.title}
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="object-cover"
+                priority
+              />
+            ) : (
+              <div className="w-full h-full bg-[var(--color-surface)] flex items-center justify-center text-[var(--color-muted)] text-6xl font-heading">
+                {product.title.charAt(0).toUpperCase()}
+              </div>
+            )}
+          </div>
 
           <div>
             <h1 className="text-3xl sm:text-4xl font-heading font-bold mb-4 text-[var(--color-foreground)]">

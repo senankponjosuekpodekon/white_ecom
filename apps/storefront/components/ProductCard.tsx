@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { DesignFullConfig } from "@/lib/design";
 import { Product } from "@/lib/types";
@@ -35,15 +36,17 @@ export function ProductCard({
   return (
     <article className="group card-design overflow-hidden">
       <Link href={`/${locale}/products/${product.handle}`} className="block">
-        <div className="relative overflow-hidden">
+        <div className="relative overflow-hidden h-56">
           {product.thumbnail ? (
-            <img
+            <Image
               src={product.thumbnail}
               alt={product.title}
-              className={`w-full h-56 object-cover transition-transform duration-300 ${hoverClass}`}
+              fill
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              className={`object-cover transition-transform duration-300 ${hoverClass}`}
             />
           ) : (
-            <div className="w-full h-56 bg-[var(--color-surface)] flex items-center justify-center text-[var(--color-muted)] text-4xl font-heading">
+            <div className="w-full h-full bg-[var(--color-surface)] flex items-center justify-center text-[var(--color-muted)] text-4xl font-heading">
               {product.title.charAt(0).toUpperCase()}
             </div>
           )}

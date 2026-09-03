@@ -4,11 +4,10 @@ import createNextIntlPlugin from "next-intl/plugin";
 const nextConfig = {
   output: "standalone",
   images: {
+    unoptimized: true,
     remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "**",
-      },
+      { protocol: "https", hostname: "**" },
+      { protocol: "http", hostname: "**" },
     ],
   },
 };

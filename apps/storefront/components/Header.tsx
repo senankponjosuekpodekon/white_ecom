@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import type { Locale } from "@/i18n";
@@ -22,9 +23,11 @@ export async function Header({
             className="flex items-center gap-3 text-xl font-bold text-[var(--color-foreground)] transition-transform duration-200 hover:scale-[1.02]"
           >
             {logoUrl ? (
-              <img
+              <Image
                 src={logoUrl}
                 alt={name}
+                width={128}
+                height={32}
                 className="h-8 w-auto object-contain"
               />
             ) : (
