@@ -53,6 +53,32 @@ function getAvailability(variant: ProductVariant): string {
   return "out of stock"
 }
 
+function getMetadataValue(
+  product: Product,
+  variant: ProductVariant,
+  keys: string[]
+): string | undefined {
+  for (const key of keys) {
+    const vValue = variant.metadata?.[key]
+    if (vValue !== undefined && vValue !== null && vValue !== "") {
+      return String(vValue)
+    }
+    const pValue = product.metadata?.[key]
+    if (pValue !== undefined && pValue !== null && pValue !== "") {
+      return String(pValue)
+    }
+  }
+  return undefined
+}
+
+function getCondition(product: Product, variant: ProductVariant): string {
+  const condition = getMetadataValue(product, variant, ["condition"])
+  if (condition === "new" || condition === "refurbished" || condition === "used") {
+    return condition
+  }
+  return "new"
+}
+
 function getIdentifier(
   product: Product,
   variant: ProductVariant
@@ -71,6 +97,22 @@ function getIdentifier(
     return { exists: "yes", gtin, mpn }
   }
   return { exists: "no" }
+}
+
+function getGoogleProductCategory(
+  product: Product,
+  defaultCategory: string
+): string {
+  const fromMetadata =
+    (product.metadata?.google_product_category as string) ??
+    (product.metadata?.googleProductCategory as string) ??
+    undefined
+  return (
+    fromMetadata ??
+    product.categories?.[0]?.name ??
+    defaultCategory ??
+    ""
+  )
 }
 
 export async function GET(req: MedusaRequest, res: MedusaResponse) {
@@ -107,9 +149,8 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
   const siteUrl = localeContent?.siteUrl ?? process.env.SITE_URL ?? "http://localhost:8080"
   const merchant = localeContent?.merchant ?? {}
   const brand = merchant.brand ?? (fileConfig.name as string) ?? process.env.STORE_NAME ?? "White Shop"
-  const googleProductCategory = merchant.googleProductCategory ?? ""
+  const defaultGoogleProductCategory = merchant.googleProductCategory ?? ""
   const shipping = merchant.shipping ?? ""
-  const baseIdentifierExists = merchant.identifierExists ?? "no"
 
   const header = [
     "id",
@@ -129,13 +170,17 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
     "gtin",
     "mpn",
     "item_group_id",
+    "color",
+    "size",
+    "age_group",
+    "gender",
   ]
 
   const rows: string[] = [header.join(",")]
 
   for (const product of products) {
-    const productType =
-      product.categories?.[0]?.name ?? googleProductCategory ?? ""
+    const productType = product.categories?.[0]?.name ?? ""
+    const googleProductCategory = getGoogleProductCategory(product, defaultGoogleProductCategory)
 
     for (const variant of product.variants ?? []) {
       const price = variant.prices?.[0]
@@ -152,7 +197,12 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
       const priceValue = formatPrice(price.amount)
       const currency = price.currency_code.toUpperCase()
       const identifier = getIdentifier(product, variant)
-      const identifierExists = identifier.exists
+      const condition = getCondition(product, variant)
+
+      const color = getMetadataValue(product, variant, ["color", "couleur"]) ?? ""
+      const size = getMetadataValue(product, variant, ["size", "taille", "talla"]) ?? ""
+      const ageGroup = getMetadataValue(product, variant, ["age_group", "ageGroup", "edad"]) ?? ""
+      const gender = getMetadataValue(product, variant, ["gender", "sexe", "sexo"]) ?? ""
 
       const values = [
         variant.id,
@@ -160,7 +210,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
         description,
         link,
         imageLink,
-        "new",
+        condition,
         availability,
         priceValue,
         currency,
@@ -168,10 +218,14 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
         productType,
         googleProductCategory,
         shipping,
-        identifierExists,
+        identifier.exists,
         identifier.gtin ?? "",
         identifier.mpn ?? "",
         product.id,
+        color,
+        size,
+        ageGroup,
+        gender,
       ].map((v) => escapeCsv(String(v ?? "")))
 
       rows.push(values.join(","))
