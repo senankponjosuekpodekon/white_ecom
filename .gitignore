@@ -53,7 +53,9 @@ apps/storefront/test-results/
 
 # Turbo
 .turbo
-.vscode
+.vscode/*
+!.vscode/settings.json
+!.vscode/package.schema.json
 
 # vercel
 .vercel
