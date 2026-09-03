@@ -7,6 +7,7 @@ services:
       POSTGRES_PASSWORD: postgres
     volumes:
       - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d white_local"]
       interval: 5s
@@ -15,6 +16,7 @@ services:
 
   redis:
     image: redis:7-alpine
+    restart: unless-stopped
 
   traefik:
     image: traefik:v2.11
@@ -23,11 +25,21 @@ services:
       - "--providers.docker=true"
       - "--providers.docker.exposedByDefault=false"
       - "--entryPoints.web.address=:80"
+      - "--accesslog=true"
+      - "--log.level=INFO"
+    restart: unless-stopped
     ports:
       - "8080:80"
       - "8081:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.middlewares.securityHeaders.headers.contentTypeNosniff=true"
+      - "traefik.http.middlewares.securityHeaders.headers.frameDeny=true"
+      - "traefik.http.middlewares.securityHeaders.headers.browserXssFilter=true"
+      - "traefik.http.middlewares.rateLimit.ratelimit.average=100"
+      - "traefik.http.middlewares.rateLimit.ratelimit.burst=50"
 
   backend:
     build:
@@ -42,23 +54,37 @@ services:
       AUTH_CORS: http://localhost:3000,http://localhost:8080
       JWT_SECRET: local-jwt-secret
       COOKIE_SECRET: local-cookie-secret
+      COOKIE_SECURE: "false"
+      COOKIE_SAME_SITE: lax
+      COOKIE_HTTP_ONLY: "true"
+      CREATE_DEFAULT_ADMIN: "true"
+      ADMIN_EMAIL: admin@example.com
+      ADMIN_PASSWORD: password
       STORE_NAME: White Shop
       PRIMARY_COLOR: "#111111"
       LOGO_URL: ""
       STORE_FONT: Inter
       DEFAULT_LANGUAGE: fr
       SUPPORTED_LANGUAGES: fr,en
+    restart: unless-stopped
     ports:
       - "9000:9000"
     depends_on:
       postgres:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget --spider -q http://localhost:9000/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.backend.rule=(Host(`localhost`) || Host(`127.0.0.1`)) && (PathPrefix(`/admin`) || PathPrefix(`/api`) || PathPrefix(`/store`) || PathPrefix(`/auth`) || PathPrefix(`/app`) || PathPrefix(`/cloud`))"
+      - "traefik.http.routers.backend.rule=(Host(`localhost`) || Host(`127.0.0.1`)) && (PathPrefix(`/admin`) || PathPrefix(`/api`) || PathPrefix(`/store`) || PathPrefix(`/auth`) || PathPrefix(`/app`) || PathPrefix(`/cloud`) || PathPrefix(`/health`))"
       - "traefik.http.routers.backend.entrypoints=web"
       - "traefik.http.routers.backend.service=backend"
       - "traefik.http.routers.backend.priority=100"
+      - "traefik.http.routers.backend.middlewares=securityHeaders,rateLimit"
       - "traefik.http.services.backend.loadbalancer.server.port=9000"
 
   storefront:
@@ -69,16 +95,27 @@ services:
       - .env.storefront
     environment:
       MEDUSA_BACKEND_URL: http://backend:9000
+      HOST: 0.0.0.0
+      HOSTNAME: 0.0.0.0
+    restart: unless-stopped
     ports:
       - "3000:3000"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://127.0.0.1:3000/fr', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))\""]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.storefront.rule=Host(`localhost`) || Host(`127.0.0.1`)"
       - "traefik.http.routers.storefront.entrypoints=web"
       - "traefik.http.routers.storefront.service=storefront"
       - "traefik.http.routers.storefront.priority=1"
+      - "traefik.http.routers.storefront.middlewares=securityHeaders,rateLimit"
       - "traefik.http.services.storefront.loadbalancer.server.port=3000"
 
 volumes:

@@ -5,6 +5,7 @@ loadEnv(process.env.NODE_ENV || "development", process.cwd());
 module.exports = defineConfig({
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
+    redisUrl: process.env.REDIS_URL,
     http: {
       storeCors: process.env.STORE_CORS!,
       adminCors: process.env.ADMIN_CORS!,
@@ -13,16 +14,16 @@ module.exports = defineConfig({
       cookieSecret: process.env.COOKIE_SECRET,
     },
     sessionOptions: {
-      name: "connect.sid",
+      name: process.env.SESSION_COOKIE_NAME || "connect.sid",
       resave: false,
       saveUninitialized: false,
       rolling: true,
     },
     cookieOptions: {
-      secure: false,
-      sameSite: "lax",
-      httpOnly: true,
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+      secure: process.env.COOKIE_SECURE === "true",
+      sameSite: (process.env.COOKIE_SAME_SITE as "lax" | "strict" | "none") || "lax",
+      httpOnly: process.env.COOKIE_HTTP_ONLY !== "false",
+      maxAge: Number(process.env.COOKIE_MAX_AGE) || 7 * 24 * 60 * 60 * 1000,
     },
   },
   modules: [

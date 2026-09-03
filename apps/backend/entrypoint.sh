@@ -3,7 +3,9 @@ set -e
 
 npx medusa db:migrate
 
-# Create a default admin user if it doesn't already exist
-npx medusa user -e admin@example.com -p password || true
+# Create a default admin user only in non-production or if explicitly requested
+if [ "$NODE_ENV" != "production" ] || [ "$CREATE_DEFAULT_ADMIN" = "true" ]; then
+  npx medusa user -e "${ADMIN_EMAIL:-admin@example.com}" -p "${ADMIN_PASSWORD:-password}" || true
+fi
 
 npx medusa start
