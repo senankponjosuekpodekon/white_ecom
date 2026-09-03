@@ -1,4 +1,4 @@
-.PHONY: build build-prod up down logs verify test test-unit test-integration client-new client-deploy client-backup admin open
+.PHONY: build build-prod up down logs lint verify test test-unit test-integration test-e2e client-new client-deploy client-backup admin open
 
 build:
 	cd apps/backend && npm run build
@@ -16,6 +16,9 @@ down:
 logs:
 	docker compose logs -f
 
+lint:
+	npm run lint
+
 verify:
 	./scripts/verify.sh
 
@@ -27,6 +30,9 @@ test-unit:
 
 test-integration:
 	cd apps/backend && npm run test:integration:http
+
+test-e2e:
+	cd apps/storefront && E2E_BASE_URL=http://localhost:3000 npx playwright test --reporter=line
 
 client-new:
 	@read -p "Client slug: " client; \

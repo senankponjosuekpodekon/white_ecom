@@ -42,7 +42,7 @@ export const getStoreConfig = cache(async (): Promise<StoreConfig> => {
   try {
     const config = await medusaClient.client.fetch<RawConfig>(
       "/store/store-config",
-      { method: "GET" }
+      { method: "GET", cache: "no-store" }
     );
 
     const design = resolveDesign(config.design);
