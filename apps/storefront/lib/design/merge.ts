@@ -8,7 +8,7 @@ function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-function mergeObjects<T extends Record<string, unknown>>(
+export function mergeObjects<T extends Record<string, unknown>>(
   base: T,
   override?: DeepPartial<T>
 ): T {

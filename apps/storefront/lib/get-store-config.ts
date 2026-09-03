@@ -1,6 +1,7 @@
 import { cache } from "react";
 import { medusaClient } from "./medusa-client";
 import { presets, defaultPreset, mergeDesignConfig, DesignFullConfig } from "./design";
+import type { ClientContent } from "./content";
 
 export type StoreConfig = {
   name: string;
@@ -10,6 +11,7 @@ export type StoreConfig = {
   defaultLanguage: string;
   supportedLanguages: string[];
   design: DesignFullConfig;
+  content: ClientContent;
 };
 
 type RawConfig = Partial<StoreConfig> & {
@@ -33,6 +35,7 @@ const defaultConfig: StoreConfig = {
   defaultLanguage: "fr",
   supportedLanguages: ["fr"],
   design: defaultPreset,
+  content: {},
 };
 
 export const getStoreConfig = cache(async (): Promise<StoreConfig> => {
@@ -53,6 +56,7 @@ export const getStoreConfig = cache(async (): Promise<StoreConfig> => {
       supportedLanguages:
         config.supportedLanguages ?? defaultConfig.supportedLanguages,
       design,
+      content: config.content ?? defaultConfig.content,
     };
   } catch {
     return defaultConfig;

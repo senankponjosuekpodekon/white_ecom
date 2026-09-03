@@ -40,6 +40,14 @@
     "total": "Total",
     "checkout": "Passer commande"
   },
+  "policies": {
+    "shippingTitle": "Livraison",
+    "shipping": "Politique de livraison à compléter.",
+    "returnsTitle": "Retours",
+    "returns": "Politique de retours à compléter.",
+    "privacyTitle": "Confidentialité",
+    "privacy": "Politique de confidentialité à compléter."
+  },
   "checkout": {
     "title": "Paiement",
     "pay": "Payer",

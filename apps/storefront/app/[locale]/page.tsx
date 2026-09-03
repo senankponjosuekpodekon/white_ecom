@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { locales, defaultLocale, type Locale } from "@/i18n";
 import { getStoreConfig } from "@/lib/get-store-config";
+import { getLocalizedContent } from "@/lib/content";
 import { Hero } from "@/components/Hero";
 import { Features } from "@/components/Features";
 import { ValueProposition } from "@/components/ValueProposition";
@@ -17,43 +18,31 @@ export default async function Home({
   const t = await getTranslations({ locale, namespace: "home" });
   const config = await getStoreConfig();
   const design = config.design;
-
-  const featureTranslations = {
-    feature1Title: t("feature1Title"),
-    feature1Text: t("feature1Text"),
-    feature2Title: t("feature2Title"),
-    feature2Text: t("feature2Text"),
-    feature3Title: t("feature3Title"),
-    feature3Text: t("feature3Text"),
-  };
+  const content = getLocalizedContent(
+    config.content,
+    locale,
+    (config.defaultLanguage as Locale) ?? defaultLocale
+  );
 
   return (
     <>
       {design.ux.heroEnabled !== false && (
-        <Hero
-          title={t("heroTitle")}
-          subtitle={t("heroSubtitle")}
-          cta={t("cta")}
-          locale={locale}
-          design={design}
-        />
+        <Hero locale={locale} design={design} content={content.hero} />
       )}
       {design.ux.featuresEnabled !== false && (
-        <Features title={t("featuresTitle")} translations={featureTranslations} />
+        <Features
+          title={t("featuresTitle")}
+          features={content.features}
+        />
       )}
       {design.ux.valuePropositionEnabled !== false && (
-        <ValueProposition title={t("valueTitle")} text={t("valueText")} />
+        <ValueProposition content={content.valueProposition} />
       )}
       {design.ux.socialProofEnabled !== false && (
-        <SocialProof title={t("proofTitle")} />
+        <SocialProof content={content.socialProof} />
       )}
       {design.ux.ctaEnabled !== false && (
-        <CTA
-          title={t("ctaTitle")}
-          subtitle={t("ctaSubtitle")}
-          button={t("ctaButton")}
-          locale={locale}
-        />
+        <CTA locale={locale} content={content.cta} />
       )}
     </>
   );

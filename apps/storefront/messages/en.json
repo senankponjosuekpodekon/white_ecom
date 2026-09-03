@@ -40,6 +40,14 @@
     "total": "Total",
     "checkout": "Checkout"
   },
+  "policies": {
+    "shippingTitle": "Shipping",
+    "shipping": "Shipping policy to be completed.",
+    "returnsTitle": "Returns",
+    "returns": "Return policy to be completed.",
+    "privacyTitle": "Privacy",
+    "privacy": "Privacy policy to be completed."
+  },
   "checkout": {
     "title": "Checkout",
     "pay": "Pay",

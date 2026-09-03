@@ -3,8 +3,10 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { getCart } from "@/lib/cart";
 import { initiatePaymentSession, getShippingOptions } from "@/lib/payment";
+import type { AnalyticsItem } from "@/lib/analytics";
 import { locales, defaultLocale, type Locale } from "@/i18n";
 import { CheckoutForm } from "@/components/CheckoutForm";
+import { AnalyticsBeginCheckout } from "@/components/AnalyticsBeginCheckout";
 import { completeManualPaymentAction } from "./actions";
 
 function formatPrice(amount: number, currency: string) {
@@ -34,8 +36,22 @@ export default async function CheckoutPage({
   const clientSecret = await initiatePaymentSession(cart.id, "pp_stripe_stripe");
   const shippingOptions = await getShippingOptions(cart.id);
 
+  const checkoutItems: AnalyticsItem[] = cart.items.map((item) => ({
+    item_id: item.variant.id,
+    item_name: item.title,
+    item_variant: item.variant.title,
+    price: item.unit_price / 100,
+    quantity: item.quantity,
+    currency: cart.currency_code.toUpperCase(),
+  }));
+
   return (
     <main className="min-h-screen p-8 section-gradient">
+      <AnalyticsBeginCheckout
+        value={cart.total / 100}
+        currency={cart.currency_code.toUpperCase()}
+        items={checkoutItems}
+      />
       <div className="max-w-xl mx-auto">
         <h1 className="text-3xl font-heading font-bold mb-6 text-[var(--color-foreground)]">
           {t("title")}

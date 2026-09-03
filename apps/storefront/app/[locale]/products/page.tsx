@@ -4,6 +4,8 @@ import { getProducts } from "@/lib/get-products";
 import { getStoreConfig } from "@/lib/get-store-config";
 import { locales, defaultLocale, type Locale } from "@/i18n";
 import { ProductCard } from "@/components/ProductCard";
+import { AnalyticsViewItemList } from "@/components/AnalyticsViewItemList";
+import type { AnalyticsItem } from "@/lib/analytics";
 
 const gridCols = {
   2: "grid-cols-1 sm:grid-cols-2",
@@ -26,8 +28,24 @@ export default async function ProductsPage({
   const feed = config.design.feed;
   const cols = gridCols[feed.cardsPerRow] ?? gridCols[3];
 
+  const items: AnalyticsItem[] = products
+    .map((product) => {
+      const variant = product.variants[0];
+      const price = variant?.prices?.[0];
+      if (!variant || !price) return null;
+      return {
+        item_id: variant.id,
+        item_name: product.title,
+        item_variant: variant.title,
+        price: price.amount / 100,
+        currency: price.currency_code.toUpperCase(),
+      } as AnalyticsItem;
+    })
+    .filter((item): item is AnalyticsItem => item !== null);
+
   return (
     <main className="min-h-screen p-8 section-gradient">
+      <AnalyticsViewItemList items={items} />
       <div className="max-w-7xl mx-auto">
         <h1 className="text-3xl font-heading font-bold mb-8 text-[var(--color-foreground)]">
           {t("title")}

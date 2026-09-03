@@ -16,5 +16,23 @@ export default async function sitemap() {
       changeFrequency: "daily" as const,
       priority: 0.8,
     },
+    {
+      url: `${base}/${locale}/shipping`,
+      lastModified: new Date(),
+      changeFrequency: "monthly" as const,
+      priority: 0.3,
+    },
+    {
+      url: `${base}/${locale}/returns`,
+      lastModified: new Date(),
+      changeFrequency: "monthly" as const,
+      priority: 0.3,
+    },
+    {
+      url: `${base}/${locale}/privacy`,
+      lastModified: new Date(),
+      changeFrequency: "monthly" as const,
+      priority: 0.3,
+    },
   ]);
 }

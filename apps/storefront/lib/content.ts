@@ -1,0 +1,73 @@
+import { mergeObjects } from "./design/merge";
+import { defaultLocale, type Locale } from "@/i18n";
+
+export type LocalizedContent = {
+  site?: {
+    description?: string;
+    keywords?: string;
+    titleTemplate?: string;
+  };
+  hero?: {
+    title?: string;
+    subtitle?: string;
+    cta?: string;
+    image?: string;
+  };
+  features?: Array<{ title?: string; text?: string }>;
+  valueProposition?: {
+    title?: string;
+    text?: string;
+  };
+  socialProof?: {
+    title?: string;
+    stats?: Array<{ label: string; value: string }>;
+  };
+  cta?: {
+    title?: string;
+    subtitle?: string;
+    button?: string;
+  };
+  policies?: {
+    shipping?: string;
+    returns?: string;
+    privacy?: string;
+    legal?: string;
+  };
+  footer?: {
+    text?: string;
+    links?: Array<{ label: string; href: string }>;
+  };
+  merchant?: {
+    brand?: string;
+    googleProductCategory?: string;
+    shipping?: string;
+    identifierExists?: "yes" | "no";
+  };
+  ads?: {
+    gtagId?: string;
+    pixelId?: string;
+  };
+  siteUrl?: string;
+};
+
+export type ClientContent = {
+  fr?: Partial<LocalizedContent>;
+  en?: Partial<LocalizedContent>;
+};
+
+export function getLocalizedContent(
+  content: ClientContent | undefined,
+  locale: Locale,
+  fallbackLocale: Locale = defaultLocale
+): LocalizedContent {
+  const base = (content?.[fallbackLocale] ?? {}) as LocalizedContent;
+  const override = (content?.[locale] ?? {}) as LocalizedContent;
+  return mergeObjects(base, override);
+}
+
+export function getSiteUrl(
+  content: LocalizedContent | undefined,
+  fallback = "http://localhost:8080"
+): string {
+  return content?.siteUrl ?? fallback;
+}

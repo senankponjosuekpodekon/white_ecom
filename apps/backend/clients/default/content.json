@@ -1,0 +1,42 @@
+{
+  "fr": {
+    "site": {
+      "description": "Boutique par défaut — configurable par client.",
+      "keywords": "boutique, e-commerce, produits, blanche étiquette"
+    },
+    "hero": {
+      "title": "Votre boutique, votre identité",
+      "subtitle": "Un storefront blanc-étiquette propulsé par Medusa, prêt à être personnalisé.",
+      "cta": "Découvrir le catalogue"
+    },
+    "merchant": {
+      "brand": "Default Store",
+      "googleProductCategory": "",
+      "shipping": "FR::Standard:9.90",
+      "identifierExists": "no"
+    },
+    "ads": {
+      "gtagId": ""
+    }
+  },
+  "en": {
+    "site": {
+      "description": "Default store — configurable per client.",
+      "keywords": "shop, e-commerce, products, white label"
+    },
+    "hero": {
+      "title": "Your store, your brand",
+      "subtitle": "A white-label storefront powered by Medusa, ready to be customized.",
+      "cta": "Explore catalogue"
+    },
+    "merchant": {
+      "brand": "Default Store",
+      "googleProductCategory": "",
+      "shipping": "FR::Standard:9.90",
+      "identifierExists": "no"
+    },
+    "ads": {
+      "gtagId": ""
+    }
+  }
+}

@@ -1,30 +1,10 @@
-import fs from "fs";
-import path from "path";
-import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
-
-function loadClientConfig() {
-  const clientName = process.env.CLIENT_NAME;
-  if (!clientName) {
-    return {};
-  }
-
-  const configPath = path.resolve(
-    process.cwd(),
-    "clients",
-    clientName,
-    "config.json"
-  );
-
-  try {
-    const raw = fs.readFileSync(configPath, "utf-8");
-    return JSON.parse(raw);
-  } catch {
-    return {};
-  }
-}
+import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import { loadClientConfig, loadClientContent } from "../../../utils/client-config"
 
 export async function GET(req: MedusaRequest, res: MedusaResponse) {
-  const fileConfig = loadClientConfig();
+  const fileConfig = loadClientConfig()
+  const content = loadClientContent()
+
   const {
     STORE_NAME,
     PRIMARY_COLOR,
@@ -33,23 +13,35 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
     DEFAULT_LANGUAGE,
     SUPPORTED_LANGUAGES,
     DESIGN_PRESET,
-  } = process.env;
+    SITE_URL,
+  } = process.env
 
-  const design = fileConfig.design ?? {};
+  const design = (fileConfig.design as Record<string, unknown>) ?? {}
   const resolvedDesign = {
-    preset: design.preset ?? DESIGN_PRESET ?? "modern",
+    preset: (design.preset as string) ?? DESIGN_PRESET ?? "modern",
     ...design,
-  };
+  }
+
+  if (SITE_URL) {
+    if (content.fr && !content.fr.siteUrl) {
+      content.fr.siteUrl = SITE_URL
+    }
+    if (content.en && !content.en.siteUrl) {
+      content.en.siteUrl = SITE_URL
+    }
+  }
 
   res.json({
-    name: fileConfig.name ?? STORE_NAME ?? "White Shop",
-    primaryColor: fileConfig.primaryColor ?? PRIMARY_COLOR ?? "#111111",
-    logoUrl: fileConfig.logoUrl ?? LOGO_URL ?? "",
-    font: fileConfig.font ?? STORE_FONT ?? "Inter",
-    defaultLanguage: fileConfig.defaultLanguage ?? DEFAULT_LANGUAGE ?? "fr",
+    name: (fileConfig.name as string) ?? STORE_NAME ?? "White Shop",
+    primaryColor: (fileConfig.primaryColor as string) ?? PRIMARY_COLOR ?? "#111111",
+    logoUrl: (fileConfig.logoUrl as string) ?? LOGO_URL ?? "",
+    font: (fileConfig.font as string) ?? STORE_FONT ?? "Inter",
+    defaultLanguage: (fileConfig.defaultLanguage as string) ?? DEFAULT_LANGUAGE ?? "fr",
     supportedLanguages:
-      fileConfig.supportedLanguages ??
-      SUPPORTED_LANGUAGES?.split(",") ?? ["fr"],
+      (fileConfig.supportedLanguages as string[]) ??
+      SUPPORTED_LANGUAGES?.split(",") ??
+      ["fr"],
     design: resolvedDesign,
-  });
+    content,
+  })
 }

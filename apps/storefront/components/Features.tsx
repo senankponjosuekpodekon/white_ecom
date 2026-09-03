@@ -1,15 +1,9 @@
-const items = [
-  { key: "feature1" },
-  { key: "feature2" },
-  { key: "feature3" },
-] as const;
-
 export function Features({
   title,
-  translations,
+  features,
 }: {
   title: string;
-  translations: Record<string, string>;
+  features?: Array<{ title?: string; text?: string }>;
 }) {
   return (
     <section className="py-20 px-4 sm:px-6 lg:px-8 bg-[var(--color-background)]">
@@ -18,20 +12,18 @@ export function Features({
           {title}
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
-          {items.map(({ key }) => (
+          {features?.map((feature, i) => (
             <div
-              key={key}
+              key={i}
               className="card-design p-8 text-center hover:scale-[1.02] transition-transform duration-300"
             >
               <div className="h-12 w-12 rounded-xl bg-[var(--color-primary)] text-white flex items-center justify-center mx-auto mb-6 text-xl font-bold">
-                {translations[`${key}Title`].charAt(0)}
+                {feature.title?.charAt(0).toUpperCase() ?? "✓"}
               </div>
               <h3 className="text-xl font-heading font-semibold mb-3 text-[var(--color-foreground)]">
-                {translations[`${key}Title`]}
+                {feature.title ?? ""}
               </h3>
-              <p className="text-[var(--color-muted)]">
-                {translations[`${key}Text`]}
-              </p>
+              <p className="text-[var(--color-muted)]">{feature.text ?? ""}</p>
             </div>
           ))}
         </div>
