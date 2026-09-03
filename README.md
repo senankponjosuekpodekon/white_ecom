@@ -120,6 +120,42 @@ npm run storefront:dev
 
 ---
 
+## Déploiement principal (production)
+
+1. Générer les images :
+
+```bash
+# Local
+npm run build
+npm run test
+docker compose build
+
+# Ou via CI/CD : push sur main ou tag v*
+```
+
+2. Créer `.env.production` à partir du template :
+
+```bash
+cp .env.production.template .env.production
+# Éditer DOMAIN, ACME_EMAIL, secrets, clés Stripe/PK, etc.
+```
+
+3. Lancer le stack principal :
+
+```bash
+docker compose -f docker-compose.prod.yml up -d
+```
+
+4. Vérifier :
+
+```bash
+./scripts/verify.sh
+```
+
+> Nécessite les ports 80 et 443 libres et un nom de domaine pointant vers le serveur.
+
+---
+
 ## Architecture
 
 - Mono-repo `npm` workspaces avec `turbo`

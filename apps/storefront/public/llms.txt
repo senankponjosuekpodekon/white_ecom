@@ -53,6 +53,7 @@ White Ecom is a multi-tenant, white-label storefront. A single Medusa backend ca
 npm install
 npm run build              # build backend + storefront
 docker compose up -d       # local stack
+docker compose -f docker-compose.prod.yml up -d  # main production
 ```
 
 ## Environment variables

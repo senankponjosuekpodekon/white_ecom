@@ -42,7 +42,11 @@ yarn-error.log*
 # Client env files
 .env.backend
 .env.storefront
+.env.production
 clients/*/.env.*
+
+# Let's Encrypt storage
+letsencrypt/
 
 # Turbo
 .turbo
