@@ -32,6 +32,8 @@
     "stripeDisabled": "Stripe is not configured. Use manual payment to test.",
     "total": "Total",
     "orderNumber": "Order",
-    "continueShopping": "Continue shopping"
+    "continueShopping": "Continue shopping",
+    "selectShipping": "Choose a shipping option",
+    "noShipping": "No shipping option available."
   }
 }
