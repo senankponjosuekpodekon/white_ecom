@@ -55,7 +55,7 @@ services:
         condition: service_healthy
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.backend.rule=(Host(`localhost`) || Host(`127.0.0.1`)) && (PathPrefix(`/admin`) || PathPrefix(`/api`) || PathPrefix(`/store`) || PathPrefix(`/auth`))"
+      - "traefik.http.routers.backend.rule=(Host(`localhost`) || Host(`127.0.0.1`)) && (PathPrefix(`/admin`) || PathPrefix(`/api`) || PathPrefix(`/store`) || PathPrefix(`/auth`) || PathPrefix(`/app`))"
       - "traefik.http.routers.backend.entrypoints=web"
       - "traefik.http.routers.backend.service=backend"
       - "traefik.http.routers.backend.priority=100"
