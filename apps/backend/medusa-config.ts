@@ -1,4 +1,3 @@
-import path from "path";
 import { loadEnv, defineConfig } from "@medusajs/framework/utils";
 
 loadEnv(process.env.NODE_ENV || "development", process.cwd());
@@ -13,10 +12,6 @@ module.exports = defineConfig({
       jwtSecret: process.env.JWT_SECRET,
       cookieSecret: process.env.COOKIE_SECRET,
     },
-  },
-  admin: {
-    disable: true,
-    outDir: path.resolve(process.cwd(), ".medusa/client"),
   },
   modules: [
     {
