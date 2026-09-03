@@ -31,7 +31,10 @@
   },
   "workspaces": [
     "apps/**",
-    "!apps/backend/.medusa/**"
+    "!apps/backend/.medusa/**",
+    "!apps/**/.next/**",
+    "!apps/**/dist/**",
+    "!apps/**/out/**"
   ],
   "overrides": {
     "eslint": {
