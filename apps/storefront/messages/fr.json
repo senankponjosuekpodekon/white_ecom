@@ -1,4 +1,8 @@
 {
+  "nav": {
+    "products": "Produits",
+    "cart": "Panier"
+  },
   "home": {
     "title": "Bienvenue",
     "subtitle": "Découvrez notre catalogue"

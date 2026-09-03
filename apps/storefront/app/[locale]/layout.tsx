@@ -40,8 +40,8 @@ export default async function LocaleLayout({
       style={{ "--color-primary": config.primaryColor } as Record<string, string>}
     >
       <body className="antialiased" style={{ fontFamily: config.font }}>
+        <Header name={config.name} logoUrl={config.logoUrl} locale={locale} />
         <NextIntlClientProvider messages={messages} locale={locale}>
-          <Header name={config.name} logoUrl={config.logoUrl} locale={locale} />
           {children}
         </NextIntlClientProvider>
       </body>
