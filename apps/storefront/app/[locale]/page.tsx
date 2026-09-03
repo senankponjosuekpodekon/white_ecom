@@ -8,6 +8,8 @@ import { ValueProposition } from "@/components/ValueProposition";
 import { SocialProof } from "@/components/SocialProof";
 import { CTA } from "@/components/CTA";
 
+export const dynamic = "force-dynamic";
+
 export default async function Home({
   params,
 }: {

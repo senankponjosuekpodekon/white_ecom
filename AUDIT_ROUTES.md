@@ -64,7 +64,7 @@ Base : `http://localhost:9000`
 | URL | Méthode | Auth | Utilisateur | Utilité | Notes |
 |-----|---------|------|-------------|---------|-------|
 | `/admin/content` | GET | Admin | Merchant/Admin | Lire `content.json` du client | Protégé par admin Medusa |
-| `/admin/content` | POST | Admin | Merchant/Admin | Écrire `content.json` du client | Écriture directe fichier — à sécuriser |
+| `/admin/content` | POST | Admin | Merchant/Admin | Écrire `content.json` du client | `req.user` requis + payload validé par Zod |
 | `/admin/custom` | GET | Admin | Merchant/Admin | Route test admin | Retourne `200` |
 
 ### 2.4 Routes Medusa natives (non personnalisées)
@@ -106,11 +106,11 @@ Base : `http://localhost:9000/app`
 
 | # | Finding | Sévérité | Recommandation |
 |---|---------|----------|----------------|
-| 1 | `/admin/content` (POST) écrit directement sur le filesystem sans vérification de rôles au-delà de l’auth admin | Moyenne | Ajouter un check `admin` explicite et valider le payload (schema) |
+| 1 | ~~`/admin/content` (POST) écrit directement sur le filesystem sans vérification de rôles au-delà de l’auth admin~~ | Moyenne | ✅ Corrigé : `req.user` obligatoire + validation Zod du payload |
 | 2 | Les flux `/store/feed/*` exposent toutes les données produits publiquement avec seulement la clé publiable | Faible | Surveiller la rotation de `NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY` |
 | 3 | `/store/store-config` expose `content` complet (politiques, contact, email) | Faible | Vérifier qu’aucune donnée sensible n’est incluse |
 | 4 | Aucune route client authentifiée (compte, historique) implémentée dans le storefront | Info | À prévoir pour une vraie production |
-| 5 | `COOKIE_SECURE=false` en local | Info | Passer à `true` en production + HTTPS |
+| 5 | ~~`COOKIE_SAME_SITE=lax` en production~~ | Info | ✅ Corrigé : `COOKIE_SAME_SITE=strict` en production |
 
 ---
 

@@ -10,6 +10,8 @@ import { JsonLd } from "@/components/JsonLd";
 import { AddToCartButton } from "@/components/AddToCartButton";
 import { AnalyticsViewItem } from "@/components/AnalyticsViewItem";
 
+export const dynamic = "force-dynamic";
+
 function formatPrice(amount: number, currency: string) {
   return new Intl.NumberFormat("fr-FR", {
     style: "currency",
