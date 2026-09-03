@@ -20,10 +20,6 @@
     "total": "Total",
     "checkout": "Passer commande"
   },
-  "nav": {
-    "products": "Produits",
-    "cart": "Panier"
-  },
   "checkout": {
     "title": "Paiement",
     "pay": "Payer",
@@ -31,6 +27,11 @@
     "missingPayment": "Impossible d'initialiser le paiement.",
     "missingStripeKey": "Clé Stripe publique manquante.",
     "paymentFailed": "Le paiement a échoué. Veuillez réessayer.",
-    "processing": "Traitement en cours…"
+    "processing": "Traitement en cours…",
+    "payManually": "Payer manuellement (test)",
+    "stripeDisabled": "Stripe n'est pas configuré. Utilisez le paiement manuel pour tester.",
+    "total": "Total",
+    "orderNumber": "Commande",
+    "continueShopping": "Continuer les achats"
   }
 }

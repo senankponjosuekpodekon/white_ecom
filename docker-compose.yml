@@ -16,6 +16,19 @@ services:
   redis:
     image: redis:7-alpine
 
+  traefik:
+    image: traefik:v2.11
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedByDefault=false"
+      - "--entryPoints.web.address=:80"
+    ports:
+      - "8080:80"
+      - "8081:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
   backend:
     build:
       context: ./apps/backend
@@ -24,9 +37,9 @@ services:
     environment:
       DATABASE_URL: postgres://postgres:postgres@postgres:5432/white_local?ssl=false&sslmode=disable
       REDIS_URL: redis://redis:6379
-      STORE_CORS: http://localhost:3000
-      ADMIN_CORS: http://localhost:9000,http://localhost:3000
-      AUTH_CORS: http://localhost:3000
+      STORE_CORS: http://localhost:3000,http://localhost:8080
+      ADMIN_CORS: http://localhost:9000,http://localhost:3000,http://localhost:8080
+      AUTH_CORS: http://localhost:3000,http://localhost:8080
       JWT_SECRET: local-jwt-secret
       COOKIE_SECRET: local-cookie-secret
       STORE_NAME: White Shop
@@ -40,6 +53,13 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend.rule=(Host(`localhost`) || Host(`127.0.0.1`)) && (PathPrefix(`/admin`) || PathPrefix(`/api`) || PathPrefix(`/store`) || PathPrefix(`/auth`))"
+      - "traefik.http.routers.backend.entrypoints=web"
+      - "traefik.http.routers.backend.service=backend"
+      - "traefik.http.routers.backend.priority=100"
+      - "traefik.http.services.backend.loadbalancer.server.port=9000"
 
   storefront:
     build:
@@ -53,6 +73,13 @@ services:
       - "3000:3000"
     depends_on:
       - backend
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.storefront.rule=Host(`localhost`) || Host(`127.0.0.1`)"
+      - "traefik.http.routers.storefront.entrypoints=web"
+      - "traefik.http.routers.storefront.service=storefront"
+      - "traefik.http.routers.storefront.priority=1"
+      - "traefik.http.services.storefront.loadbalancer.server.port=3000"
 
 volumes:
   pgdata:
