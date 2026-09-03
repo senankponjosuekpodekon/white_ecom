@@ -48,6 +48,9 @@ clients/*/.env.*
 # Let's Encrypt storage
 letsencrypt/
 
+# Playwright
+apps/storefront/test-results/
+
 # Turbo
 .turbo
 .vscode

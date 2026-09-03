@@ -1,0 +1,68 @@
+{
+  "fr": {
+    "site": {
+      "description": "Demo Boutique — un exemple de storefront blanche-étiquette.",
+      "keywords": "demo, boutique, exemple"
+    },
+    "hero": {
+      "title": "Bienvenue sur la démo",
+      "subtitle": "Cet exemple montre comment un client peut personnaliser son contenu sans toucher au code.",
+      "cta": "Voir les produits"
+    },
+    "contact": {
+      "title": "Contact démo",
+      "intro": "Ceci est un client de démonstration.",
+      "email": "demo@example.com",
+      "phone": "+33 9 99 99 99 99",
+      "address": "Adresse de démonstration, Paris",
+      "hours": "Lundi - Vendredi : 10h - 17h"
+    },
+    "legal": {
+      "mentions": "Mentions légales du client démo.",
+      "terms": "Conditions de service du client démo."
+    },
+    "merchant": {
+      "brand": "Demo Boutique",
+      "googleProductCategory": "",
+      "shipping": "FR::Standard:9.90",
+      "identifierExists": "no"
+    },
+    "ads": {
+      "gtagId": ""
+    },
+    "siteUrl": "https://demo.stiamond.store"
+  },
+  "en": {
+    "site": {
+      "description": "Demo Store — a white-label storefront example.",
+      "keywords": "demo, shop, example"
+    },
+    "hero": {
+      "title": "Welcome to the demo",
+      "subtitle": "This example shows how a client can customize content without touching code.",
+      "cta": "Explore products"
+    },
+    "contact": {
+      "title": "Demo contact",
+      "intro": "This is a demo client.",
+      "email": "demo@example.com",
+      "phone": "+33 9 99 99 99 99",
+      "address": "Demo address, Paris",
+      "hours": "Monday - Friday: 10am - 5pm"
+    },
+    "legal": {
+      "mentions": "Demo client legal mentions.",
+      "terms": "Demo client terms of service."
+    },
+    "merchant": {
+      "brand": "Demo Store",
+      "googleProductCategory": "",
+      "shipping": "FR::Standard:9.90",
+      "identifierExists": "no"
+    },
+    "ads": {
+      "gtagId": ""
+    },
+    "siteUrl": "https://demo.stiamond.store"
+  }
+}

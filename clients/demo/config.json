@@ -1,0 +1,10 @@
+{
+  "name": "demo",
+  "domain": "demo.stiamond.store",
+  "locale": "fr",
+  "primaryColor": "#111111",
+  "logoUrl": "",
+  "font": "Inter",
+  "defaultLanguage": "fr",
+  "supportedLanguages": ["fr", "en"]
+}
