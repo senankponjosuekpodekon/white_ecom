@@ -130,6 +130,38 @@ npm run storefront:dev
 
 ---
 
+## Fonctionnalités récentes
+
+### Système de design blanc-étiquette
+
+- Presets design (`modern`, `corporate`, `minimalist`, `luxury`, `playful`)
+- Variables CSS injectées automatiquement par client
+- Contenu `content.json` par client avec fallback par défaut (fr/en)
+
+### SEO & découverte
+
+- `robots.txt`, `sitemap.xml`, JSON-LD `Product`, `BreadcrumbList`
+- Hreflang + canonical par page
+- `public/llms.txt` pour les crawlers LLM
+
+### Google Merchant
+
+- `GET /store/feed/google` : CSV avec toutes les colonnes requises
+- Gestion des attributs : `condition`, `color`, `size`, `age_group`, `gender`, `gtin`, `mpn`, `google_product_category`
+- Disponibilité calculée depuis l’inventaire Medusa
+
+### Google Ads
+
+- Injection dynamique du tag (`gtagId`)
+- Events : `view_item_list`, `view_item`, `add_to_cart`, `begin_checkout`, `purchase`
+
+### Admin
+
+- Route Medusa admin `/admin/content` pour lire/écrire `content.json`
+- Page "Contenu" dans l’admin Medusa
+
+---
+
 ## Notes
 
 - `getStoreConfig` appelle `/store/store-config` (custom route) et fallback sur les valeurs par défaut en cas d’erreur.

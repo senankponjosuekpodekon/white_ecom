@@ -1,0 +1,75 @@
+# White Ecom
+
+> A white-label e-commerce starter built with Medusa 2 and Next.js 14.
+
+## Summary
+
+White Ecom is a multi-tenant, white-label storefront. A single Medusa backend can serve many client storefronts, each with its own design tokens, content, policies and product feed. It is ready for Google Merchant, Google Ads, SEO and LLM discovery.
+
+## Audience
+
+- AI crawlers (ChatGPT, Perplexity, Gemini, Claude)
+- Developers who want to understand the project quickly
+- Devops setting up CI/CD and deployment
+
+## Stack
+
+- Backend: Medusa 2 (Node 20, PostgreSQL 15, Redis 7)
+- Storefront: Next.js 14 App Router, React Server Components, next-intl
+- Styling: Tailwind CSS with CSS design tokens
+- Deployment: Docker Compose (Traefik, backend, storefront, Postgres, Redis)
+
+## Key concepts
+
+- **Design presets**: `apps/storefront/lib/design/presets.ts` defines `modern`, `corporate`, `minimalist`, `luxury`, `playful`.
+- **Client config**: `clients/<CLIENT_NAME>/config.json` and `clients/<CLIENT_NAME>/content.json` override defaults.
+- **Content fallback**: `apps/backend/src/utils/default-content.ts` provides `fr` and `en` defaults; the client `content.json` merges on top.
+- **CSS variables**: `app/[locale]/layout.tsx` injects `--color-*` and `--font-*` from the active design; Tailwind uses them.
+- **SEO**: metadata, OpenGraph, `robots.ts`, `sitemap.ts`, JSON-LD Product schema, hreflang/canonical.
+- **Google Merchant**: `GET /store/feed/google` returns a CSV with all required fields (condition, availability, color, size, age_group, gender, mpn, gtin, etc.).
+- **Google Ads**: `gtagId` in `content.json` injects the tag; events tracked: `view_item_list`, `view_item`, `add_to_cart`, `begin_checkout`, `purchase`.
+- **Policies**: `content.policies` drives `/shipping`, `/returns`, `/privacy`.
+
+## Important files
+
+- `apps/backend/src/api/store/feed/google/route.ts` — Google Merchant CSV feed
+- `apps/backend/src/api/store/store-config/route.ts` — resolves design + content per client
+- `apps/backend/src/api/admin/content/route.ts` — read/write `content.json` from admin
+- `apps/backend/src/utils/default-content.ts` — default client content (fr/en)
+- `apps/backend/src/utils/client-config.ts` — loads client `config.json` and `content.json`
+- `apps/storefront/lib/content.ts` — frontend localization and content helpers
+- `apps/storefront/lib/design/presets.ts` — design presets
+- `apps/storefront/app/[locale]/layout.tsx` — injects design tokens and Google Tag
+- `apps/storefront/app/[locale]/products/[handle]/page.tsx` — product page with JSON-LD
+- `apps/storefront/components/AddToCartButton.tsx` — tracks `add_to_cart`
+- `apps/storefront/components/GoogleTag.tsx` — Google Tag injection
+- `apps/storefront/public/llms.txt` — this file
+
+## Common commands
+
+```bash
+npm install
+npm run build              # build backend + storefront
+docker compose up -d       # local stack
+```
+
+## Environment variables
+
+- `CLIENT_NAME` — selects the client in `clients/<CLIENT_NAME>/`
+- `SITE_URL` / `NEXT_PUBLIC_SITE_URL` — canonical URLs
+- `STORE_NAME`, `PRIMARY_COLOR`, `LOGO_URL`, `DESIGN_PRESET` — fallback config
+- `NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY` — storefront API key
+- `NEXT_PUBLIC_GTAG_ID` (or `content.json` `ads.gtagId`) — Google Ads
+
+## Product metadata supported by the Google feed
+
+Set any of these in Medusa product/variant `metadata`:
+
+- `condition` (`new`, `refurbished`, `used`)
+- `google_product_category` or `googleProductCategory`
+- `gtin`
+- `mpn`
+- `color` / `couleur`
+- `size` / `taille` / `talla`
+- `age_group` / `ageGroup` / `edad`
+- `gender` / `sexe` / `sexo`

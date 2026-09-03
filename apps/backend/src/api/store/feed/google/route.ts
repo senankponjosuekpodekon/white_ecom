@@ -29,18 +29,18 @@ type Product = {
   categories?: ProductCategory[]
 }
 
-function escapeCsv(value: string): string {
+export function escapeCsv(value: string): string {
   if (value.includes(",") || value.includes('"') || value.includes("\n")) {
     return `"${value.replace(/"/g, '""')}"`
   }
   return value
 }
 
-function formatPrice(amount: number): string {
+export function formatPrice(amount: number): string {
   return (amount / 100).toFixed(2)
 }
 
-function getAvailability(variant: ProductVariant): string {
+export function getAvailability(variant: ProductVariant): string {
   if (variant.allow_backorder) return "preorder"
   if (variant.manage_inventory === false) return "in stock"
   if (
@@ -53,7 +53,7 @@ function getAvailability(variant: ProductVariant): string {
   return "out of stock"
 }
 
-function getMetadataValue(
+export function getMetadataValue(
   product: Product,
   variant: ProductVariant,
   keys: string[]
@@ -71,7 +71,7 @@ function getMetadataValue(
   return undefined
 }
 
-function getCondition(product: Product, variant: ProductVariant): string {
+export function getCondition(product: Product, variant: ProductVariant): string {
   const condition = getMetadataValue(product, variant, ["condition"])
   if (condition === "new" || condition === "refurbished" || condition === "used") {
     return condition
@@ -79,7 +79,7 @@ function getCondition(product: Product, variant: ProductVariant): string {
   return "new"
 }
 
-function getIdentifier(
+export function getIdentifier(
   product: Product,
   variant: ProductVariant
 ): { exists: string; gtin?: string; mpn?: string } {
@@ -99,7 +99,7 @@ function getIdentifier(
   return { exists: "no" }
 }
 
-function getGoogleProductCategory(
+export function getGoogleProductCategory(
   product: Product,
   defaultCategory: string
 ): string {
