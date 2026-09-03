@@ -12,6 +12,18 @@ module.exports = defineConfig({
       jwtSecret: process.env.JWT_SECRET,
       cookieSecret: process.env.COOKIE_SECRET,
     },
+    sessionOptions: {
+      name: "connect.sid",
+      resave: false,
+      saveUninitialized: false,
+      rolling: true,
+    },
+    cookieOptions: {
+      secure: false,
+      sameSite: "lax",
+      httpOnly: true,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    },
   },
   modules: [
     {
