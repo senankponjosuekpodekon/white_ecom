@@ -62,6 +62,13 @@ NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=pk_...
 NEXT_PUBLIC_STRIPE_KEY=pk_test_placeholder
 EOF
 
+cat > "clients/${CLIENT_NAME}/content.json" <<EOF
+{
+  "fr": {},
+  "en": {}
+}
+EOF
+
 echo "Client ${CLIENT_NAME} created in clients/${CLIENT_NAME}"
 echo "Next steps:"
 echo "  1. Fill clients/${CLIENT_NAME}/.env.* with real values."

@@ -21,7 +21,7 @@ services:
       - redisdata:/data
 
   backend:
-    image: white_ecom-backend:${IMAGE_TAG:-latest}
+    image: ${IMAGE_PREFIX:-white_ecom}-backend:${IMAGE_TAG:-latest}
     env_file: ./clients/${CLIENT_NAME}/.env.backend
     environment:
       DATABASE_URL: postgres://${DB_USER:-postgres}:${DB_PASSWORD:-postgres}@postgres:5432/white_${CLIENT_NAME}
@@ -32,7 +32,7 @@ services:
         condition: service_healthy
     command: ["/app/entrypoint.sh"]
     volumes:
-      - ./clients/${CLIENT_NAME}/config.json:/app/clients/${CLIENT_NAME}/config.json:ro
+      - ./clients/${CLIENT_NAME}:/app/clients/${CLIENT_NAME}:ro
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.${CLIENT_NAME}-backend.rule=Host(`${DOMAIN}`) && PathPrefix(`/admin`,`/api`,`/store`,`/auth`)"
@@ -40,7 +40,7 @@ services:
       - "traefik.http.services.${CLIENT_NAME}-backend.loadbalancer.server.port=9000"
 
   storefront:
-    image: white_ecom-storefront:${IMAGE_TAG:-latest}
+    image: ${IMAGE_PREFIX:-white_ecom}-storefront:${IMAGE_TAG:-latest}
     env_file: ./clients/${CLIENT_NAME}/.env.storefront
     environment:
       MEDUSA_BACKEND_URL: http://backend:9000
