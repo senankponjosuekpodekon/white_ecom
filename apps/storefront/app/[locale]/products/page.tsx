@@ -18,7 +18,7 @@ export const dynamic = "force-dynamic";
 export default async function ProductsPage({
   params,
 }: {
-  params: { locale: string } | Promise<{ locale: string }>;
+  params: Promise<{ locale: string }>;
 }) {
   unstable_noStore();
   const { locale: raw } = await params;

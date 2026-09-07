@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 export default async function TermsPage({
   params,
 }: {
-  params: { locale: string } | Promise<{ locale: string }>;
+  params: Promise<{ locale: string }>;
 }) {
   const { locale: raw } = await params;
   const locale = locales.includes(raw as Locale) ? (raw as Locale) : defaultLocale;

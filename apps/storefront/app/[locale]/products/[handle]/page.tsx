@@ -22,7 +22,7 @@ function formatPrice(amount: number, currency: string) {
 export async function generateMetadata({
   params,
 }: {
-  params: { locale: string; handle: string } | Promise<{ locale: string; handle: string }>;
+  params: Promise<{ locale: string; handle: string }>;
 }): Promise<Metadata> {
   const { locale: raw, handle } = await params;
   const locale = locales.includes(raw as Locale) ? (raw as Locale) : defaultLocale;
@@ -70,7 +70,7 @@ export async function generateMetadata({
 export default async function ProductPage({
   params,
 }: {
-  params: { locale: string; handle: string } | Promise<{ locale: string; handle: string }>;
+  params: Promise<{ locale: string; handle: string }>;
 }) {
   const { locale: raw, handle } = await params;
   const locale = locales.includes(raw as Locale) ? (raw as Locale) : defaultLocale;

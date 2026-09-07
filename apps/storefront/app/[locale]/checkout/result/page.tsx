@@ -12,17 +12,17 @@ export default async function CheckoutResultPage({
   params,
   searchParams,
 }: {
-  params: { locale: string } | Promise<{ locale: string }>;
-  searchParams: {
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<{
     order_id?: string;
     payment_intent_client_secret?: string;
-  };
+  }>;
 }) {
   unstable_noStore();
   const { locale: raw } = await params;
   const locale = locales.includes(raw as Locale) ? (raw as Locale) : defaultLocale;
   const t = await getTranslations({ locale, namespace: "checkout" });
-  const { order_id, payment_intent_client_secret } = searchParams;
+  const { order_id, payment_intent_client_secret } = await searchParams;
 
   const order = order_id ? await getOrder(order_id) : null;
 

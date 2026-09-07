@@ -22,12 +22,12 @@
     }
   },
   "devDependencies": {
-    "@medusajs/eslint-plugin": "2.19.0",
+    "@medusajs/eslint-plugin": "^2.20.1",
     "eslint": "^9.39.4",
     "jiti": "^2.7.0",
     "prettier": "^3.2.5",
     "turbo": "^2.0.14",
-    "ajv": "^8.13.0"
+    "ajv": "^8.20.0"
   },
   "workspaces": [
     "apps/**",
@@ -37,6 +37,12 @@
     "!apps/**/out/**"
   ],
   "overrides": {
+    "lodash": "^4.18.1",
+    "uuid": "^11.1.1",
+    "qs": "^6.16.0",
+    "body-parser": "^2.3.0",
+    "postcss": "8.5.28",
+    "ajv": "^8.20.0",
     "eslint": {
       "ajv": "^6.12.4"
     },

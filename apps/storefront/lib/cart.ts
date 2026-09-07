@@ -5,12 +5,12 @@ import type { Cart } from "./types";
 
 const CART_COOKIE = "cartId";
 
-function getCartCookie() {
-  return cookies().get(CART_COOKIE)?.value;
+async function getCartCookie() {
+  return (await cookies()).get(CART_COOKIE)?.value;
 }
 
 export async function getCart(): Promise<Cart | null> {
-  const cartId = getCartCookie();
+  const cartId = await getCartCookie();
   if (!cartId) {
     return null;
   }
@@ -32,7 +32,8 @@ export async function createCart(): Promise<Cart> {
     { method: "POST" }
   );
 
-  cookies().set(CART_COOKIE, cart.id, {
+  const cookieStore = await cookies()
+  cookieStore.set(CART_COOKIE, cart.id, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",

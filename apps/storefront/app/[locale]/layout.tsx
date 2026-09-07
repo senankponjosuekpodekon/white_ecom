@@ -11,7 +11,7 @@ import { GoogleTag } from "@/components/GoogleTag";
 export async function generateMetadata({
   params,
 }: {
-  params: { locale: string } | Promise<{ locale: string }>;
+  params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale: raw } = await params;
   const locale = locales.includes(raw as Locale) ? (raw as Locale) : defaultLocale;
@@ -59,7 +59,7 @@ export default async function LocaleLayout({
   params,
 }: {
   children: React.ReactNode;
-  params: { locale: string } | Promise<{ locale: string }>;
+  params: Promise<{ locale: string }>;
 }) {
   const { locale: raw } = await params;
   const locale = locales.includes(raw as Locale) ? (raw as Locale) : defaultLocale;
