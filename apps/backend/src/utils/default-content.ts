@@ -6,7 +6,16 @@ export type ProductPageBlock = {
   options?: Record<string, unknown>
 }
 
+export type HomePageSection = {
+  type: string
+  enabled?: boolean
+  options?: Record<string, unknown>
+}
+
 export type LocalizedContent = {
+  homePage?: {
+    sections?: HomePageSection[]
+  }
   productPage?: {
     layout?: string
     blocks?: ProductPageBlock[]
@@ -78,6 +87,52 @@ export type ClientContent = {
 };
 
 const defaultLocalizedContent: LocalizedContent = {
+  homePage: {
+    sections: [
+      {
+        type: "hero",
+        enabled: true,
+        options: {
+          slides: [
+            {
+              title: "Votre boutique, votre identité",
+              subtitle:
+                "Découvrez une sélection soignée et un storefront entièrement personnalisable par client.",
+              cta: "Découvrir le catalogue",
+              ctaHref: "/products",
+              image: "",
+            },
+          ],
+        },
+      },
+      {
+        type: "marquee",
+        enabled: true,
+        options: {
+          items: [
+            { text: "Livraison rapide" },
+            { text: "Qualité vérifiée" },
+            { text: "Service client" },
+            { text: "Paiement sécurisé" },
+          ],
+        },
+      },
+      {
+        type: "collections",
+        enabled: true,
+        options: { heading: "Nos univers", items: [] },
+      },
+      {
+        type: "featured_products",
+        enabled: true,
+        options: { heading: "Nos produits", limit: 8 },
+      },
+      { type: "features", enabled: true },
+      { type: "value_proposition", enabled: true },
+      { type: "social_proof", enabled: true },
+      { type: "cta", enabled: true },
+    ],
+  },
   productPage: {
     layout: "split",
     blocks: [
@@ -177,6 +232,52 @@ const defaultLocalizedContent: LocalizedContent = {
 };
 
 const defaultEnglishContent: LocalizedContent = {
+  homePage: {
+    sections: [
+      {
+        type: "hero",
+        enabled: true,
+        options: {
+          slides: [
+            {
+              title: "Your store, your identity",
+              subtitle:
+                "Discover a curated selection and a fully customizable storefront per client.",
+              cta: "Explore catalogue",
+              ctaHref: "/products",
+              image: "",
+            },
+          ],
+        },
+      },
+      {
+        type: "marquee",
+        enabled: true,
+        options: {
+          items: [
+            { text: "Fast delivery" },
+            { text: "Verified quality" },
+            { text: "Customer service" },
+            { text: "Secure payment" },
+          ],
+        },
+      },
+      {
+        type: "collections",
+        enabled: true,
+        options: { heading: "Our worlds", items: [] },
+      },
+      {
+        type: "featured_products",
+        enabled: true,
+        options: { heading: "Our products", limit: 8 },
+      },
+      { type: "features", enabled: true },
+      { type: "value_proposition", enabled: true },
+      { type: "social_proof", enabled: true },
+      { type: "cta", enabled: true },
+    ],
+  },
   productPage: {
     layout: "split",
     blocks: [

@@ -7,7 +7,16 @@ export type ProductPageBlock = {
   options?: Record<string, unknown>
 }
 
+export type HomePageSection = {
+  type: string
+  enabled?: boolean
+  options?: Record<string, unknown>
+}
+
 export type LocalizedContent = {
+  homePage?: {
+    sections?: HomePageSection[]
+  }
   productPage?: {
     layout?: string
     blocks?: ProductPageBlock[]

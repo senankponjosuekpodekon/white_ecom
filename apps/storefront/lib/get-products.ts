@@ -2,7 +2,8 @@ import { cache } from "react";
 import { medusaClient } from "./medusa-client";
 import type { Product } from "./types";
 
-export const getProducts = cache(async (): Promise<Product[]> => {
+export const getProducts = cache(
+  async (limit = 20, categoryId?: string): Promise<Product[]> => {
   try {
     const fields = [
       "id",
@@ -18,9 +19,10 @@ export const getProducts = cache(async (): Promise<Product[]> => {
       "variants.prices.amount",
       "variants.prices.currency_code",
     ].join(",")
+    const category = categoryId ? `&category_id[]=${encodeURIComponent(categoryId)}` : ""
     const { products } = await medusaClient.client.fetch<{
       products: Product[];
-    }>(`/store/products?limit=20&fields=${fields}`, { method: "GET" });
+    }>(`/store/products?limit=${limit}&fields=${fields}${category}`, { method: "GET" });
     return products ?? [];
   } catch {
     return [];

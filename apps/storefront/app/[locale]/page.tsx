@@ -3,11 +3,7 @@ import type { Metadata } from "next";
 import { locales, defaultLocale, type Locale } from "@/i18n";
 import { getStoreConfig } from "@/lib/get-store-config";
 import { getLocalizedContent, getSiteUrl } from "@/lib/content";
-import { Hero } from "@/components/Hero";
-import { Features } from "@/components/Features";
-import { ValueProposition } from "@/components/ValueProposition";
-import { SocialProof } from "@/components/SocialProof";
-import { CTA } from "@/components/CTA";
+import { HomeSections } from "@/components/HomeSections";
 
 export const dynamic = "force-dynamic";
 
@@ -61,25 +57,6 @@ export default async function Home({
   );
 
   return (
-    <>
-      {design.ux.heroEnabled !== false && (
-        <Hero locale={locale} design={design} content={content.hero} />
-      )}
-      {design.ux.featuresEnabled !== false && (
-        <Features
-          title={t("featuresTitle")}
-          features={content.features}
-        />
-      )}
-      {design.ux.valuePropositionEnabled !== false && (
-        <ValueProposition content={content.valueProposition} />
-      )}
-      {design.ux.socialProofEnabled !== false && (
-        <SocialProof content={content.socialProof} />
-      )}
-      {design.ux.ctaEnabled !== false && (
-        <CTA locale={locale} content={content.cta} />
-      )}
-    </>
+    <HomeSections locale={locale} content={content} design={design} t={t} />
   );
 }
