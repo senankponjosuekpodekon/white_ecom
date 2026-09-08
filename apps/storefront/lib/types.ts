@@ -17,6 +17,7 @@ export type Product = {
   description?: string | null;
   thumbnail?: string | null;
   metadata?: Record<string, unknown> | null;
+  created_at?: string;
   variants: ProductVariant[];
 };
 

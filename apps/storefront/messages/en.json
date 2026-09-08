@@ -30,7 +30,24 @@
   "products": {
     "title": "Our products",
     "description": "Browse our product selection.",
-    "noProducts": "No products available"
+    "noProducts": "No products available",
+    "breadcrumbHome": "Home",
+    "results": "products",
+    "sortDefault": "Relevance",
+    "sortNewest": "Newest",
+    "sortPriceAsc": "Price low to high",
+    "sortPriceDesc": "Price high to low",
+    "sortTitleAsc": "Title A-Z",
+    "sortTitleDesc": "Title Z-A",
+    "filterCategory": "Categories",
+    "allCategories": "All categories",
+    "filterAvailability": "Availability",
+    "filterInStock": "In stock",
+    "filterPrice": "Price",
+    "filterMin": "Min",
+    "filterMax": "Max",
+    "filterApply": "OK",
+    "columnsTitle": "Columns"
   },
   "product": {
     "addToCart": "Add to cart",
