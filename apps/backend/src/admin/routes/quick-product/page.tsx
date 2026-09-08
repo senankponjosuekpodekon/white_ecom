@@ -19,6 +19,8 @@ const QuickProduct = () => {
     imageUrl: "",
     status: "published" as "published" | "draft",
   })
+  const [productId, setProductId] = useState<string | null>(null)
+  const [variantId, setVariantId] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -33,7 +35,35 @@ const QuickProduct = () => {
         }
       })
       .catch(() => {})
+
+    const id = new URLSearchParams(window.location.search).get("id")
+    if (id) {
+      setProductId(id)
+    }
   }, [])
+
+  useEffect(() => {
+    if (!productId) return
+    fetch(`/admin/products/${productId}`)
+      .then((res) => res.json())
+      .then((data) => {
+        const product = data.product
+        if (!product) return
+        const variant = product.variants?.[0]
+        const price = variant?.prices?.[0]
+        setVariantId(variant?.id ?? null)
+        setForm({
+          title: product.title ?? "",
+          description: product.description ?? "",
+          price: price ? (price.amount / 100).toString() : "",
+          stock: variant?.inventory_quantity?.toString() ?? "",
+          currency: price?.currency_code ?? form.currency,
+          imageUrl: product.thumbnail ?? "",
+          status: product.status ?? "published",
+        })
+      })
+      .catch(() => setError("Impossible de charger le produit"))
+  }, [productId])
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -58,51 +88,76 @@ const QuickProduct = () => {
     const images = form.imageUrl ? [{ url: form.imageUrl }] : undefined
     const thumbnail = form.imageUrl || undefined
 
-    const payload = {
+    const basePayload = {
       title: form.title,
       handle,
       description: form.description,
       status: form.status,
       thumbnail,
       images,
-      options: [{ title: "Default", values: ["Default"] }],
-      variants: [
-        {
-          title: "Default",
-          options: { Default: "Default" },
-          prices: [
-            {
-              currency_code: form.currency,
-              amount: priceCents,
-            },
-          ],
-          inventory_quantity: parseInt(form.stock || "0", 10),
-          manage_inventory: true,
-          allow_backorder: false,
-        },
-      ],
     }
 
+    const payload = productId
+      ? {
+          ...basePayload,
+          variants: variantId
+            ? [
+                {
+                  id: variantId,
+                  title: "Default",
+                  prices: [
+                    {
+                      currency_code: form.currency,
+                      amount: priceCents,
+                    },
+                  ],
+                },
+              ]
+            : undefined,
+        }
+      : {
+          ...basePayload,
+          options: [{ title: "Default", values: ["Default"] }],
+          variants: [
+            {
+              title: "Default",
+              options: { Default: "Default" },
+              prices: [
+                {
+                  currency_code: form.currency,
+                  amount: priceCents,
+                },
+              ],
+              inventory_quantity: parseInt(form.stock || "0", 10),
+              manage_inventory: true,
+              allow_backorder: false,
+            },
+          ],
+        }
+
     try {
-      const res = await fetch("/admin/products", {
+      const url = productId ? `/admin/products/${productId}` : "/admin/products"
+      const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       })
       const data = await res.json()
       if (!res.ok) {
-        throw new Error(data.message ?? "Erreur lors de la création du produit")
+        throw new Error(data.message ?? (productId ? "Erreur lors de la mise à jour" : "Erreur lors de la création du produit"))
       }
       setSaved(true)
-      setForm({
-        title: "",
-        description: "",
-        price: "",
-        stock: "",
-        currency: "eur",
-        imageUrl: "",
-        status: "published",
-      })
+      if (!productId) {
+        setForm({
+          title: "",
+          description: "",
+          price: "",
+          stock: "",
+          currency: "eur",
+          imageUrl: "",
+          status: "published",
+        })
+      }
     } catch (err) {
       setError((err as Error).message)
     } finally {
@@ -113,10 +168,12 @@ const QuickProduct = () => {
   return (
     <div style={{ padding: "2rem", maxWidth: "700px" }}>
       <h1 style={{ fontSize: "1.5rem", marginBottom: "1rem" }}>
-        Ajout rapide de produit
+        {productId ? "Édition rapide" : "Ajout rapide de produit"}
       </h1>
       <p style={{ marginBottom: "1.5rem", color: "#666" }}>
-        Créez un produit simple en quelques champs. Un handle et une variante par défaut sont générés automatiquement.
+        {productId
+          ? "Modifiez les informations principales du produit."
+          : "Créez un produit simple en quelques champs. Un handle et une variante par défaut sont générés automatiquement."}
       </p>
       <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
         <div>
@@ -231,7 +288,9 @@ const QuickProduct = () => {
               opacity: loading ? 0.6 : 1,
             }}
           >
-            {loading ? "Création..." : "Créer le produit"}
+            {loading
+              ? productId ? "Sauvegarde..." : "Création..."
+              : productId ? "Sauvegarder" : "Créer le produit"}
           </button>
           {saved && <span style={{ color: "#16a34a" }}>Produit créé !</span>}
           {error && <span style={{ color: "#dc2626" }}>{error}</span>}
