@@ -65,6 +65,8 @@ export default async function initial_data_seed({
     },
   });
 
+  logger.info(`PUBLISHABLE_KEY=${(publishableApiKey as { token?: string }).token ?? ""}`);
+
   await linkSalesChannelsToApiKeyWorkflow(container).run({
     input: {
       id: publishableApiKey.id,

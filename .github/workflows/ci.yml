@@ -54,12 +54,29 @@ jobs:
           printf 'STRIPE_API_KEY=sk_test_placeholder\nSTRIPE_WEBHOOK_SECRET=whsec_placeholder\n' > .env.backend
           touch .env.storefront
 
-      - name: Build and start stack
+      - name: Start postgres, redis and backend
+        run: docker compose up -d --build postgres redis backend
+
+      - name: Extract publishable key
+        id: pkey
         run: |
-          docker compose up -d --build || true
-          sleep 20
-          docker compose ps
-          docker compose logs backend --tail 80 || true
+          for i in $(seq 1 60); do
+            KEY=$(docker compose logs backend 2>/dev/null | grep -o 'PUBLISHABLE_KEY=pk_[a-f0-9]*' | tail -1 | cut -d= -f2)
+            if [ -n "$KEY" ]; then
+              echo "key=$KEY" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            sleep 5
+          done
+          exit 1
+
+      - name: Build storefront with publishable key
+        run: docker compose build storefront
+        env:
+          NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: ${{ steps.pkey.outputs.key }}
+
+      - name: Start storefront
+        run: docker compose up -d storefront
 
       - name: Wait for storefront
         run: |
