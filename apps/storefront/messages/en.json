@@ -50,6 +50,14 @@
     "columnsTitle": "Columns",
     "loadMore": "Load more"
   },
+  "collections": {
+    "title": "All categories",
+    "description": "Browse all our product categories.",
+    "noCollections": "No categories available",
+    "breadcrumbHome": "Home",
+    "productsCount": "products",
+    "view": "View"
+  },
   "product": {
     "addToCart": "Add to cart",
     "buyNow": "Buy now",

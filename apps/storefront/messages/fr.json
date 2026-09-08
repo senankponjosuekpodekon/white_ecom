@@ -50,6 +50,14 @@
     "columnsTitle": "Colonnes",
     "loadMore": "Charger plus"
   },
+  "collections": {
+    "title": "Toutes les catégories",
+    "description": "Parcourez toutes nos catégories de produits.",
+    "noCollections": "Aucune catégorie disponible",
+    "breadcrumbHome": "Accueil",
+    "productsCount": "produits",
+    "view": "Voir"
+  },
   "product": {
     "addToCart": "Ajouter au panier",
     "buyNow": "Acheter maintenant",

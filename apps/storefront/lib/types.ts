@@ -18,6 +18,7 @@ export type Product = {
   thumbnail?: string | null;
   metadata?: Record<string, unknown> | null;
   created_at?: string;
+  categories?: Array<{ id: string }>;
   variants: ProductVariant[];
 };
 

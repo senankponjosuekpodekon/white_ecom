@@ -13,6 +13,7 @@ export const getProducts = cache(
       "thumbnail",
       "status",
       "created_at",
+      "categories.id",
       "variants.id",
       "variants.title",
       "variants.sku",
