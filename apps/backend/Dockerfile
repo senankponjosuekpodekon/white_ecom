@@ -6,7 +6,9 @@ COPY . .
 
 RUN npm ci
 ENV NODE_ENV=production
-RUN npm run build -w @dtc/backend
+
+WORKDIR /app/apps/backend
+RUN npm run build
 
 # Medusa start uses process.cwd() as rootDirectory for the admin build
 # so we copy the built admin UI to the root public/ folder.
