@@ -107,6 +107,12 @@ const CSV = () => {
     }
   }
 
+  const handleFile = (file: File) => {
+    const reader = new FileReader()
+    reader.onload = () => setCsvText(String(reader.result ?? ""))
+    reader.readAsText(file)
+  }
+
   const handleImport = async () => {
     const rows = parseCsv(csvText)
     if (rows.length < 2) return
@@ -120,6 +126,15 @@ const CSV = () => {
     setResult(null)
 
     let created = 0
+    let salesChannelId = ""
+    try {
+      const scRes = await fetch("/admin/sales-channels?limit=1")
+      const scData = await scRes.json()
+      salesChannelId = scData.sales_channels?.[0]?.id ?? ""
+    } catch {
+      // sales channel optionnel
+    }
+
     try {
       for (const line of rows.slice(1)) {
         const get = (name: string) => {
@@ -137,6 +152,9 @@ const CSV = () => {
         let status: "published" | "draft" = "published"
         let metaTitle = ""
         let metaDescription = ""
+        let sku = ""
+        let googleCategory = ""
+        let vendor = ""
 
         if (isShopify) {
           title = get("Title")
@@ -149,6 +167,9 @@ const CSV = () => {
           status = get("Status").toLowerCase() === "active" ? "published" : "draft"
           metaTitle = get("SEO Title")
           metaDescription = get("SEO Description")
+          sku = get("Variant SKU")
+          googleCategory = get("Product Category")
+          vendor = get("Vendor")
         } else {
           ;[title, priceStr, currency, stock] = line.map((s) => s.trim())
           currency = currency || "eur"
@@ -167,14 +188,20 @@ const CSV = () => {
           status,
           thumbnail: imageUrl || undefined,
           images: imageUrl ? [{ url: imageUrl }] : undefined,
-          metadata: { meta_title: metaTitle, meta_description: metaDescription },
+          metadata: {
+            meta_title: metaTitle,
+            meta_description: metaDescription,
+            google_product_category: googleCategory,
+            brand: vendor,
+          },
           options: [{ title: "Default", values: ["Default"] }],
+          sales_channels: salesChannelId ? [{ id: salesChannelId }] : undefined,
           variants: [
             {
               title: "Default",
+              sku: sku || undefined,
               options: { Default: "Default" },
               prices: [{ currency_code: currency, amount: priceCents }],
-              inventory_quantity: parseInt(stock || "0", 10),
               manage_inventory: true,
               allow_backorder: false,
             },
@@ -185,8 +212,36 @@ const CSV = () => {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         })
-        if (res.ok) {
-          created++
+        if (!res.ok) continue
+        created++
+
+        const productData = await res.json()
+        const productId = productData.product?.id
+        const stockQty = parseInt(stock || "0", 10)
+
+        if (productId && stockQty > 0) {
+          try {
+            const pRes = await fetch(
+              `/admin/products/${productId}?fields=variants.inventory_items.inventory_item_id`
+            )
+            const pData = await pRes.json()
+            const invId =
+              pData.product?.variants?.[0]?.inventory_items?.[0]?.inventory_item_id
+            if (invId) {
+              const locRes = await fetch("/admin/stock-locations?limit=1")
+              const locData = await locRes.json()
+              const locId = locData.stock_locations?.[0]?.id
+              if (locId) {
+                await fetch(`/admin/inventory-items/${invId}/location-levels`, {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ location_id: locId, stocked_quantity: stockQty }),
+                })
+              }
+            }
+          } catch {
+            // stock optionnel
+          }
         }
       }
       setResult(`Importé : ${created} produit(s)`)
@@ -225,6 +280,15 @@ const CSV = () => {
 
       <div>
         <h2 style={{ fontSize: "1.1rem", marginBottom: "0.5rem" }}>Importer des produits</h2>
+        <input
+          type="file"
+          accept=".csv,text/csv"
+          onChange={(e) => {
+            const file = e.target.files?.[0]
+            if (file) handleFile(file)
+          }}
+          style={{ marginBottom: "0.75rem" }}
+        />
         <textarea
           value={csvText}
           onChange={(e) => setCsvText(e.target.value)}
