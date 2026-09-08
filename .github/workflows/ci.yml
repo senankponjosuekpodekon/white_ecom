@@ -53,13 +53,20 @@ jobs:
         run: touch .env.backend .env.storefront
 
       - name: Build and start stack
-        run: docker compose up -d --build
+        run: |
+          docker compose up -d --build || true
+          sleep 20
+          docker compose ps
+          docker compose logs backend --tail 80 || true
 
       - name: Wait for storefront
         run: |
           for i in $(seq 1 60); do
             if curl -sf http://localhost:3000/fr >/dev/null 2>&1; then
               exit 0
+            fi
+            if [ $((i % 4)) -eq 0 ]; then
+              docker compose logs backend --tail 40 || true
             fi
             sleep 5
           done

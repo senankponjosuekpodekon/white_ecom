@@ -77,8 +77,8 @@ services:
       test: ["CMD-SHELL", "wget --spider -q http://localhost:9000/health || exit 1"]
       interval: 10s
       timeout: 5s
-      retries: 5
-      start_period: 30s
+      retries: 10
+      start_period: 120s
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.backend.rule=(Host(`localhost`) || Host(`127.0.0.1`)) && (PathPrefix(`/admin`) || PathPrefix(`/api`) || PathPrefix(`/store`) || PathPrefix(`/auth`) || PathPrefix(`/app`) || PathPrefix(`/cloud`) || PathPrefix(`/health`))"
