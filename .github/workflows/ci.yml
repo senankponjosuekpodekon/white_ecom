@@ -74,5 +74,12 @@ jobs:
           done
           exit 1
 
+      - name: Install dependencies for E2E
+        run: npm ci
+
+      - name: Install Playwright browsers
+        working-directory: apps/storefront
+        run: npx playwright install --with-deps chromium
+
       - name: Run E2E tests
         run: make test-e2e
