@@ -50,6 +50,18 @@ export async function Header({
             >
               {t("cart")}
             </Link>
+            <Link
+              href={`/${locale}/account`}
+              className="text-sm font-medium text-[var(--color-muted)] hover:text-[var(--color-primary)] transition-colors duration-200"
+            >
+              {t("account")}
+            </Link>
+            <Link
+              href={`/${locale}/login`}
+              className="text-sm font-medium text-[var(--color-muted)] hover:text-[var(--color-primary)] transition-colors duration-200"
+            >
+              {t("login")}
+            </Link>
           </nav>
         </div>
       </div>
