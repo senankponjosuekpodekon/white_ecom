@@ -108,12 +108,14 @@ export async function completeManualPayment(
   cartId: string,
   shippingOptionId: string
 ): Promise<string | null> {
-  if (!shippingOptionId) {
+  if (shippingOptionId === "none") {
+    // skip shipping for digital / services products
+  } else if (!shippingOptionId) {
     const options = await getShippingOptions(cartId);
     shippingOptionId = options[0]?.id ?? "";
   }
 
-  if (shippingOptionId) {
+  if (shippingOptionId && shippingOptionId !== "none") {
     await setShippingMethod(cartId, shippingOptionId);
   }
 

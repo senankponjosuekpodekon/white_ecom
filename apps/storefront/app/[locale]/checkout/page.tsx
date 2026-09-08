@@ -2,6 +2,7 @@ import { unstable_noStore } from "next/cache";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { getCart } from "@/lib/cart";
+import { getStoreConfig } from "@/lib/get-store-config";
 import { initiatePaymentSession, getShippingOptions } from "@/lib/payment";
 import type { AnalyticsItem } from "@/lib/analytics";
 import { locales, defaultLocale, type Locale } from "@/i18n";
@@ -27,14 +28,15 @@ export default async function CheckoutPage({
   const { locale: raw } = await params;
   const locale = locales.includes(raw as Locale) ? (raw as Locale) : defaultLocale;
   const t = await getTranslations({ locale, namespace: "checkout" });
-  const cart = await getCart();
+  const [cart, config] = await Promise.all([getCart(), getStoreConfig()]);
 
   if (!cart || cart.items.length === 0) {
     redirect(`/${locale}/cart`);
   }
 
+  const isDigital = ["digital", "services"].includes(config.businessModel);
   const clientSecret = await initiatePaymentSession(cart.id, "pp_stripe_stripe");
-  const shippingOptions = await getShippingOptions(cart.id);
+  const shippingOptions = isDigital ? [] : await getShippingOptions(cart.id);
 
   const checkoutItems: AnalyticsItem[] = cart.items.map((item) => ({
     item_id: item.variant.id,
@@ -67,7 +69,19 @@ export default async function CheckoutPage({
         )}
 
         <div className="mt-8 border-t border-[var(--color-border)] pt-6">
-          {shippingOptions.length === 0 ? (
+          {isDigital ? (
+            <form action={completeManualPaymentAction} className="space-y-4">
+              <input type="hidden" name="cartId" value={cart.id} />
+              <input type="hidden" name="locale" value={locale} />
+              <input type="hidden" name="optionId" value="none" />
+              <p className="text-sm text-[var(--color-muted)] mb-4">
+                {t("digitalCheckout")}
+              </p>
+              <button type="submit" className="w-full btn-primary">
+                {t("pay")}
+              </button>
+            </form>
+          ) : shippingOptions.length === 0 ? (
             <p className="text-red-600">{t("noShipping")}</p>
           ) : (
             <form action={completeManualPaymentAction} className="space-y-4">

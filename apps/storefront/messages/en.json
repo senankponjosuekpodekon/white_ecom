@@ -69,6 +69,7 @@
   "checkout": {
     "title": "Checkout",
     "pay": "Pay",
+    "digitalCheckout": "No shipping required for digital products and services.",
     "securePayment": "Secure payment by Stripe",
     "missingPayment": "Could not initialize payment.",
     "missingStripeKey": "Missing Stripe public key.",

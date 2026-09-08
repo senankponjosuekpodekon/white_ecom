@@ -14,6 +14,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
     SUPPORTED_LANGUAGES,
     DESIGN_PRESET,
     SITE_URL,
+    BUSINESS_MODEL,
   } = process.env
 
   const design = (fileConfig.design as Record<string, unknown>) ?? {}
@@ -41,6 +42,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
       (fileConfig.supportedLanguages as string[]) ??
       SUPPORTED_LANGUAGES?.split(",") ??
       ["fr"],
+    businessModel: (fileConfig.businessModel as string) ?? BUSINESS_MODEL ?? "classic",
     design: resolvedDesign,
     content,
   })

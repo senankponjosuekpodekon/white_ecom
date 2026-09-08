@@ -10,6 +10,7 @@ export type StoreConfig = {
   font: string;
   defaultLanguage: string;
   supportedLanguages: string[];
+  businessModel: string;
   design: DesignFullConfig;
   content: ClientContent;
 };
@@ -34,6 +35,7 @@ const defaultConfig: StoreConfig = {
   font: defaultPreset.typography.body,
   defaultLanguage: "fr",
   supportedLanguages: ["fr"],
+  businessModel: "classic",
   design: defaultPreset,
   content: {},
 };
@@ -55,6 +57,7 @@ export const getStoreConfig = cache(async (): Promise<StoreConfig> => {
       defaultLanguage: config.defaultLanguage ?? defaultConfig.defaultLanguage,
       supportedLanguages:
         config.supportedLanguages ?? defaultConfig.supportedLanguages,
+      businessModel: config.businessModel ?? defaultConfig.businessModel,
       design,
       content: config.content ?? defaultConfig.content,
     };

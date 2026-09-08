@@ -69,6 +69,7 @@
   "checkout": {
     "title": "Paiement",
     "pay": "Payer",
+    "digitalCheckout": "Aucune livraison requise pour les produits numériques et services.",
     "securePayment": "Paiement sécurisé par Stripe",
     "missingPayment": "Impossible d'initialiser le paiement.",
     "missingStripeKey": "Clé Stripe publique manquante.",

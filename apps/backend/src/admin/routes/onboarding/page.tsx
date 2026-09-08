@@ -1,6 +1,16 @@
 import { useEffect, useState } from "react"
 import { defineRouteConfig } from "@medusajs/admin-sdk"
 
+const businessModels = [
+  { value: "classic", label: "E-commerce classique" },
+  { value: "dropshipping", label: "Dropshipping" },
+  { value: "pod", label: "Print on Demand" },
+  { value: "digital", label: "Produits numériques / Services" },
+  { value: "subscription", label: "Abonnements" },
+  { value: "b2b", label: "B2B / Vente en gros" },
+  { value: "hybrid", label: "Hybride / Omnicanal" },
+]
+
 const defaultConfig = {
   name: "White Shop",
   primaryColor: "#3B82F6",
@@ -10,6 +20,7 @@ const defaultConfig = {
   supportedLanguages: "fr,en",
   designPreset: "modern",
   siteUrl: "",
+  businessModel: "classic",
 }
 
 const Onboarding = () => {
@@ -35,6 +46,7 @@ const Onboarding = () => {
               : config.supportedLanguages ?? defaultConfig.supportedLanguages,
           designPreset: config.designPreset ?? defaultConfig.designPreset,
           siteUrl: config.siteUrl ?? defaultConfig.siteUrl,
+          businessModel: config.businessModel ?? defaultConfig.businessModel,
         })
       })
       .catch(() => setError("Impossible de charger la configuration"))
@@ -61,6 +73,7 @@ const Onboarding = () => {
       supportedLanguages: form.supportedLanguages.split(",").map((s) => s.trim()),
       designPreset: form.designPreset,
       siteUrl: form.siteUrl,
+      businessModel: form.businessModel,
     }
 
     try {
@@ -201,6 +214,26 @@ const Onboarding = () => {
               style={inputStyle}
             />
           </div>
+        </div>
+        <div>
+          <label style={{ display: "block", marginBottom: "0.25rem", fontWeight: 600 }}>
+            Modèle économique
+          </label>
+          <select
+            name="businessModel"
+            value={form.businessModel}
+            onChange={handleChange}
+            style={inputStyle}
+          >
+            {businessModels.map((m) => (
+              <option key={m.value} value={m.value}>
+                {m.label}
+              </option>
+            ))}
+          </select>
+          <p style={{ fontSize: "12px", color: "#666", marginTop: "0.25rem" }}>
+            Ce choix active ou désactive certaines fonctionnalités (livraison, stocks, abonnements, etc.).
+          </p>
         </div>
         <div style={{ display: "flex", gap: "1rem", alignItems: "center", marginTop: "1rem" }}>
           <button
