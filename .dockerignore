@@ -7,5 +7,5 @@
 **/playwright-report
 **/.env
 **/.env.*
-clients
+/clients
 *.log

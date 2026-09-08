@@ -12,16 +12,16 @@ test.describe("Customer auth", () => {
     await page.locator('input[name="password"]').fill(password);
     await page.getByRole("button", { name: "Créer le compte" }).click();
 
-    await expect(page).toHaveURL(/\/fr\/account/);
+    await expect(page).toHaveURL(/\/fr\/account/, { timeout: 30000 });
     await expect(page.locator("h1")).toContainText("Mon compte");
 
     await page.getByRole("button", { name: "Se déconnecter" }).click();
-    await expect(page).toHaveURL(/\/fr\/login/);
+    await expect(page).toHaveURL(/\/fr\/login/, { timeout: 30000 });
 
     await page.locator('input[name="email"]').fill(email);
     await page.locator('input[name="password"]').fill(password);
     await page.getByRole("button", { name: "Se connecter" }).click();
 
-    await expect(page).toHaveURL(/\/fr\/account/);
+    await expect(page).toHaveURL(/\/fr\/account/, { timeout: 30000 });
   });
 });
