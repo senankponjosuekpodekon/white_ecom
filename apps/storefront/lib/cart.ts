@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { medusaClient } from "./medusa-client";
+import { getStoreConfig } from "./get-store-config";
 import type { Cart } from "./types";
 
 const CART_COOKIE = "cartId";
@@ -27,9 +28,15 @@ export async function getCart(): Promise<Cart | null> {
 }
 
 export async function createCart(): Promise<Cart> {
+  const config = await getStoreConfig();
   const { cart } = await medusaClient.client.fetch<{ cart: Cart }>(
     "/store/carts",
-    { method: "POST" }
+    {
+      method: "POST",
+      body: {
+        currency_code: config.defaultCurrency,
+      },
+    }
   );
 
   const cookieStore = await cookies()

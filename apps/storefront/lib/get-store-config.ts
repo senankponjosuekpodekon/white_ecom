@@ -11,6 +11,10 @@ export type StoreConfig = {
   defaultLanguage: string;
   supportedLanguages: string[];
   businessModel: string;
+  defaultCurrency: string;
+  currencies: string[];
+  defaultCountry: string;
+  defaultRegion: string;
   design: DesignFullConfig;
   content: ClientContent;
 };
@@ -36,6 +40,10 @@ const defaultConfig: StoreConfig = {
   defaultLanguage: "fr",
   supportedLanguages: ["fr"],
   businessModel: "classic",
+  defaultCurrency: "eur",
+  currencies: ["eur"],
+  defaultCountry: "FR",
+  defaultRegion: "EU",
   design: defaultPreset,
   content: {},
 };
@@ -58,6 +66,10 @@ export const getStoreConfig = cache(async (): Promise<StoreConfig> => {
       supportedLanguages:
         config.supportedLanguages ?? defaultConfig.supportedLanguages,
       businessModel: config.businessModel ?? defaultConfig.businessModel,
+      defaultCurrency: config.defaultCurrency ?? defaultConfig.defaultCurrency,
+      currencies: config.currencies ?? defaultConfig.currencies,
+      defaultCountry: config.defaultCountry ?? defaultConfig.defaultCountry,
+      defaultRegion: config.defaultRegion ?? defaultConfig.defaultRegion,
       design,
       content: config.content ?? defaultConfig.content,
     };

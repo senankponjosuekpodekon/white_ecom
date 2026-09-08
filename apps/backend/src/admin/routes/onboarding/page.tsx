@@ -21,6 +21,10 @@ const defaultConfig = {
   designPreset: "modern",
   siteUrl: "",
   businessModel: "classic",
+  defaultCurrency: "eur",
+  currencies: "eur",
+  defaultCountry: "FR",
+  defaultRegion: "EU",
 }
 
 const Onboarding = () => {
@@ -47,6 +51,13 @@ const Onboarding = () => {
           designPreset: config.designPreset ?? defaultConfig.designPreset,
           siteUrl: config.siteUrl ?? defaultConfig.siteUrl,
           businessModel: config.businessModel ?? defaultConfig.businessModel,
+          defaultCurrency: config.defaultCurrency ?? defaultConfig.defaultCurrency,
+          currencies:
+            Array.isArray(config.currencies)
+              ? config.currencies.join(",")
+              : config.currencies ?? defaultConfig.currencies,
+          defaultCountry: config.defaultCountry ?? defaultConfig.defaultCountry,
+          defaultRegion: config.defaultRegion ?? defaultConfig.defaultRegion,
         })
       })
       .catch(() => setError("Impossible de charger la configuration"))
@@ -74,6 +85,10 @@ const Onboarding = () => {
       designPreset: form.designPreset,
       siteUrl: form.siteUrl,
       businessModel: form.businessModel,
+      defaultCurrency: form.defaultCurrency,
+      currencies: form.currencies.split(",").map((s) => s.trim()),
+      defaultCountry: form.defaultCountry,
+      defaultRegion: form.defaultRegion,
     }
 
     try {
@@ -234,6 +249,74 @@ const Onboarding = () => {
           <p style={{ fontSize: "12px", color: "#666", marginTop: "0.25rem" }}>
             Ce choix active ou désactive certaines fonctionnalités (livraison, stocks, abonnements, etc.).
           </p>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+          <div>
+            <label style={{ display: "block", marginBottom: "0.25rem", fontWeight: 600 }}>
+              Devise par défaut
+            </label>
+            <select
+              name="defaultCurrency"
+              value={form.defaultCurrency}
+              onChange={handleChange}
+              style={inputStyle}
+            >
+              <option value="eur">EUR</option>
+              <option value="usd">USD</option>
+              <option value="gbp">GBP</option>
+              <option value="xof">XOF</option>
+              <option value="cad">CAD</option>
+            </select>
+          </div>
+          <div>
+            <label style={{ display: "block", marginBottom: "0.25rem", fontWeight: 600 }}>
+              Devises supportées (séparées par des virgules)
+            </label>
+            <input
+              name="currencies"
+              value={form.currencies}
+              onChange={handleChange}
+              placeholder="eur,usd,gbp"
+              style={inputStyle}
+            />
+          </div>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+          <div>
+            <label style={{ display: "block", marginBottom: "0.25rem", fontWeight: 600 }}>
+              Pays par défaut
+            </label>
+            <select
+              name="defaultCountry"
+              value={form.defaultCountry}
+              onChange={handleChange}
+              style={inputStyle}
+            >
+              <option value="FR">France</option>
+              <option value="BE">Belgique</option>
+              <option value="CH">Suisse</option>
+              <option value="CA">Canada</option>
+              <option value="US">États-Unis</option>
+              <option value="CI">Côte d&apos;Ivoire</option>
+              <option value="SN">Sénégal</option>
+            </select>
+          </div>
+          <div>
+            <label style={{ display: "block", marginBottom: "0.25rem", fontWeight: 600 }}>
+              Région fiscale / commerciale
+            </label>
+            <select
+              name="defaultRegion"
+              value={form.defaultRegion}
+              onChange={handleChange}
+              style={inputStyle}
+            >
+              <option value="EU">Union européenne</option>
+              <option value="US">États-Unis / Amérique du Nord</option>
+              <option value="AFRICA">Afrique UEMOA</option>
+              <option value="UK">Royaume-Uni</option>
+            </select>
+          </div>
         </div>
         <div style={{ display: "flex", gap: "1rem", alignItems: "center", marginTop: "1rem" }}>
           <button

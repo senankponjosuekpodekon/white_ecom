@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { defineRouteConfig } from "@medusajs/admin-sdk"
 
 const toHandle = (title: string) =>
@@ -22,6 +22,18 @@ const QuickProduct = () => {
   const [loading, setLoading] = useState(false)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    fetch("/admin/config")
+      .then((res) => res.json())
+      .then((data) => {
+        const config = data.config ?? {}
+        if (config.defaultCurrency) {
+          setForm((prev) => ({ ...prev, currency: config.defaultCurrency }))
+        }
+      })
+      .catch(() => {})
+  }, [])
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>

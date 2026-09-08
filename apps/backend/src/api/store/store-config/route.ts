@@ -15,6 +15,10 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
     DESIGN_PRESET,
     SITE_URL,
     BUSINESS_MODEL,
+    DEFAULT_CURRENCY,
+    CURRENCIES,
+    DEFAULT_COUNTRY,
+    DEFAULT_REGION,
   } = process.env
 
   const design = (fileConfig.design as Record<string, unknown>) ?? {}
@@ -43,6 +47,13 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
       SUPPORTED_LANGUAGES?.split(",") ??
       ["fr"],
     businessModel: (fileConfig.businessModel as string) ?? BUSINESS_MODEL ?? "classic",
+    defaultCurrency: (fileConfig.defaultCurrency as string) ?? DEFAULT_CURRENCY ?? "eur",
+    currencies:
+      (fileConfig.currencies as string[]) ??
+      CURRENCIES?.split(",") ??
+      ["eur"],
+    defaultCountry: (fileConfig.defaultCountry as string) ?? DEFAULT_COUNTRY ?? "FR",
+    defaultRegion: (fileConfig.defaultRegion as string) ?? DEFAULT_REGION ?? "EU",
     design: resolvedDesign,
     content,
   })
