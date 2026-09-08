@@ -61,5 +61,8 @@ jobs:
           file: ./apps/storefront/Dockerfile
           push: true
           tags: ${{ env.STOREFRONT_IMAGE }}:${{ github.ref_name }},${{ env.STOREFRONT_IMAGE }}:latest
+          build-args: |
+            NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || 'pk_5c328ce90bc55ba4df7101f655c08b7e4b870875051600e69ef40f671bcab75b' }}
+            NEXT_PUBLIC_SITE_URL=${{ secrets.SITE_URL || 'http://localhost:8080' }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

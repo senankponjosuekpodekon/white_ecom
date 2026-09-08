@@ -36,3 +36,25 @@ jobs:
 
       - name: Audit dependencies
         run: npm audit --audit-level high
+
+  e2e:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build and start stack
+        run: docker compose up -d --build
+
+      - name: Wait for storefront
+        run: |
+          for i in $(seq 1 60); do
+            if curl -sf http://localhost:3000/fr >/dev/null 2>&1; then
+              exit 0
+            fi
+            sleep 5
+          done
+          exit 1
+
+      - name: Run E2E tests
+        run: make test-e2e
