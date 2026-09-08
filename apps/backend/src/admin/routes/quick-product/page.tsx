@@ -395,6 +395,8 @@ const inputStyle: React.CSSProperties = {
 
 export const config = defineRouteConfig({
   label: "Ajout rapide",
+  nested: "/products",
+  rank: 1,
 })
 
 export default QuickProduct

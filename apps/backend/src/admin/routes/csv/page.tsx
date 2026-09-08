@@ -175,6 +175,8 @@ const CSV = () => {
 
 export const config = defineRouteConfig({
   label: "Import/Export CSV",
+  nested: "/products",
+  rank: 2,
 })
 
 export default CSV

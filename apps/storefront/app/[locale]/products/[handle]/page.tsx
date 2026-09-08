@@ -220,6 +220,9 @@ export default async function ProductPage({
                           price={price.amount / 100}
                           currency={price.currency_code}
                           label={t("addToCart")}
+                          buyNowLabel={t("buyNow")}
+                          quantityLabel={t("quantity")}
+                          locale={locale}
                         />
                       )}
                     </li>

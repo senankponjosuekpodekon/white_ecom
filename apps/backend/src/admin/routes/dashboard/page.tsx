@@ -148,6 +148,7 @@ const Dashboard = () => {
 
 export const config = defineRouteConfig({
   label: "Dashboard",
+  rank: 1,
 })
 
 export default Dashboard

@@ -130,6 +130,7 @@ const Clients = () => {
 
 export const config = defineRouteConfig({
   label: "Clients",
+  rank: 9,
 })
 
 export default Clients

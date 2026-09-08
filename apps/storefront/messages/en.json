@@ -33,6 +33,8 @@
   },
   "product": {
     "addToCart": "Add to cart",
+    "buyNow": "Buy now",
+    "quantity": "Quantity",
     "outOfStock": "Out of stock",
     "variants": "Variants"
   },

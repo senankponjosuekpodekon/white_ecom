@@ -226,6 +226,7 @@ const Analytics = () => {
 
 export const config = defineRouteConfig({
   label: "Analytics",
+  rank: 2,
 })
 
 export default Analytics
