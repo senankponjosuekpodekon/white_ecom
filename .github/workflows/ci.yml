@@ -49,6 +49,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Create env files for compose
+        run: touch .env.backend .env.storefront
+
       - name: Build and start stack
         run: docker compose up -d --build
 
