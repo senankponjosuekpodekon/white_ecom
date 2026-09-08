@@ -1,6 +1,7 @@
 import fs from "fs"
 import { z } from "@medusajs/framework/zod"
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import { updateClientConfigWorkflow } from "../../../workflows/update-client-config"
 import { requireUser, safeClientPath } from "../utils"
 
 function getConfigPath(): string | undefined {
@@ -56,7 +57,7 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
   const { config } = parse.data
 
   try {
-    fs.writeFileSync(filePath, JSON.stringify(config, null, 2))
+    await updateClientConfigWorkflow(req.scope).run({ input: { config } })
     res.json({ success: true })
   } catch (error) {
     res.status(500).json({ error: (error as Error).message })

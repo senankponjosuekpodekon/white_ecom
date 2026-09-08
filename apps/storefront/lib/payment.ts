@@ -78,6 +78,11 @@ export async function initiatePaymentSession(
   cartId: string,
   providerId: string = "pp_stripe_stripe"
 ): Promise<string | null> {
+  const stripeKey = process.env.NEXT_PUBLIC_STRIPE_KEY;
+  if (!stripeKey || stripeKey.includes("placeholder")) {
+    return null;
+  }
+
   const paymentCollectionId =
     (await getPaymentCollectionId(cartId)) ??
     (await refreshPaymentCollectionId(cartId));

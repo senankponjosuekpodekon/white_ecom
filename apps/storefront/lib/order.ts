@@ -19,9 +19,22 @@ export type Order = {
 
 export async function getOrder(id: string): Promise<Order | null> {
   try {
-    const order = await medusaClient.client.fetch<Order>(`/store/orders/${id}`, {
-      method: "GET",
-    });
+    const fields = [
+      "id",
+      "status",
+      "total",
+      "currency_code",
+      "items.*",
+      "items.variant.id",
+      "items.variant.title",
+      "items.product.title",
+    ].join(",")
+    const { order } = await medusaClient.client.fetch<{ order: Order }>(
+      `/store/orders/${id}?fields=${fields}`,
+      {
+        method: "GET",
+      }
+    );
     return order ?? null;
   } catch {
     return null;

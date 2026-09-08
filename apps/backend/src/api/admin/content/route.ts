@@ -2,6 +2,7 @@ import fs from "fs"
 import { z } from "@medusajs/framework/zod"
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { defaultContent } from "../../../utils/default-content"
+import { updateClientContentWorkflow } from "../../../workflows/update-client-content"
 import { requireUser, safeClientPath } from "../utils"
 
 function getContentPath(): string | undefined {
@@ -62,7 +63,7 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
   const { content } = parse.data
 
   try {
-    fs.writeFileSync(filePath, JSON.stringify(content, null, 2))
+    await updateClientContentWorkflow(req.scope).run({ input: { content } })
     res.json({ success: true })
   } catch (error) {
     res.status(500).json({ error: (error as Error).message })

@@ -2,7 +2,7 @@ import fs from "fs"
 import path from "path"
 import { z } from "@medusajs/framework/zod"
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { defaultContent } from "../../../utils/default-content"
+import { createClientWorkflow } from "../../../workflows/create-client"
 import { requireSuperAdmin, isValidClientName } from "../utils"
 
 const clientsDir = path.resolve(process.cwd(), "clients")
@@ -15,22 +15,6 @@ const createSchema = z.object({
       message: "Client name must contain only lowercase letters, digits and dashes",
     }),
 })
-
-const defaultConfig = {
-  name: "White Shop",
-  primaryColor: "#3B82F6",
-  logoUrl: "",
-  font: "Inter",
-  defaultLanguage: "fr",
-  supportedLanguages: ["fr"],
-  designPreset: "modern",
-  siteUrl: "",
-  businessModel: "classic",
-  defaultCurrency: "eur",
-  currencies: ["eur"],
-  defaultCountry: "FR",
-  defaultRegion: "EU",
-}
 
 export async function GET(req: MedusaRequest, res: MedusaResponse) {
   if (!requireSuperAdmin(req, res)) {
@@ -62,18 +46,9 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
   }
 
   const { name } = parse.data
-  const clientDir = path.join(clientsDir, name)
 
   try {
-    fs.mkdirSync(clientDir, { recursive: true })
-    fs.writeFileSync(
-      path.join(clientDir, "config.json"),
-      JSON.stringify(defaultConfig, null, 2)
-    )
-    fs.writeFileSync(
-      path.join(clientDir, "content.json"),
-      JSON.stringify(defaultContent, null, 2)
-    )
+    await createClientWorkflow(req.scope).run({ input: { name } })
     res.json({ success: true, name })
   } catch (error) {
     res.status(500).json({ error: (error as Error).message })
