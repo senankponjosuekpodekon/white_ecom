@@ -47,27 +47,7 @@ services:
       dockerfile: apps/backend/Dockerfile
       network: host
     env_file:
-      - .env.backend
-    environment:
-      DATABASE_URL: postgres://postgres:postgres@postgres:5432/white_local?ssl=false&sslmode=disable
-      REDIS_URL: redis://redis:6379
-      STORE_CORS: http://localhost:3000,http://localhost:8080
-      ADMIN_CORS: http://localhost:9000,http://localhost:3000,http://localhost:8080
-      AUTH_CORS: http://localhost:3000,http://localhost:8080
-      JWT_SECRET: local-jwt-secret
-      COOKIE_SECRET: local-cookie-secret
-      COOKIE_SECURE: "false"
-      COOKIE_SAME_SITE: strict
-      COOKIE_HTTP_ONLY: "true"
-      CLIENT_NAME: default
-      STORE_NAME: White Shop
-      PRIMARY_COLOR: "#3B82F6"
-      LOGO_URL: ""
-      STORE_FONT: Inter
-      DEFAULT_LANGUAGE: fr
-      SUPPORTED_LANGUAGES: fr,en
-      DESIGN_PRESET: modern
-      SITE_URL: http://localhost:8080
+      - .env
     restart: unless-stopped
     ports:
       - "9000:9000"
@@ -98,13 +78,7 @@ services:
         NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: ${NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY:-pk_5c328ce90bc55ba4df7101f655c08b7e4b870875051600e69ef40f671bcab75b}
         NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:8080}
     env_file:
-      - .env.storefront
-    environment:
-      MEDUSA_BACKEND_URL: http://backend:9000
-      NEXT_PUBLIC_SITE_URL: http://localhost:8080
-      COOKIE_SECURE: "false"
-      HOST: 0.0.0.0
-      HOSTNAME: 0.0.0.0
+      - .env
     restart: unless-stopped
     ports:
       - "3000:3000"
@@ -132,8 +106,8 @@ services:
     restart: unless-stopped
     profiles:
       - tunnel
-    environment:
-      - CLOUDFLARE_TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
+    env_file:
+      - .env
 
 volumes:
   pgdata:
