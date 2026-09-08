@@ -13,10 +13,14 @@ const Clients = () => {
     fetch("/admin/clients")
       .then((res) => res.json())
       .then((data) => {
+        if (data.error) {
+          setError(data.error)
+          return
+        }
         setClients(data.clients ?? [])
         setCurrent(data.current ?? "")
       })
-      .catch(() => setError("Impossible de charger les clients"))
+      .catch(() => setError("Impossible de charger les boutiques"))
   }
 
   useEffect(() => {
@@ -54,6 +58,9 @@ const Clients = () => {
       <h1 style={{ fontSize: "1.5rem", marginBottom: "1rem" }}>Boutiques</h1>
       <p style={{ marginBottom: "1.5rem", color: "#666" }}>
         Chaque boutique white-label a son propre dossier <code>clients/&lt;nom&gt;/</code> avec sa configuration et son contenu. La boutique active est définie par la variable d&apos;environnement <code>CLIENT_NAME</code>.
+      </p>
+      <p style={{ marginBottom: "1.5rem", color: "#666" }}>
+        Accès réservé au <strong>super-admin</strong> (<code>SUPER_ADMIN_EMAIL</code>).
       </p>
 
       <div style={{ marginBottom: "2rem" }}>

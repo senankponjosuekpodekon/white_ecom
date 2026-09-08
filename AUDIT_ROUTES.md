@@ -70,8 +70,8 @@ Base : `http://localhost:9000`
 | `/admin/content` | POST | Admin | Merchant/Admin | Écrire `content.json` du client | `req.user` requis + payload validé par Zod |
 | `/admin/config` | GET | Admin | Merchant/Admin | Lire `config.json` du client |  |
 | `/admin/config` | POST | Admin | Merchant/Admin | Écrire `config.json` du client | `req.user` requis + payload validé par Zod |
-| `/admin/clients` | GET | Admin | Merchant/Admin | Lister les clients white-label |  |
-| `/admin/clients` | POST | Admin | Merchant/Admin | Créer un client (dossier + config + contenu) |  |
+| `/admin/clients` | GET | Super-admin | Super-admin | Lister les boutiques white-label | Email = `SUPER_ADMIN_EMAIL` |
+| `/admin/clients` | POST | Super-admin | Super-admin | Créer une boutique (dossier + config + contenu) | Email = `SUPER_ADMIN_EMAIL` |
 | `/admin/custom` | GET | Admin | Merchant/Admin | Route test admin | Retourne `200` |
 
 ### 2.4 Routes Medusa natives (non personnalisées)

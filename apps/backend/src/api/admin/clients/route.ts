@@ -3,7 +3,7 @@ import path from "path"
 import { z } from "@medusajs/framework/zod"
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { defaultContent } from "../../../utils/default-content"
-import { requireUser, isValidClientName } from "../utils"
+import { requireSuperAdmin, isValidClientName } from "../utils"
 
 const clientsDir = path.resolve(process.cwd(), "clients")
 
@@ -33,7 +33,7 @@ const defaultConfig = {
 }
 
 export async function GET(req: MedusaRequest, res: MedusaResponse) {
-  if (!requireUser(req, res)) {
+  if (!requireSuperAdmin(req, res)) {
     return
   }
 
@@ -51,7 +51,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
 }
 
 export async function POST(req: MedusaRequest, res: MedusaResponse) {
-  if (!requireUser(req, res)) {
+  if (!requireSuperAdmin(req, res)) {
     return
   }
 

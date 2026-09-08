@@ -12,6 +12,19 @@ export function requireUser(req: MedusaRequest, res: MedusaResponse): boolean {
   return true
 }
 
+export function requireSuperAdmin(req: MedusaRequest, res: MedusaResponse): boolean {
+  if (!requireUser(req, res)) {
+    return false
+  }
+  const user = (req as { user?: { email?: string } }).user
+  const superAdminEmail = process.env.SUPER_ADMIN_EMAIL ?? "super@example.com"
+  if (!user?.email || user.email !== superAdminEmail) {
+    res.status(403).json({ error: "Forbidden: super-admin only" })
+    return false
+  }
+  return true
+}
+
 export function isValidClientName(name: string): boolean {
   return /^[a-z0-9-]+$/.test(name)
 }
