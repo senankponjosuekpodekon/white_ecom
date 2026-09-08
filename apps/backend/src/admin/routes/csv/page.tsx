@@ -51,6 +51,13 @@ function stripHtml(html: string): string {
   return html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim()
 }
 
+function stripEmojis(value: string): string {
+  return value
+    .replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}\u{2190}-\u{21FF}\u{2B00}-\u{2BFF}]/gu, "")
+    .replace(/\s+/g, " ")
+    .trim()
+}
+
 function parsePrice(value: string): number | null {
   if (!value) return null
   let v = value.trim().replace(/\s/g, "")
@@ -161,12 +168,12 @@ const CSV = () => {
           priceStr = get("Variant Price")
           currency = "eur"
           stock = get("Variant Inventory Qty")
-          description = stripHtml(get("Body (HTML)"))
+          description = stripEmojis(stripHtml(get("Body (HTML)")))
           imageUrl = get("Image Src")
           handle = get("Handle") || toHandle(title)
           status = get("Status").toLowerCase() === "active" ? "published" : "draft"
           metaTitle = get("SEO Title")
-          metaDescription = get("SEO Description")
+          metaDescription = stripEmojis(get("SEO Description"))
           sku = get("Variant SKU")
           googleCategory = get("Product Category")
           vendor = get("Vendor")

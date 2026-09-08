@@ -99,7 +99,7 @@ export function renderCsv(
   const siteUrl =
     localeContent?.siteUrl ?? process.env.SITE_URL ?? "http://localhost:8080"
   const merchant = localeContent?.merchant ?? {}
-  const brand =
+  const defaultBrand =
     merchant.brand ??
     (fileConfig.name as string) ??
     process.env.STORE_NAME ??
@@ -108,13 +108,15 @@ export function renderCsv(
   const shipping = merchant.shipping ?? ""
 
   for (const product of products) {
+    const productBrand =
+      (product.metadata?.brand as string | undefined) ?? defaultBrand
     for (const variant of product.variants ?? []) {
       const values = buildFeedValues(
         product,
         variant,
         siteUrl,
         defaultLanguage,
-        brand,
+        productBrand,
         defaultGoogleProductCategory,
         shipping
       )
