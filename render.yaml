@@ -1,0 +1,57 @@
+services:
+  - type: web
+    name: white-ecom-backend
+    runtime: docker
+    region: frankfurt
+    plan: free
+    dockerfilePath: ./apps/backend/Dockerfile
+    dockerContext: ./
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: PORT
+        value: "9000"
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: STORE_CORS
+        sync: false
+      - key: ADMIN_CORS
+        sync: false
+      - key: AUTH_CORS
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: COOKIE_SECRET
+        sync: false
+      - key: COOKIE_SECURE
+        value: "true"
+      - key: COOKIE_SAME_SITE
+        value: "lax"
+      - key: COOKIE_HTTP_ONLY
+        value: "true"
+      - key: SITE_URL
+        sync: false
+      - key: CLIENT_NAME
+        value: "default"
+      - key: STORE_NAME
+        value: "White Shop"
+      - key: DEFAULT_LANGUAGE
+        value: "fr"
+      - key: SUPPORTED_LANGUAGES
+        value: "fr,en"
+      - key: DESIGN_PRESET
+        value: "modern"
+      - key: STRIPE_API_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: CREATE_DEFAULT_ADMIN
+        value: "true"
+      - key: SUPER_ADMIN_EMAIL
+        sync: false
+      - key: SUPER_ADMIN_PASSWORD
+        sync: false
