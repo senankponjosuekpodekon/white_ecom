@@ -4,7 +4,10 @@ WORKDIR /app
 
 COPY . .
 
-RUN npm ci
+RUN npm config set fetch-retries 5 \
+    && npm config set fetch-retry-factor 4 \
+    && npm config set fetch-timeout 600000 \
+    && npm ci
 ENV NODE_ENV=production
 
 WORKDIR /app/apps/backend

@@ -8,7 +8,10 @@ ARG NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
 ARG NEXT_PUBLIC_SITE_URL
 ENV NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=$NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
 ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
-RUN npm ci
+RUN npm config set fetch-retries 5 \
+    && npm config set fetch-retry-factor 4 \
+    && npm config set fetch-timeout 600000 \
+    && npm ci
 ENV NODE_ENV=production
 RUN npm run build -w @dtc/storefront
 
