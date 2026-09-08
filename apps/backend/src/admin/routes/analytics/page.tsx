@@ -1,14 +1,13 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { defineRouteConfig } from "@medusajs/admin-sdk"
+import { useAnalyticsData } from "../../lib/analytics-data"
 
-type Order = {
-  id: string
-  display_id: string
-  total: number
-  status: string
-  created_at: string
-  items?: Array<{ title?: string; quantity?: number }>
-}
+const periods = [
+  { value: 7, label: "7 jours" },
+  { value: 30, label: "30 jours" },
+  { value: 90, label: "90 jours" },
+  { value: 365, label: "1 an" },
+]
 
 const cardStyle: React.CSSProperties = {
   padding: "1rem",
@@ -19,63 +18,52 @@ const cardStyle: React.CSSProperties = {
   flex: "1",
 }
 
+function formatPrice(amount: number) {
+  return new Intl.NumberFormat("fr-FR", {
+    style: "currency",
+    currency: "EUR",
+  }).format(amount / 100)
+}
+
+function downloadCsv(rows: string[][], filename: string) {
+  const csv = rows.map((row) => row.map((c) => `"${c}"`).join(",")).join("\n")
+  const blob = new Blob([csv], { type: "text/csv" })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement("a")
+  a.href = url
+  a.download = filename
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
 const Analytics = () => {
   const [tab, setTab] = useState<"overview" | "live" | "reports">("overview")
-  const [orders, setOrders] = useState<Order[]>([])
-  const [orderCount, setOrderCount] = useState(0)
-  const [loading, setLoading] = useState(true)
+  const [period, setPeriod] = useState(7)
+  const { data, loading } = useAnalyticsData(period, tab === "live" ? 15000 : undefined)
 
-  const load = () => {
-    fetch("/admin/orders?limit=100&order=-created_at&fields=id,total,status,created_at,items.title,items.quantity")
-      .then((res) => res.json())
-      .then((data) => {
-        setOrders(data.orders ?? [])
-        setOrderCount(data.count ?? 0)
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false))
+  const dataOrEmpty = data ?? {
+    orders: [] as never[],
+    orderCount: 0,
+    revenue: 0,
+    statusCounts: {},
+    topProducts: [],
+    dailySales: [] as Array<{ day: string; total: number }>,
   }
 
-  useEffect(() => {
-    load()
-    const interval = setInterval(load, 15000)
-    return () => clearInterval(interval)
-  }, [])
+  const maxDay = Math.max(...dataOrEmpty.dailySales.map((d) => d.total), 1)
 
-  const revenue = orders.reduce((sum, o) => sum + (o.total ?? 0), 0)
-
-  const dailyMap: Record<string, number> = {}
-  const statusMap: Record<string, number> = {}
-  const productMap: Record<string, number> = {}
-
-  for (const order of orders) {
-    const day = order.created_at ? new Date(order.created_at).toISOString().slice(0, 10) : ""
-    if (day) dailyMap[day] = (dailyMap[day] ?? 0) + (order.total ?? 0)
-    statusMap[order.status ?? "N/A"] = (statusMap[order.status ?? "N/A"] ?? 0) + 1
-    for (const item of order.items ?? []) {
-      const title = item.title ?? "Sans titre"
-      productMap[title] = (productMap[title] ?? 0) + (item.quantity ?? 1)
-    }
-  }
-
-  const last14 = Array.from({ length: 14 }, (_, i) => {
-    const d = new Date()
-    d.setDate(d.getDate() - (13 - i))
-    return d.toISOString().slice(0, 10)
-  })
-  const dailySales = last14.map((day) => ({ day, total: dailyMap[day] ?? 0 }))
-  const maxDay = Math.max(...dailySales.map((d) => d.total), 1)
-
-  const topProducts = Object.entries(productMap)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 10)
-    .map(([title, quantity]) => ({ title, quantity }))
-
-  function formatPrice(amount: number) {
-    return new Intl.NumberFormat("fr-FR", {
-      style: "currency",
-      currency: "EUR",
-    }).format(amount / 100)
+  const handleExport = () => {
+    if (!data) return
+    const rows = [
+      ["commande", "total", "statut", "date"],
+      ...data.orders.map((o) => [
+        o.display_id,
+        (o.total / 100).toString(),
+        o.status,
+        o.created_at ? new Date(o.created_at).toISOString() : "",
+      ]),
+    ]
+    downloadCsv(rows, `orders-${period}days.csv`)
   }
 
   const tabStyle = (active: boolean): React.CSSProperties => ({
@@ -89,9 +77,24 @@ const Analytics = () => {
 
   return (
     <div style={{ padding: "2rem" }}>
-      <h1 style={{ fontSize: "1.5rem", marginBottom: "1rem" }}>Analytics</h1>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+        <h1 style={{ fontSize: "1.5rem" }}>Analytics</h1>
+        <button
+          onClick={handleExport}
+          style={{
+            padding: "0.5rem 1rem",
+            background: "#111827",
+            color: "white",
+            border: "none",
+            borderRadius: "6px",
+            cursor: "pointer",
+          }}
+        >
+          Exporter (CSV)
+        </button>
+      </div>
 
-      <div style={{ display: "flex", gap: "0.75rem", marginBottom: "1.5rem" }}>
+      <div style={{ display: "flex", gap: "0.75rem", alignItems: "center", marginBottom: "1.5rem" }}>
         <button style={tabStyle(tab === "overview")} onClick={() => setTab("overview")}>
           Overview
         </button>
@@ -101,6 +104,17 @@ const Analytics = () => {
         <button style={tabStyle(tab === "reports")} onClick={() => setTab("reports")}>
           Analytics reports
         </button>
+        <select
+          value={period}
+          onChange={(e) => setPeriod(Number(e.target.value))}
+          style={{ marginLeft: "auto", padding: "0.5rem", border: "1px solid #e5e7eb", borderRadius: "6px" }}
+        >
+          {periods.map((p) => (
+            <option key={p.value} value={p.value}>
+              {p.label}
+            </option>
+          ))}
+        </select>
       </div>
 
       {loading ? (
@@ -110,23 +124,23 @@ const Analytics = () => {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "1rem", marginBottom: "2rem" }}>
             <div style={cardStyle}>
               <p style={{ color: "#666", fontSize: "14px" }}>Commandes</p>
-              <p style={{ fontSize: "2rem", fontWeight: "bold" }}>{orderCount}</p>
+              <p style={{ fontSize: "2rem", fontWeight: "bold" }}>{dataOrEmpty.orderCount}</p>
             </div>
             <div style={cardStyle}>
               <p style={{ color: "#666", fontSize: "14px" }}>Revenus</p>
-              <p style={{ fontSize: "2rem", fontWeight: "bold" }}>{formatPrice(revenue)}</p>
+              <p style={{ fontSize: "2rem", fontWeight: "bold" }}>{formatPrice(dataOrEmpty.revenue)}</p>
             </div>
             <div style={cardStyle}>
               <p style={{ color: "#666", fontSize: "14px" }}>Panier moyen</p>
               <p style={{ fontSize: "2rem", fontWeight: "bold" }}>
-                {orders.length ? formatPrice(revenue / orders.length) : formatPrice(0)}
+                {dataOrEmpty.orderCount ? formatPrice(dataOrEmpty.revenue / dataOrEmpty.orderCount) : formatPrice(0)}
               </p>
             </div>
           </div>
           <div style={cardStyle}>
-            <h2 style={{ fontSize: "1.1rem", marginBottom: "1rem" }}>Ventes 14 derniers jours</h2>
+            <h2 style={{ fontSize: "1.1rem", marginBottom: "1rem" }}>Ventes {period} derniers jours</h2>
             <div style={{ display: "flex", alignItems: "flex-end", gap: "0.5rem", height: "140px" }}>
-              {dailySales.map((d) => (
+              {dataOrEmpty.dailySales.map((d) => (
                 <div key={d.day} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: "0.25rem" }}>
                   <div
                     style={{
@@ -145,7 +159,7 @@ const Analytics = () => {
       ) : tab === "live" ? (
         <div style={cardStyle}>
           <h2 style={{ fontSize: "1.1rem", marginBottom: "1rem" }}>Commandes en direct (auto-refresh 15s)</h2>
-          {orders.length === 0 ? (
+          {dataOrEmpty.orders.length === 0 ? (
             <p>Aucune commande pour le moment.</p>
           ) : (
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
@@ -158,7 +172,7 @@ const Analytics = () => {
                 </tr>
               </thead>
               <tbody>
-                {orders.slice(0, 10).map((order) => (
+                {dataOrEmpty.orders.slice(0, 10).map((order) => (
                   <tr key={order.id} style={{ borderBottom: "1px solid #f3f4f6" }}>
                     <td style={{ padding: "0.5rem" }}>#{order.display_id}</td>
                     <td style={{ padding: "0.5rem" }}>{formatPrice(order.total)}</td>
@@ -176,11 +190,11 @@ const Analytics = () => {
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem" }}>
           <div style={cardStyle}>
             <h2 style={{ fontSize: "1.1rem", marginBottom: "1rem" }}>Statuts commandes</h2>
-            {Object.entries(statusMap).length === 0 ? (
+            {Object.keys(dataOrEmpty.statusCounts).length === 0 ? (
               <p>Aucune donnée.</p>
             ) : (
               <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-                {Object.entries(statusMap).map(([status, count]) => (
+                {Object.entries(dataOrEmpty.statusCounts).map(([status, count]) => (
                   <li key={status} style={{ display: "flex", justifyContent: "space-between", padding: "0.5rem 0", borderBottom: "1px solid #f3f4f6" }}>
                     <span>{status}</span>
                     <span style={{ color: "#666" }}>{count}</span>
@@ -191,11 +205,11 @@ const Analytics = () => {
           </div>
           <div style={cardStyle}>
             <h2 style={{ fontSize: "1.1rem", marginBottom: "1rem" }}>Top produits</h2>
-            {topProducts.length === 0 ? (
+            {dataOrEmpty.topProducts.length === 0 ? (
               <p>Aucune vente.</p>
             ) : (
               <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-                {topProducts.map((p) => (
+                {dataOrEmpty.topProducts.map((p) => (
                   <li key={p.title} style={{ display: "flex", justifyContent: "space-between", padding: "0.5rem 0", borderBottom: "1px solid #f3f4f6" }}>
                     <span>{p.title}</span>
                     <span style={{ color: "#666" }}>{p.quantity}</span>

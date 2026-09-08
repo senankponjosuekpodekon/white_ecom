@@ -4,18 +4,12 @@ import { getTranslations } from "next-intl/server";
 import { getCart } from "@/lib/cart";
 import { getStoreConfig } from "@/lib/get-store-config";
 import { initiatePaymentSession, getShippingOptions } from "@/lib/payment";
+import { formatPrice } from "@/lib/format";
 import type { AnalyticsItem } from "@/lib/analytics";
 import { locales, defaultLocale, type Locale } from "@/i18n";
 import { CheckoutForm } from "@/components/CheckoutForm";
 import { AnalyticsBeginCheckout } from "@/components/AnalyticsBeginCheckout";
 import { completeManualPaymentAction } from "./actions";
-
-function formatPrice(amount: number, currency: string) {
-  return new Intl.NumberFormat("fr-FR", {
-    style: "currency",
-    currency: currency.toUpperCase(),
-  }).format(amount / 100);
-}
 
 export const dynamic = "force-dynamic";
 
@@ -35,8 +29,10 @@ export default async function CheckoutPage({
   }
 
   const isDigital = ["digital", "services"].includes(config.businessModel);
-  const clientSecret = await initiatePaymentSession(cart.id, "pp_stripe_stripe");
-  const shippingOptions = isDigital ? [] : await getShippingOptions(cart.id);
+  const [clientSecret, shippingOptions] = await Promise.all([
+    initiatePaymentSession(cart.id, "pp_stripe_stripe"),
+    isDigital ? Promise.resolve([]) : getShippingOptions(cart.id),
+  ]);
 
   const checkoutItems: AnalyticsItem[] = cart.items.map((item) => ({
     item_id: item.variant.id,

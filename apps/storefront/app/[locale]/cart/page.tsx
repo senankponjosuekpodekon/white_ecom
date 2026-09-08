@@ -2,14 +2,8 @@ import { unstable_noStore } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { getCart } from "@/lib/cart";
+import { formatPrice } from "@/lib/format";
 import { locales, defaultLocale, type Locale } from "@/i18n";
-
-function formatPrice(amount: number, currency: string) {
-  return new Intl.NumberFormat("fr-FR", {
-    style: "currency",
-    currency: currency.toUpperCase(),
-  }).format(amount / 100);
-}
 
 export const dynamic = "force-dynamic";
 

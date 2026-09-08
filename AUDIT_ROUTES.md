@@ -95,7 +95,8 @@ Base : `http://localhost:9000/app`
 | `/app` | GET | Admin | Admin | Dashboard Medusa |
 | `/app/content` | GET | Admin | Admin | Éditeur visuel `content.json` (formulaire + aperçu live) |
 | `/app/onboarding` | GET | Admin | Super-admin | Onboarding boutique (nom, design, modèle économique, devises, pays) |
-| `/app/dashboard` | GET | Admin | Admin | Métriques (produits, clients, commandes, revenus) |
+| `/app/dashboard` | GET | Admin | Admin | Vue d’ensemble (KPIs + aperçu analytics) |
+| `/app/analytics` | GET | Admin | Admin | Analytics (Overview, Live view, Reports) avec filtres période et export CSV |
 | `/app/quick-product` | GET | Admin | Admin | Ajout / édition rapide de produit (une page) |
 | `/app/clients` | GET | Admin | Super-admin | Liste et création des clients white-label |
 

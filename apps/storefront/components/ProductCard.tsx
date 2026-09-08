@@ -1,14 +1,8 @@
 import { FadeImage } from "@/components/FadeImage";
 import Link from "next/link";
 import { DesignFullConfig } from "@/lib/design";
+import { formatPrice } from "@/lib/format";
 import { Product } from "@/lib/types";
-
-function formatPrice(amount: number, currency: string) {
-  return new Intl.NumberFormat("fr-FR", {
-    style: "currency",
-    currency: currency.toUpperCase(),
-  }).format(amount / 100);
-}
 
 function getPrice(product: Product) {
   const firstVariant = product.variants[0];
@@ -42,6 +36,7 @@ export function ProductCard({
               src={product.thumbnail}
               alt={product.title}
               fill
+              loading="lazy"
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               className={`object-cover transition-transform duration-300 ${hoverClass}`}
             />

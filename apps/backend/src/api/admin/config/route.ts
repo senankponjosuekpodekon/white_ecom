@@ -1,14 +1,10 @@
 import fs from "fs"
-import path from "path"
 import { z } from "@medusajs/framework/zod"
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import { requireUser, safeClientPath } from "../utils"
 
 function getConfigPath(): string | undefined {
-  const clientName = process.env.CLIENT_NAME
-  if (!clientName) {
-    return undefined
-  }
-  return path.resolve(process.cwd(), "clients", clientName, "config.json")
+  return safeClientPath("config.json")
 }
 
 function readConfig() {
@@ -22,15 +18,6 @@ function readConfig() {
   } catch {
     return {}
   }
-}
-
-function requireUser(req: MedusaRequest, res: MedusaResponse): boolean {
-  const user = (req as { user?: unknown }).user
-  if (!user) {
-    res.status(401).json({ error: "Unauthorized" })
-    return false
-  }
-  return true
 }
 
 const configSchema = z.object({

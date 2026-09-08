@@ -3,20 +3,17 @@ import path from "path"
 import { z } from "@medusajs/framework/zod"
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { defaultContent } from "../../../utils/default-content"
+import { requireUser, isValidClientName } from "../utils"
 
 const clientsDir = path.resolve(process.cwd(), "clients")
 
-function requireUser(req: MedusaRequest, res: MedusaResponse): boolean {
-  const user = (req as { user?: unknown }).user
-  if (!user) {
-    res.status(401).json({ error: "Unauthorized" })
-    return false
-  }
-  return true
-}
-
 const createSchema = z.object({
-  name: z.string().min(1),
+  name: z
+    .string()
+    .min(1)
+    .refine(isValidClientName, {
+      message: "Client name must contain only lowercase letters, digits and dashes",
+    }),
 })
 
 const defaultConfig = {

@@ -5,19 +5,13 @@ import { getTranslations } from "next-intl/server";
 import { getProduct } from "@/lib/get-product";
 import { getStoreConfig } from "@/lib/get-store-config";
 import { getLocalizedContent, getSiteUrl } from "@/lib/content";
+import { formatPrice } from "@/lib/format";
 import { locales, defaultLocale, type Locale } from "@/i18n";
 import { JsonLd } from "@/components/JsonLd";
 import { AddToCartButton } from "@/components/AddToCartButton";
 import { AnalyticsViewItem } from "@/components/AnalyticsViewItem";
 
 export const dynamic = "force-dynamic";
-
-function formatPrice(amount: number, currency: string) {
-  return new Intl.NumberFormat("fr-FR", {
-    style: "currency",
-    currency: currency.toUpperCase(),
-  }).format(amount / 100);
-}
 
 export async function generateMetadata({
   params,
