@@ -72,6 +72,7 @@ Base : `http://localhost:9000`
 | `/admin/config` | POST | Admin | Merchant/Admin | Écrire `config.json` du client | `req.user` requis + payload validé par Zod |
 | `/admin/clients` | GET | Super-admin | Super-admin | Lister les boutiques white-label | Email = `SUPER_ADMIN_EMAIL` |
 | `/admin/clients` | POST | Super-admin | Super-admin | Créer une boutique (dossier + config + contenu) | Email = `SUPER_ADMIN_EMAIL` |
+| `/admin/payment-config` | GET | Admin | Admin | Statut Stripe (clé, webhook) |  |
 | `/admin/custom` | GET | Admin | Merchant/Admin | Route test admin | Retourne `200` |
 
 ### 2.4 Routes Medusa natives (non personnalisées)
@@ -96,6 +97,7 @@ Base : `http://localhost:9000/app`
 | `/app/content` | GET | Admin | Admin | Éditeur visuel `content.json` (formulaire + aperçu live) |
 | `/app/onboarding` | GET | Admin | Super-admin | Onboarding boutique (nom, design, modèle économique, devises, pays) |
 | `/app/dashboard` | GET | Admin | Admin | Vue d’ensemble (KPIs + aperçu analytics) |
+| `/app/payments` | GET | Admin | Admin | Gestion des providers de paiement par région |
 | `/app/analytics` | GET | Admin | Admin | Analytics (Overview, Live view, Reports) avec filtres période et export CSV |
 | `/app/quick-product` | GET | Admin | Admin | Ajout / édition rapide de produit (une page) |
 | `/app/clients` | GET | Admin | Super-admin | Liste et création des boutiques white-label |
