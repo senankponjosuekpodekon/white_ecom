@@ -1,6 +1,6 @@
 # Audit des routes — White Shop
 
-> Généré pour audit live. Dernière mise à jour : 2026-09-03.
+> Généré pour audit live. Dernière mise à jour : 2026-09-08.
 
 ## Types d’utilisateurs
 
@@ -9,7 +9,7 @@
 | **Public** | Visiteur non connecté | Aucun |
 | **Storefront client** | Client boutique ( navigateur ) | Cookie session, `NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY` |
 | **Merchant / Admin** | Gestionnaire de la boutique | Login Medusa admin (`/app`) |
-| **Super-utilisateur** | Configuration système | Accès au serveur, `.env.*`, `content.json` |
+| **Super-utilisateur** | Configuration système | Accès au serveur, `.env.*`, `config.json`, `content.json` |
 
 ---
 
@@ -26,13 +26,16 @@ Base : `http://localhost:3000`
 | `/fr/cart` | Panier | GET | Non | Public | Affiche le panier |  |
 | `/fr/checkout` | Paiement | GET/POST | Cookie session | Client | Stripe / paiement manuel test |  |
 | `/fr/checkout/result` | Résultat paiement | GET | Cookie session | Client | Retour Stripe |  |
+| `/fr/register` | Inscription client | GET | Non | Public | Création compte client | Cookie session Medusa |
+| `/fr/login` | Connexion client | GET | Non | Public | Login client | Cookie session Medusa |
+| `/fr/account` | Compte client | GET | Cookie session | Client | Profil client |  |
 | `/fr/shipping` | Livraison | GET | Non | Public | Politique de livraison | Contenu depuis `content.json` |
 | `/fr/returns` | Retours | GET | Non | Public | Politique de retours | Contenu depuis `content.json` |
 | `/fr/privacy` | Confidentialité | GET | Non | Public | Politique de confidentialité | Contenu depuis `content.json` |
 | `/fr/contact` | Contact | GET | Non | Public | Coordonnées + réseaux sociaux | Contenu depuis `content.json` |
 | `/fr/legal` | Mentions légales | GET | Non | Public | Texte légal | Contenu depuis `content.json` |
 | `/fr/terms` | Conditions de service | GET | Non | Public | CGV / conditions | Contenu depuis `content.json` |
-| `/sitemap.xml` | Plan du site | GET | Non | Public | Sitemap statique | `fr` + `en` |
+| `/sitemap.xml` | Plan du site | GET | Non | Public | Sitemap dynamique (pages statiques + produits) | `fr` + `en` |
 | `/robots.txt` | Robots | GET | Non | Public | `allow: /` | Disallow `/cart`, `/checkout` |
 | `/llms.txt` | Guide LLM | GET | Non | Public | Documentation pour crawlers IA |  |
 
@@ -52,7 +55,7 @@ Base : `http://localhost:9000`
 
 | URL | Méthode | Auth | Utilisateur | Utilité | Notes |
 |-----|---------|------|-------------|---------|-------|
-| `/store/store-config` | GET | `x-publishable-api-key` | Public/Client | Configuration + contenu du client | Utilisé par toutes les pages SSR |
+| `/store/store-config` | GET | `x-publishable-api-key` | Public/Client | Configuration + contenu du client (nom, design, devises, pays, modèle économique) | Utilisé par toutes les pages SSR |
 | `/store/feed/google` | GET | `x-publishable-api-key` | Public | Flux Google Merchant CSV |  |
 | `/store/feed/facebook` | GET | `x-publishable-api-key` | Public | Flux Facebook CSV |  |
 | `/store/feed/pinterest` | GET | `x-publishable-api-key` | Public | Flux Pinterest CSV |  |
@@ -65,6 +68,10 @@ Base : `http://localhost:9000`
 |-----|---------|------|-------------|---------|-------|
 | `/admin/content` | GET | Admin | Merchant/Admin | Lire `content.json` du client | Protégé par admin Medusa |
 | `/admin/content` | POST | Admin | Merchant/Admin | Écrire `content.json` du client | `req.user` requis + payload validé par Zod |
+| `/admin/config` | GET | Admin | Merchant/Admin | Lire `config.json` du client |  |
+| `/admin/config` | POST | Admin | Merchant/Admin | Écrire `config.json` du client | `req.user` requis + payload validé par Zod |
+| `/admin/clients` | GET | Admin | Merchant/Admin | Lister les clients white-label |  |
+| `/admin/clients` | POST | Admin | Merchant/Admin | Créer un client (dossier + config + contenu) |  |
 | `/admin/custom` | GET | Admin | Merchant/Admin | Route test admin | Retourne `200` |
 
 ### 2.4 Routes Medusa natives (non personnalisées)
@@ -86,7 +93,11 @@ Base : `http://localhost:9000/app`
 | URL | Méthode | Auth | Utilisateur | Utilité |
 |-----|---------|------|-------------|---------|
 | `/app` | GET | Admin | Admin | Dashboard Medusa |
-| `/app/content` | GET | Admin | Admin | Éditeur `content.json` (widget custom) |
+| `/app/content` | GET | Admin | Admin | Éditeur visuel `content.json` (formulaire + aperçu live) |
+| `/app/onboarding` | GET | Admin | Super-admin | Onboarding boutique (nom, design, modèle économique, devises, pays) |
+| `/app/dashboard` | GET | Admin | Admin | Métriques (produits, clients, commandes, revenus) |
+| `/app/quick-product` | GET | Admin | Admin | Ajout / édition rapide de produit (une page) |
+| `/app/clients` | GET | Admin | Super-admin | Liste et création des clients white-label |
 
 ---
 
@@ -98,7 +109,8 @@ Base : `http://localhost:9000/app`
 | `apps/storefront/public/robots.txt` | Robots (généré) | `/robots.txt` |
 | `apps/storefront/public/favicon.ico` | Favicon | `/favicon.ico` |
 | `apps/backend/clients/default/content.json` | Contenu client par défaut | Backend + admin |
-| `apps/backend/clients/default/config.json` | *N’existe pas encore* | — |
+| `apps/backend/clients/default/config.json` | Configuration client (créé via onboarding ou `/admin/config`) | Backend + admin |
+| `apps/backend/clients/<client>/` | Dossier d’un client white-label | Backend + admin |
 
 ---
 
@@ -109,8 +121,9 @@ Base : `http://localhost:9000/app`
 | 1 | ~~`/admin/content` (POST) écrit directement sur le filesystem sans vérification de rôles au-delà de l’auth admin~~ | Moyenne | ✅ Corrigé : `req.user` obligatoire + validation Zod du payload |
 | 2 | Les flux `/store/feed/*` exposent toutes les données produits publiquement avec seulement la clé publiable | Faible | Surveiller la rotation de `NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY` |
 | 3 | `/store/store-config` expose `content` complet (politiques, contact, email) | Faible | Vérifier qu’aucune donnée sensible n’est incluse |
-| 4 | Aucune route client authentifiée (compte, historique) implémentée dans le storefront | Info | À prévoir pour une vraie production |
+| 4 | ~~Aucune route client authentifiée dans le storefront~~ | Info | ✅ Implémenté : `/register`, `/login`, `/account` avec cookies de session |
 | 5 | ~~`COOKIE_SAME_SITE=lax` en production~~ | Info | ✅ Corrigé : `COOKIE_SAME_SITE=strict` en production |
+| 6 | `/admin/config` et `/admin/clients` écrivent sur le filesystem | Moyenne | Assurer que seuls des super-admins y accèdent (contribution possible) |
 
 ---
 
