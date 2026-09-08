@@ -158,7 +158,7 @@ export default async function ProductPage({
       <JsonLd data={[productJsonLd, breadcrumbJsonLd]} />
       <AnalyticsViewItem item={viewItemData} />
       <div className="max-w-5xl mx-auto">
-        <ProductBlocks product={product} locale={locale} content={localized} t={t} />
+        <ProductBlocks product={product} locale={locale} content={localized} design={config.design} t={t} />
       </div>
     </main>
   );

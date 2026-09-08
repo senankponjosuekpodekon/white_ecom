@@ -1,20 +1,30 @@
+import Link from "next/link"
 import { FadeImage } from "./FadeImage"
 import { AddToCartButton } from "./AddToCartButton"
+import { ProductCard } from "./ProductCard"
+import { ProductTabs } from "./ProductTabs"
+import { StickyATC } from "./StickyATC"
+import { getProducts } from "@/lib/get-products"
 import { formatPrice } from "@/lib/format"
 import type { Product } from "@/lib/types"
 import type { LocalizedContent, ProductPageBlock } from "@/lib/content"
+import type { DesignFullConfig } from "@/lib/design"
 
 const defaultBlocks: ProductPageBlock[] = [
+  { type: "breadcrumb", enabled: true },
   { type: "gallery", enabled: true },
   { type: "title", enabled: true },
   { type: "price", enabled: true },
+  { type: "tabs", enabled: true },
   { type: "buy_buttons", enabled: true, options: { show_quantity: true, show_buy_now: true } },
-  { type: "description", enabled: true },
   { type: "meta", enabled: false },
   { type: "badges", enabled: false },
   { type: "shipping_info", enabled: false },
   { type: "trust_badge", enabled: false },
   { type: "inventory_status", enabled: false },
+  { type: "share", enabled: true },
+  { type: "recommendations", enabled: true },
+  { type: "sticky_atc", enabled: true },
 ]
 
 function Gallery({ product }: { product: Product }) {
@@ -99,25 +109,63 @@ function VariantList({
   )
 }
 
-export function ProductBlocks({
+export async function ProductBlocks({
   product,
   locale,
   content,
+  design,
   t,
 }: {
   product: Product
   locale: string
   content: LocalizedContent
+  design: DesignFullConfig
   t: (key: string) => string
 }) {
   const blocks = content.productPage?.blocks ?? defaultBlocks
   const layout = content.productPage?.layout ?? "split"
   const enabled = blocks.filter((b) => b.enabled !== false)
+
   const gallery = enabled.find((b) => b.type === "gallery")
-  const infoBlocks = enabled.filter((b) => b.type !== "gallery")
+  const breadcrumb = enabled.find((b) => b.type === "breadcrumb")
+  const sticky = enabled.find((b) => b.type === "sticky_atc")
+  const recBlock = enabled.find((b) => b.type === "recommendations")
+  const infoBlocks = enabled.filter(
+    (b) =>
+      b.type !== "gallery" &&
+      b.type !== "breadcrumb" &&
+      b.type !== "sticky_atc" &&
+      b.type !== "recommendations"
+  )
+
+  const siteUrl = content.siteUrl ?? "http://localhost:8080"
+  const productUrl = `${siteUrl}/${locale}/products/${product.handle}`
+
+  let recProducts: Product[] = []
+  if (recBlock) {
+    const all = await getProducts(5)
+    recProducts = all.filter((p) => p.id !== product.id).slice(0, 4)
+  }
 
   const renderBlock = (block: ProductPageBlock) => {
     switch (block.type) {
+      case "breadcrumb":
+        return (
+          <nav
+            aria-label="breadcrumbs"
+            className="text-sm text-[var(--color-muted)] mb-6 flex flex-wrap items-center gap-2"
+          >
+            <Link href={`/${locale}`} className="hover:underline">
+              {t("breadcrumbHome")}
+            </Link>
+            <span>/</span>
+            <Link href={`/${locale}/products`} className="hover:underline">
+              {t("breadcrumbProducts")}
+            </Link>
+            <span>/</span>
+            <span className="text-[var(--color-foreground)]">{product.title}</span>
+          </nav>
+        )
       case "title":
         return (
           <h1 className="text-3xl sm:text-4xl font-heading font-bold mb-4 text-[var(--color-foreground)]">
@@ -133,6 +181,19 @@ export function ProductBlocks({
           </p>
         )
       }
+      case "tabs": {
+        const shipping =
+          content.merchant?.shipping ?? content.policies?.shipping ?? ""
+        const returns = content.policies?.returns ?? ""
+        const tabs = [
+          { label: t("tabsDescription"), content: product.description ?? "" },
+          {
+            label: t("tabsShipping"),
+            content: [shipping, returns].filter(Boolean).join("\n"),
+          },
+        ]
+        return <ProductTabs tabs={tabs} />
+      }
       case "buy_buttons":
         return (
           <VariantList
@@ -142,10 +203,6 @@ export function ProductBlocks({
             options={block.options}
           />
         )
-      case "description":
-        return product.description ? (
-          <p className="text-lg text-[var(--color-muted)] mb-8">{product.description}</p>
-        ) : null
       case "meta": {
         const opts = block.options ?? {}
         const variant = product.variants[0]
@@ -169,8 +226,7 @@ export function ProductBlocks({
         )
       }
       case "shipping_info": {
-        const text =
-          content.merchant?.shipping ?? content.policies?.shipping
+        const text = content.merchant?.shipping ?? content.policies?.shipping
         if (!text) return null
         return (
           <div className="card-design p-4 mb-4 text-sm text-[var(--color-muted)]">
@@ -190,9 +246,79 @@ export function ProductBlocks({
         const qty = variant.inventory_quantity ?? 0
         const low = qty > 0 && qty <= 5
         return (
-          <p className={`text-sm mb-4 ${qty === 0 ? "text-red-600" : low ? "text-amber-600" : "text-green-700"}`}>
-            {qty === 0 ? t("outOfStock") : low ? `Plus que ${qty} en stock !` : "En stock"}
+          <p
+            className={`text-sm mb-4 ${
+              qty === 0
+                ? "text-red-600"
+                : low
+                ? "text-amber-600"
+                : "text-green-700"
+            }`}
+          >
+            {qty === 0
+              ? t("outOfStock")
+              : low
+              ? `Plus que ${qty} en stock !`
+              : "En stock"}
           </p>
+        )
+      }
+      case "share": {
+        const url = encodeURIComponent(productUrl)
+        const links = [
+          { href: `https://www.facebook.com/sharer/sharer.php?u=${url}`, label: "Facebook" },
+          { href: `https://pinterest.com/pin/create/button/?url=${url}`, label: "Pinterest" },
+          { href: `https://twitter.com/intent/tweet?url=${url}`, label: "X" },
+        ]
+        return (
+          <div className="flex flex-wrap items-center gap-2 text-sm mb-4">
+            <span className="text-[var(--color-muted)]">{t("shareTitle")}</span>
+            {links.map((link) => (
+              <a
+                key={link.label}
+                href={link.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-3 py-1 rounded-full border border-[var(--color-border)] text-xs hover:bg-[var(--color-surface)]"
+              >
+                {link.label}
+              </a>
+            ))}
+          </div>
+        )
+      }
+      case "recommendations": {
+        if (recProducts.length === 0) return null
+        return (
+          <section className="mt-12">
+            <h2 className="text-2xl font-heading font-bold mb-6 text-[var(--color-foreground)]">
+              {t("recommendationsTitle")}
+            </h2>
+            <ul className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              {recProducts.map((p) => (
+                <li key={p.id}>
+                  <ProductCard product={p} locale={locale} feed={design.feed} />
+                </li>
+              ))}
+            </ul>
+          </section>
+        )
+      }
+      case "sticky_atc": {
+        const variant = product.variants[0]
+        const price = variant?.prices?.[0]
+        if (!variant || !price) return null
+        return (
+          <StickyATC
+            variantId={variant.id}
+            variantTitle={variant.title}
+            productTitle={product.title}
+            thumbnail={product.thumbnail}
+            amount={price.amount}
+            currency={price.currency_code}
+            label={t("addToCart")}
+            quantityLabel={t("quantity")}
+          />
         )
       }
       default:
@@ -214,19 +340,22 @@ export function ProductBlocks({
     </div>
   )
 
-  if (layout === "stacked") {
-    return (
-      <div className="max-w-3xl mx-auto">
-        {media}
-        {info}
-      </div>
-    )
-  }
-
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
-      {media}
-      {info}
-    </div>
+    <>
+      {breadcrumb && <div>{renderBlock(breadcrumb)}</div>}
+      {layout === "stacked" ? (
+        <div className="max-w-3xl mx-auto">
+          {media}
+          {info}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
+          {media}
+          {info}
+        </div>
+      )}
+      {recBlock && renderBlock(recBlock)}
+      {sticky && renderBlock(sticky)}
+    </>
   )
 }

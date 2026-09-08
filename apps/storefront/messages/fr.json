@@ -37,7 +37,13 @@
     "buyNow": "Acheter maintenant",
     "quantity": "Quantité",
     "outOfStock": "Rupture de stock",
-    "variants": "Variantes"
+    "variants": "Variantes",
+    "breadcrumbHome": "Accueil",
+    "breadcrumbProducts": "Produits",
+    "tabsDescription": "Description",
+    "tabsShipping": "Livraison & retours",
+    "recommendationsTitle": "Vous aimerez aussi",
+    "shareTitle": "Partager"
   },
   "cart": {
     "title": "Votre panier",

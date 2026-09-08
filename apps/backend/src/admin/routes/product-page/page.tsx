@@ -4,16 +4,20 @@ import { defineRouteConfig } from "@medusajs/admin-sdk"
 type Block = { type: string; enabled: boolean; options?: Record<string, unknown> }
 
 const CATALOG: Array<{ type: string; label: string }> = [
+  { type: "breadcrumb", label: "Fil d'Ariane" },
   { type: "gallery", label: "Galerie" },
   { type: "title", label: "Titre" },
   { type: "price", label: "Prix" },
+  { type: "tabs", label: "Onglets (description / livraison)" },
   { type: "buy_buttons", label: "Boutons d'achat" },
-  { type: "description", label: "Description" },
   { type: "meta", label: "Méta (SKU / marque)" },
   { type: "badges", label: "Badges" },
   { type: "shipping_info", label: "Info livraison" },
   { type: "trust_badge", label: "Badge de confiance" },
   { type: "inventory_status", label: "Statut stock" },
+  { type: "share", label: "Partage social" },
+  { type: "recommendations", label: "Produits similaires" },
+  { type: "sticky_atc", label: "Sticky Add to Cart" },
 ]
 
 const TEMPLATES: Record<string, { label: string; blocks: Block[] }> = {
@@ -24,7 +28,7 @@ const TEMPLATES: Record<string, { label: string; blocks: Block[] }> = {
       { type: "title", enabled: true },
       { type: "price", enabled: true },
       { type: "buy_buttons", enabled: true },
-      { type: "description", enabled: true },
+      { type: "tabs", enabled: true },
     ],
   },
   venteflash: {
@@ -47,7 +51,7 @@ const TEMPLATES: Record<string, { label: string; blocks: Block[] }> = {
       { type: "title", enabled: true },
       { type: "price", enabled: true },
       { type: "buy_buttons", enabled: true },
-      { type: "description", enabled: true },
+      { type: "tabs", enabled: true },
       { type: "meta", enabled: true },
       { type: "trust_badge", enabled: true },
       { type: "shipping_info", enabled: true },

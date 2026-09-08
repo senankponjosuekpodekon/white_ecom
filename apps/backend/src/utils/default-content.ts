@@ -136,20 +136,24 @@ const defaultLocalizedContent: LocalizedContent = {
   productPage: {
     layout: "split",
     blocks: [
+      { type: "breadcrumb", enabled: true },
       { type: "gallery", enabled: true },
       { type: "title", enabled: true },
       { type: "price", enabled: true },
+      { type: "tabs", enabled: true },
       {
         type: "buy_buttons",
         enabled: true,
         options: { show_quantity: true, show_buy_now: true },
       },
-      { type: "description", enabled: true },
       { type: "meta", enabled: false, options: { show_sku: true, show_vendor: true } },
       { type: "badges", enabled: false },
       { type: "shipping_info", enabled: false },
       { type: "trust_badge", enabled: false },
       { type: "inventory_status", enabled: false },
+      { type: "share", enabled: true },
+      { type: "recommendations", enabled: true },
+      { type: "sticky_atc", enabled: true },
     ],
   },
   site: {
@@ -281,20 +285,24 @@ const defaultEnglishContent: LocalizedContent = {
   productPage: {
     layout: "split",
     blocks: [
+      { type: "breadcrumb", enabled: true },
       { type: "gallery", enabled: true },
       { type: "title", enabled: true },
       { type: "price", enabled: true },
+      { type: "tabs", enabled: true },
       {
         type: "buy_buttons",
         enabled: true,
         options: { show_quantity: true, show_buy_now: true },
       },
-      { type: "description", enabled: true },
       { type: "meta", enabled: false, options: { show_sku: true, show_vendor: true } },
       { type: "badges", enabled: false },
       { type: "shipping_info", enabled: false },
       { type: "trust_badge", enabled: false },
       { type: "inventory_status", enabled: false },
+      { type: "share", enabled: true },
+      { type: "recommendations", enabled: true },
+      { type: "sticky_atc", enabled: true },
     ],
   },
   site: {

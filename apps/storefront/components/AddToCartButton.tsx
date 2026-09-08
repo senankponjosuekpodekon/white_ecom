@@ -61,17 +61,36 @@ export function AddToCartButton({
   return (
     <div className="flex flex-col gap-3">
       {showQuantity && (
-        <label className="flex items-center gap-2 text-sm text-[var(--color-foreground)]">
-          {quantityLabel}
-          <input
-            type="number"
-            min={1}
-            max={99}
-            value={quantity}
-            onChange={(e) => setQuantity(Math.max(1, Number(e.target.value) || 1))}
-            className="w-16 p-2 rounded border border-[var(--color-border)] bg-[var(--color-surface)]"
-          />
-        </label>
+        <div className="flex items-center gap-2 text-sm text-[var(--color-foreground)]">
+          <span>{quantityLabel}</span>
+          <div className="flex items-center rounded-lg border border-[var(--color-border)] overflow-hidden">
+            <button
+              type="button"
+              onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+              aria-label={`${quantityLabel} −`}
+              className="px-3 py-2 hover:bg-[var(--color-surface)]"
+            >
+              −
+            </button>
+            <input
+              type="number"
+              min={1}
+              max={99}
+              value={quantity}
+              onChange={(e) => setQuantity(Math.max(1, Number(e.target.value) || 1))}
+              className="w-12 text-center border-x border-[var(--color-border)] bg-[var(--color-surface)]"
+              aria-label={quantityLabel}
+            />
+            <button
+              type="button"
+              onClick={() => setQuantity((q) => Math.min(99, q + 1))}
+              aria-label={`${quantityLabel} +`}
+              className="px-3 py-2 hover:bg-[var(--color-surface)]"
+            >
+              +
+            </button>
+          </div>
+        </div>
       )}
       <form onSubmit={handleSubmit} className="flex flex-col gap-2">
         <button type="submit" className="btn-primary">

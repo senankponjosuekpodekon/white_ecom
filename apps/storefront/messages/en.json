@@ -37,7 +37,13 @@
     "buyNow": "Buy now",
     "quantity": "Quantity",
     "outOfStock": "Out of stock",
-    "variants": "Variants"
+    "variants": "Variants",
+    "breadcrumbHome": "Home",
+    "breadcrumbProducts": "Products",
+    "tabsDescription": "Description",
+    "tabsShipping": "Shipping & returns",
+    "recommendationsTitle": "You may also like",
+    "shareTitle": "Share"
   },
   "cart": {
     "title": "Your cart",
