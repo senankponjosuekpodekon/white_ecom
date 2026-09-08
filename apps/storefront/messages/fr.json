@@ -1,10 +1,7 @@
 {
   "nav": {
     "products": "Produits",
-    "cart": "Panier",
-    "login": "Connexion",
-    "register": "Inscription",
-    "account": "Compte"
+    "cart": "Panier"
   },
   "home": {
     "title": "Bienvenue",
@@ -81,23 +78,5 @@
     "continueShopping": "Continuer les achats",
     "selectShipping": "Choisir une livraison",
     "noShipping": "Aucune option de livraison disponible."
-  },
-  "account": {
-    "registerTitle": "Créer un compte",
-    "loginTitle": "Se connecter",
-    "accountTitle": "Mon compte",
-    "email": "Email",
-    "password": "Mot de passe",
-    "firstName": "Prénom",
-    "lastName": "Nom",
-    "register": "Créer le compte",
-    "login": "Se connecter",
-    "logout": "Se déconnecter",
-    "alreadyAccount": "Déjà un compte ?",
-    "noAccount": "Pas de compte ?",
-    "notLogged": "Vous n'êtes pas connecté.",
-    "loading": "Chargement…",
-    "unknownError": "Une erreur est survenue.",
-    "loginUnsupported": "Ce mode de connexion n'est pas supporté."
   }
 }

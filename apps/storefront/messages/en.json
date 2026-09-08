@@ -1,10 +1,7 @@
 {
   "nav": {
     "products": "Products",
-    "cart": "Cart",
-    "login": "Login",
-    "register": "Register",
-    "account": "Account"
+    "cart": "Cart"
   },
   "home": {
     "title": "Welcome",
@@ -81,23 +78,5 @@
     "continueShopping": "Continue shopping",
     "selectShipping": "Choose a shipping option",
     "noShipping": "No shipping option available."
-  },
-  "account": {
-    "registerTitle": "Create account",
-    "loginTitle": "Log in",
-    "accountTitle": "My account",
-    "email": "Email",
-    "password": "Password",
-    "firstName": "First name",
-    "lastName": "Last name",
-    "register": "Create account",
-    "login": "Log in",
-    "logout": "Log out",
-    "alreadyAccount": "Already have an account?",
-    "noAccount": "No account?",
-    "notLogged": "You are not logged in.",
-    "loading": "Loading…",
-    "unknownError": "An error occurred.",
-    "loginUnsupported": "This login method is not supported."
   }
 }
