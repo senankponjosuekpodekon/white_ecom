@@ -1,7 +1,8 @@
 import { getTranslations } from "next-intl/server";
+import type { Metadata } from "next";
 import { locales, defaultLocale, type Locale } from "@/i18n";
 import { getStoreConfig } from "@/lib/get-store-config";
-import { getLocalizedContent } from "@/lib/content";
+import { getLocalizedContent, getSiteUrl } from "@/lib/content";
 import { Hero } from "@/components/Hero";
 import { Features } from "@/components/Features";
 import { ValueProposition } from "@/components/ValueProposition";
@@ -9,6 +10,39 @@ import { SocialProof } from "@/components/SocialProof";
 import { CTA } from "@/components/CTA";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale: raw } = await params;
+  const locale = locales.includes(raw as Locale) ? (raw as Locale) : defaultLocale;
+  const config = await getStoreConfig();
+  const localized = getLocalizedContent(
+    config.content,
+    locale,
+    (config.defaultLanguage as Locale) ?? defaultLocale
+  );
+  const siteUrl = getSiteUrl(
+    localized,
+    process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:8080"
+  );
+  const title = config.name;
+  const description = localized.site?.description ?? config.name;
+  return {
+    metadataBase: new URL(siteUrl),
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url: `/${locale}`,
+      siteName: config.name,
+      type: "website",
+    },
+  };
+}
 
 export default async function Home({
   params,

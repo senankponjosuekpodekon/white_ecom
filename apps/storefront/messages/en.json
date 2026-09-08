@@ -28,6 +28,7 @@
   },
   "products": {
     "title": "Our products",
+    "description": "Browse our product selection.",
     "noProducts": "No products available"
   },
   "product": {
