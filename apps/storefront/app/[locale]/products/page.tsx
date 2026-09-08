@@ -35,6 +35,7 @@ type SearchParams = Promise<{
   max?: string;
   sort?: string;
   cols?: string;
+  page?: string;
 }>;
 
 export const dynamic = "force-dynamic";
@@ -162,6 +163,9 @@ export default async function ProductsPage({
     getStoreConfig(),
   ]);
   const feed = config.design.feed;
+  const perPage = feed?.itemsPerPage ?? 12;
+  const page = Math.max(1, Number(sp.page) || 1);
+  const visibleCount = perPage * page;
 
   const products = applySort(
     applyFilters(allProducts, { stock: stockFilter, min, max }),
@@ -324,13 +328,25 @@ export default async function ProductsPage({
             {products.length === 0 ? (
               <p className="text-[var(--color-muted)]">{t("noProducts")}</p>
             ) : (
-              <ul className={`grid ${columns} gap-8`}>
-                {products.slice(0, feed.itemsPerPage).map((product) => (
-                  <li key={product.id}>
-                    <ProductCard product={product} locale={locale} feed={feed} />
-                  </li>
-                ))}
-              </ul>
+              <>
+                <ul className={`grid ${columns} gap-8`}>
+                  {products.slice(0, visibleCount).map((product) => (
+                    <li key={product.id}>
+                      <ProductCard product={product} locale={locale} feed={feed} />
+                    </li>
+                  ))}
+                </ul>
+                {products.length > visibleCount && (
+                  <div className="text-center mt-10">
+                    <Link
+                      href={keepParams(sp, { page: String(page + 1) })}
+                      className="btn-primary"
+                    >
+                      {t("loadMore")}
+                    </Link>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>

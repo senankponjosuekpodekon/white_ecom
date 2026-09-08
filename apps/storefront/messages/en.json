@@ -47,7 +47,8 @@
     "filterMin": "Min",
     "filterMax": "Max",
     "filterApply": "OK",
-    "columnsTitle": "Columns"
+    "columnsTitle": "Columns",
+    "loadMore": "Load more"
   },
   "product": {
     "addToCart": "Add to cart",
