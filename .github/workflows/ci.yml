@@ -50,7 +50,9 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Create env files for compose
-        run: touch .env.backend .env.storefront
+        run: |
+          printf 'STRIPE_API_KEY=sk_test_placeholder\nSTRIPE_WEBHOOK_SECRET=whsec_placeholder\n' > .env.backend
+          touch .env.storefront
 
       - name: Build and start stack
         run: |
