@@ -204,7 +204,7 @@ docker compose -f docker-compose.prod.yml up -d
 - `/app/dashboard` — métriques (produits, clients, commandes, revenus)
 - `/app/quick-product` — ajout / édition rapide de produit (une page)
 - `/app/csv` — import / export CSV des produits
-- `/app/clients` — liste et création des clients white-label
+- `/app/clients` — liste et création des boutiques white-label
 - `/admin/content` / `/admin/config` — API de lecture/écriture `content.json` et `config.json`
 - `/admin/clients` — API de gestion des clients
 

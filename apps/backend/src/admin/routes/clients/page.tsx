@@ -51,9 +51,9 @@ const Clients = () => {
 
   return (
     <div style={{ padding: "2rem", maxWidth: "700px" }}>
-      <h1 style={{ fontSize: "1.5rem", marginBottom: "1rem" }}>Clients</h1>
+      <h1 style={{ fontSize: "1.5rem", marginBottom: "1rem" }}>Boutiques</h1>
       <p style={{ marginBottom: "1.5rem", color: "#666" }}>
-        Chaque client a son propre dossier <code>clients/&lt;nom&gt;/</code> avec sa configuration et son contenu. Le client actif est défini par la variable d&apos;environnement <code>CLIENT_NAME</code>.
+        Chaque boutique white-label a son propre dossier <code>clients/&lt;nom&gt;/</code> avec sa configuration et son contenu. La boutique active est définie par la variable d&apos;environnement <code>CLIENT_NAME</code>.
       </p>
 
       <div style={{ marginBottom: "2rem" }}>
@@ -64,7 +64,7 @@ const Clients = () => {
       </div>
 
       <div style={{ marginBottom: "2rem" }}>
-        <h2 style={{ fontSize: "1.1rem", marginBottom: "0.5rem" }}>Clients existants</h2>
+        <h2 style={{ fontSize: "1.1rem", marginBottom: "0.5rem" }}>Boutiques existantes</h2>
         {clients.length === 0 ? (
           <p>Aucun client pour le moment.</p>
         ) : (
@@ -88,10 +88,10 @@ const Clients = () => {
       </div>
 
       <form onSubmit={handleCreate} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-        <h2 style={{ fontSize: "1.1rem" }}>Créer un client</h2>
+        <h2 style={{ fontSize: "1.1rem" }}>Créer une boutique</h2>
         <div>
           <label style={{ display: "block", marginBottom: "0.25rem", fontWeight: 600 }}>
-            Nom du client
+            Nom de la boutique
           </label>
           <input
             value={newName}
@@ -119,9 +119,9 @@ const Clients = () => {
             opacity: loading ? 0.6 : 1,
           }}
         >
-          {loading ? "Création..." : "Créer le client"}
+          {loading ? "Création..." : "Créer la boutique"}
         </button>
-        {created && <span style={{ color: "#16a34a" }}>Client créé ! Redémarrez avec CLIENT_NAME=&lt;nom&gt;.</span>}
+        {created && <span style={{ color: "#16a34a" }}>Boutique créée ! Redémarrez avec CLIENT_NAME=&lt;nom&gt;.</span>}
         {error && <span style={{ color: "#dc2626" }}>{error}</span>}
       </form>
     </div>
@@ -129,7 +129,7 @@ const Clients = () => {
 }
 
 export const config = defineRouteConfig({
-  label: "Clients",
+  label: "Boutiques",
   rank: 9,
 })
 
