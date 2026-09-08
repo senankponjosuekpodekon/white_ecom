@@ -98,6 +98,7 @@ Base : `http://localhost:9000/app`
 | `/app/onboarding` | GET | Admin | Super-admin | Onboarding boutique (nom, design, modèle économique, devises, pays) |
 | `/app/dashboard` | GET | Admin | Admin | Vue d’ensemble (KPIs + aperçu analytics) |
 | `/app/payments` | GET | Admin | Admin | Gestion des providers de paiement par région |
+| `/app/product-page` | GET | Admin | Admin | Builder page produit (blocs, layout, templates) |
 | `/app/analytics` | GET | Admin | Admin | Analytics (Overview, Live view, Reports) avec filtres période et export CSV |
 | `/app/quick-product` | GET | Admin | Admin | Ajout / édition rapide de produit (une page) |
 | `/app/clients` | GET | Admin | Super-admin | Liste et création des boutiques white-label |

@@ -11,6 +11,7 @@ export const getProduct = cache(async (handle: string): Promise<Product | null> 
       "handle",
       "thumbnail",
       "status",
+      "metadata",
       "variants.id",
       "variants.title",
       "variants.sku",

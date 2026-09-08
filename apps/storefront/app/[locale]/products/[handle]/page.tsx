@@ -1,14 +1,12 @@
-import { FadeImage } from "@/components/FadeImage";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { getProduct } from "@/lib/get-product";
 import { getStoreConfig } from "@/lib/get-store-config";
 import { getLocalizedContent, getSiteUrl } from "@/lib/content";
-import { formatPrice } from "@/lib/format";
 import { locales, defaultLocale, type Locale } from "@/i18n";
 import { JsonLd } from "@/components/JsonLd";
-import { AddToCartButton } from "@/components/AddToCartButton";
+import { ProductBlocks } from "@/components/ProductBlocks";
 import { AnalyticsViewItem } from "@/components/AnalyticsViewItem";
 
 export const dynamic = "force-dynamic";
@@ -160,78 +158,7 @@ export default async function ProductPage({
       <JsonLd data={[productJsonLd, breadcrumbJsonLd]} />
       <AnalyticsViewItem item={viewItemData} />
       <div className="max-w-5xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
-          <div className="relative h-96 rounded-2xl overflow-hidden shadow-lg">
-            {product.thumbnail ? (
-              <FadeImage
-                src={product.thumbnail}
-                alt={product.title}
-                fill
-                sizes="(max-width: 768px) 100vw, 50vw"
-                className="object-cover"
-                priority
-              />
-            ) : (
-              <div className="w-full h-full bg-[var(--color-surface)] flex items-center justify-center text-[var(--color-muted)] text-6xl font-heading">
-                {product.title.charAt(0).toUpperCase()}
-              </div>
-            )}
-          </div>
-
-          <div>
-            <h1 className="text-3xl sm:text-4xl font-heading font-bold mb-4 text-[var(--color-foreground)]">
-              {product.title}
-            </h1>
-            {product.description && (
-              <p className="text-lg text-[var(--color-muted)] mb-8">
-                {product.description}
-              </p>
-            )}
-
-            <h2 className="text-xl font-heading font-semibold mb-4 text-[var(--color-foreground)]">
-              {t("variants")}
-            </h2>
-            {product.variants.length === 0 ? (
-              <p className="text-[var(--color-muted)]">{t("outOfStock")}</p>
-            ) : (
-              <ul className="space-y-3">
-                {product.variants.map((variant) => {
-                  const price = variant.prices?.[0];
-                  return (
-                    <li
-                      key={variant.id}
-                      className="card-design p-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4"
-                    >
-                      <div>
-                        <span className="font-medium text-[var(--color-foreground)]">
-                          {variant.title}
-                        </span>
-                        {price && (
-                          <p className="text-[var(--color-primary)] font-bold">
-                            {formatPrice(price.amount, price.currency_code)}
-                          </p>
-                        )}
-                      </div>
-                      {price && (
-                        <AddToCartButton
-                          variantId={variant.id}
-                          variantTitle={variant.title}
-                          productTitle={product.title}
-                          price={price.amount / 100}
-                          currency={price.currency_code}
-                          label={t("addToCart")}
-                          buyNowLabel={t("buyNow")}
-                          quantityLabel={t("quantity")}
-                          locale={locale}
-                        />
-                      )}
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-          </div>
-        </div>
+        <ProductBlocks product={product} locale={locale} content={localized} t={t} />
       </div>
     </main>
   );

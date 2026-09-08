@@ -2,6 +2,8 @@ export type ProductVariant = {
   id: string;
   title: string;
   sku?: string | null;
+  manage_inventory?: boolean;
+  inventory_quantity?: number | null;
   prices?: Array<{
     amount: number;
     currency_code: string;
@@ -14,6 +16,7 @@ export type Product = {
   handle: string;
   description?: string | null;
   thumbnail?: string | null;
+  metadata?: Record<string, unknown> | null;
   variants: ProductVariant[];
 };
 

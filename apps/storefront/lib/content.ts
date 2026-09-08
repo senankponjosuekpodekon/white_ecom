@@ -1,7 +1,17 @@
 import { mergeObjects } from "./design/merge";
 import { defaultLocale, type Locale } from "@/i18n";
 
+export type ProductPageBlock = {
+  type: string
+  enabled?: boolean
+  options?: Record<string, unknown>
+}
+
 export type LocalizedContent = {
+  productPage?: {
+    layout?: string
+    blocks?: ProductPageBlock[]
+  }
   site?: {
     description?: string;
     keywords?: string;

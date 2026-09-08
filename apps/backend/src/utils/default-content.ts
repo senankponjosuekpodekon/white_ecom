@@ -1,6 +1,16 @@
 import { deepMerge } from "./merge";
 
+export type ProductPageBlock = {
+  type: string
+  enabled?: boolean
+  options?: Record<string, unknown>
+}
+
 export type LocalizedContent = {
+  productPage?: {
+    layout?: string
+    blocks?: ProductPageBlock[]
+  }
   site?: {
     description?: string;
     keywords?: string;
@@ -68,6 +78,25 @@ export type ClientContent = {
 };
 
 const defaultLocalizedContent: LocalizedContent = {
+  productPage: {
+    layout: "split",
+    blocks: [
+      { type: "gallery", enabled: true },
+      { type: "title", enabled: true },
+      { type: "price", enabled: true },
+      {
+        type: "buy_buttons",
+        enabled: true,
+        options: { show_quantity: true, show_buy_now: true },
+      },
+      { type: "description", enabled: true },
+      { type: "meta", enabled: false, options: { show_sku: true, show_vendor: true } },
+      { type: "badges", enabled: false },
+      { type: "shipping_info", enabled: false },
+      { type: "trust_badge", enabled: false },
+      { type: "inventory_status", enabled: false },
+    ],
+  },
   site: {
     description: "Boutique en ligne moderne et fiable. Découvrez notre catalogue.",
     keywords: "boutique, e-commerce, produits",
@@ -148,6 +177,25 @@ const defaultLocalizedContent: LocalizedContent = {
 };
 
 const defaultEnglishContent: LocalizedContent = {
+  productPage: {
+    layout: "split",
+    blocks: [
+      { type: "gallery", enabled: true },
+      { type: "title", enabled: true },
+      { type: "price", enabled: true },
+      {
+        type: "buy_buttons",
+        enabled: true,
+        options: { show_quantity: true, show_buy_now: true },
+      },
+      { type: "description", enabled: true },
+      { type: "meta", enabled: false, options: { show_sku: true, show_vendor: true } },
+      { type: "badges", enabled: false },
+      { type: "shipping_info", enabled: false },
+      { type: "trust_badge", enabled: false },
+      { type: "inventory_status", enabled: false },
+    ],
+  },
   site: {
     description: "Modern and reliable online store. Discover our catalogue.",
     keywords: "shop, e-commerce, products",

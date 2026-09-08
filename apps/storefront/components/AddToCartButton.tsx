@@ -15,6 +15,8 @@ export function AddToCartButton({
   buyNowLabel,
   quantityLabel,
   locale,
+  showQuantity = true,
+  showBuyNow = true,
 }: {
   variantId: string
   variantTitle: string
@@ -25,6 +27,8 @@ export function AddToCartButton({
   buyNowLabel: string
   quantityLabel: string
   locale: string
+  showQuantity?: boolean
+  showBuyNow?: boolean
 }) {
   const router = useRouter()
   const [quantity, setQuantity] = useState(1)
@@ -56,24 +60,28 @@ export function AddToCartButton({
 
   return (
     <div className="flex flex-col gap-3">
-      <label className="flex items-center gap-2 text-sm text-[var(--color-foreground)]">
-        {quantityLabel}
-        <input
-          type="number"
-          min={1}
-          max={99}
-          value={quantity}
-          onChange={(e) => setQuantity(Math.max(1, Number(e.target.value) || 1))}
-          className="w-16 p-2 rounded border border-[var(--color-border)] bg-[var(--color-surface)]"
-        />
-      </label>
+      {showQuantity && (
+        <label className="flex items-center gap-2 text-sm text-[var(--color-foreground)]">
+          {quantityLabel}
+          <input
+            type="number"
+            min={1}
+            max={99}
+            value={quantity}
+            onChange={(e) => setQuantity(Math.max(1, Number(e.target.value) || 1))}
+            className="w-16 p-2 rounded border border-[var(--color-border)] bg-[var(--color-surface)]"
+          />
+        </label>
+      )}
       <form onSubmit={handleSubmit} className="flex flex-col gap-2">
         <button type="submit" className="btn-primary">
           {label}
         </button>
-        <button type="button" onClick={handleBuyNow} className="btn-secondary">
-          {buyNowLabel}
-        </button>
+        {showBuyNow && (
+          <button type="button" onClick={handleBuyNow} className="btn-secondary">
+            {buyNowLabel}
+          </button>
+        )}
       </form>
     </div>
   )
