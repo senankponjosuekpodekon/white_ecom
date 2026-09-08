@@ -17,8 +17,18 @@ export async function getCart(): Promise<Cart | null> {
   }
 
   try {
+    const fields = [
+      "total",
+      "currency_code",
+      "items.*",
+      "items.variant.id",
+      "items.variant.title",
+      "items.variant.sku",
+      "items.product.title",
+      "items.product.thumbnail",
+    ].join(",")
     const { cart } = await medusaClient.client.fetch<{ cart: Cart }>(
-      `/store/carts/${cartId}`,
+      `/store/carts/${cartId}?fields=${fields}`,
       { method: "GET" }
     );
     return cart ?? null;
@@ -42,7 +52,7 @@ export async function createCart(): Promise<Cart> {
   const cookieStore = await cookies()
   cookieStore.set(CART_COOKIE, cart.id, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: process.env.COOKIE_SECURE === "true",
     sameSite: "lax",
     path: "/",
   });

@@ -29,15 +29,27 @@ export function RegisterForm({ locale }: { locale: Locale }) {
     setError(null)
 
     try {
-      await medusaClient.auth.register("customer", "emailpass", {
+      const result = await medusaClient.auth.register("customer", "emailpass", {
         email: form.email,
         password: form.password,
       })
 
-      await medusaClient.store.customer.create({
+      const token =
+        typeof result === "string" ? result : (result as { token?: string }).token
+
+      await medusaClient.store.customer.create(
+        {
+          email: form.email,
+          first_name: form.firstName,
+          last_name: form.lastName,
+        },
+        {},
+        token ? { Authorization: `Bearer ${token}` } : {}
+      )
+
+      await medusaClient.auth.login("customer", "emailpass", {
         email: form.email,
-        first_name: form.firstName,
-        last_name: form.lastName,
+        password: form.password,
       })
 
       router.push(`/${locale}/account`)
