@@ -45,6 +45,7 @@ services:
     build:
       context: .
       dockerfile: apps/backend/Dockerfile
+      network: host
     env_file:
       - .env.backend
     environment:
@@ -92,6 +93,7 @@ services:
     build:
       context: .
       dockerfile: apps/storefront/Dockerfile
+      network: host
       args:
         NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: ${NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY:-pk_5c328ce90bc55ba4df7101f655c08b7e4b870875051600e69ef40f671bcab75b}
         NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:8080}
