@@ -18,9 +18,13 @@ const QuickProduct = () => {
     currency: "eur",
     imageUrl: "",
     status: "published" as "published" | "draft",
+    shortDescription: "",
+    metaTitle: "",
+    metaDescription: "",
   })
   const [productId, setProductId] = useState<string | null>(null)
   const [variantId, setVariantId] = useState<string | null>(null)
+  const [template, setTemplate] = useState("")
   const [loading, setLoading] = useState(false)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -52,6 +56,7 @@ const QuickProduct = () => {
         const variant = product.variants?.[0]
         const price = variant?.prices?.[0]
         setVariantId(variant?.id ?? null)
+        const meta = product.metadata ?? {}
         setForm({
           title: product.title ?? "",
           description: product.description ?? "",
@@ -60,6 +65,9 @@ const QuickProduct = () => {
           currency: price?.currency_code ?? form.currency,
           imageUrl: product.thumbnail ?? "",
           status: product.status ?? "published",
+          shortDescription: meta.short_description ?? "",
+          metaTitle: meta.meta_title ?? "",
+          metaDescription: meta.meta_description ?? "",
         })
       })
       .catch(() => setError("Impossible de charger le produit"))
@@ -69,6 +77,20 @@ const QuickProduct = () => {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }))
+  }
+
+  const handleTemplate = (value: string) => {
+    setTemplate(value)
+    const templates: Record<string, { title: string; description: string; price: string }> = {
+      tshirt: { title: "T-shirt", description: "T-shirt en coton premium.", price: "19.90" },
+      mug: { title: "Mug", description: "Mug céramique 330 ml.", price: "12.50" },
+      poster: { title: "Poster", description: "Poster haute qualité, formats variés.", price: "15.00" },
+      ebook: { title: "E-book", description: "E-book numérique (PDF).", price: "9.90" },
+    }
+    const tpl = templates[value]
+    if (tpl) {
+      setForm((prev) => ({ ...prev, ...tpl }))
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -95,6 +117,11 @@ const QuickProduct = () => {
       status: form.status,
       thumbnail,
       images,
+      metadata: {
+        short_description: form.shortDescription,
+        meta_title: form.metaTitle,
+        meta_description: form.metaDescription,
+      },
     }
 
     const payload = productId
@@ -156,6 +183,9 @@ const QuickProduct = () => {
           currency: "eur",
           imageUrl: "",
           status: "published",
+          shortDescription: "",
+          metaTitle: "",
+          metaDescription: "",
         })
       }
     } catch (err) {
@@ -176,6 +206,22 @@ const QuickProduct = () => {
           : "Créez un produit simple en quelques champs. Un handle et une variante par défaut sont générés automatiquement."}
       </p>
       <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+        <div>
+          <label style={{ display: "block", marginBottom: "0.25rem", fontWeight: 600 }}>
+            Template (optionnel)
+          </label>
+          <select
+            value={template}
+            onChange={(e) => handleTemplate(e.target.value)}
+            style={inputStyle}
+          >
+            <option value="">— Aucun —</option>
+            <option value="tshirt">T-shirt</option>
+            <option value="mug">Mug</option>
+            <option value="poster">Poster</option>
+            <option value="ebook">E-book</option>
+          </select>
+        </div>
         <div>
           <label style={{ display: "block", marginBottom: "0.25rem", fontWeight: 600 }}>
             Titre
@@ -273,6 +319,45 @@ const QuickProduct = () => {
             placeholder="https://example.com/image.jpg"
             style={inputStyle}
           />
+        </div>
+        <div style={{ borderTop: "1px solid #e5e7eb", paddingTop: "1rem" }}>
+          <h2 style={{ fontSize: "1.1rem", marginBottom: "0.75rem" }}>SEO</h2>
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+            <div>
+              <label style={{ display: "block", marginBottom: "0.25rem", fontWeight: 600 }}>
+                Description courte (optionnel)
+              </label>
+              <input
+                name="shortDescription"
+                value={form.shortDescription}
+                onChange={handleChange}
+                style={inputStyle}
+              />
+            </div>
+            <div>
+              <label style={{ display: "block", marginBottom: "0.25rem", fontWeight: 600 }}>
+                Meta title (optionnel)
+              </label>
+              <input
+                name="metaTitle"
+                value={form.metaTitle}
+                onChange={handleChange}
+                style={inputStyle}
+              />
+            </div>
+            <div>
+              <label style={{ display: "block", marginBottom: "0.25rem", fontWeight: 600 }}>
+                Meta description (optionnel)
+              </label>
+              <textarea
+                name="metaDescription"
+                value={form.metaDescription}
+                onChange={handleChange}
+                rows={3}
+                style={inputStyle}
+              />
+            </div>
+          </div>
         </div>
         <div style={{ display: "flex", gap: "1rem", alignItems: "center", marginTop: "1rem" }}>
           <button
