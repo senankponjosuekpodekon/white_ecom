@@ -2,13 +2,11 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm install
-
 COPY . .
 
+RUN npm ci
 ENV NODE_ENV=production
-RUN npm run build
+RUN npm run build -w @dtc/backend
 
 # Medusa start uses process.cwd() as rootDirectory for the admin build
 # so we copy the built admin UI to the root public/ folder.
