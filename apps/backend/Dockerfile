@@ -2,12 +2,19 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-COPY . .
+# Copy package manifests first so npm ci is cached until dependencies change
+COPY package.json package-lock.json .npmrc ./
+COPY apps/backend/package.json ./apps/backend/
+COPY apps/storefront/package.json ./apps/storefront/
 
 RUN npm config set fetch-retries 5 \
     && npm config set fetch-retry-factor 4 \
     && npm config set fetch-timeout 600000 \
     && npm ci
+
+# Then copy the rest of the source; source-only changes reuse the cached layer above
+COPY . .
+
 ENV NODE_ENV=production
 
 WORKDIR /app/apps/backend
