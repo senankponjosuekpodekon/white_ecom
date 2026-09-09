@@ -62,4 +62,4 @@ if [ "$NODE_ENV" != "production" ] || [ "$CREATE_DEFAULT_ADMIN" = "true" ]; then
   create_user_if_missing "${MANAGER_EMAIL:-manager@example.com}" "${MANAGER_PASSWORD:-managerpassword}"
 fi
 
-npx medusa start
+HOST="${HOST:-0.0.0.0}" PORT="${PORT:-9000}" exec npx medusa start
