@@ -130,7 +130,12 @@ npm run build
 npm run test
 docker compose build
 
-# Ou via CI/CD : push sur main ou tag v*
+# Ou via CI/CD : push sur main, dev ou tag v*
+#
+# Pour declencher automatiquement le deploiement Render (backend) et Vercel (storefront),
+# ajouter les secrets GitHub suivants :
+#   RENDER_DEPLOY_HOOK   -> URL du deploy hook du service Render
+#   VERCEL_DEPLOY_HOOK   -> URL du deploy hook du projet Vercel
 ```
 
 2. Créer `.env.production` à partir du template :

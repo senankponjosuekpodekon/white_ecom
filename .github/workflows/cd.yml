@@ -85,3 +85,21 @@ jobs:
             NEXT_PUBLIC_SITE_URL=${{ env.SITE_URL }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    if: github.ref_name == 'dev' || github.ref_name == 'main'
+
+    steps:
+      - name: Trigger Render backend deploy
+        if: secrets.RENDER_DEPLOY_HOOK != ''
+        env:
+          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+        run: curl -X POST "$RENDER_DEPLOY_HOOK"
+
+      - name: Trigger Vercel storefront deploy
+        if: secrets.VERCEL_DEPLOY_HOOK != ''
+        env:
+          VERCEL_DEPLOY_HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
+        run: curl -X POST "$VERCEL_DEPLOY_HOOK"

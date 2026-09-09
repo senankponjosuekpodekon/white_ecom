@@ -3,9 +3,21 @@ import { useNavigate } from "react-router-dom"
 import { defineRouteConfig } from "@medusajs/admin-sdk"
 import { Container, Heading, Text, Button } from "@medusajs/ui"
 
-const quickPrompts = [
+type AiAction = "generate" | "description" | "seo" | "translate"
+
+interface QuickPrompt {
+  label: string
+  type: AiAction
+  system: string
+  prompt: string
+  sourceLocale?: string
+  targetLocale?: string
+}
+
+const quickPrompts: QuickPrompt[] = [
   {
     label: "Description produit",
+    type: "description",
     system:
       "Tu es un redacteur e-commerce. Redige une description produit courte, vendeuse et SEO-friendly en francais.",
     prompt:
@@ -13,19 +25,23 @@ const quickPrompts = [
   },
   {
     label: "SEO produit",
+    type: "seo",
     system:
       "Tu es un expert SEO e-commerce. Propose un meta title, une meta description et 5 mots-cles.",
     prompt:
       "Produit : .\nDonne un JSON avec metaTitle (max 60 caracteres), metaDescription (max 160 caracteres) et keywords.",
   },
   {
-    label: "Traduction EN",
-    system:
-      "Tu es un traducteur professionnel. Traduis le texte suivant de francais vers anglais en conservant le ton.",
+    label: "Traduction",
+    type: "translate",
+    system: "",
     prompt: "Texte a traduire : ",
+    sourceLocale: "fr",
+    targetLocale: "en",
   },
   {
     label: "Slogan accueil",
+    type: "generate",
     system: "Tu es un copywriter. Genere un slogan court pour une boutique en ligne.",
     prompt:
       "Boutique : .\nProduits : .\nGenere 3 slogans accrocheurs de moins de 10 mots.",
@@ -35,6 +51,9 @@ const quickPrompts = [
 const AiAssistant = () => {
   const navigate = useNavigate()
   const [status, setStatus] = useState<{ provider: string; configured: boolean } | null>(null)
+  const [type, setType] = useState<AiAction>("generate")
+  const [sourceLocale, setSourceLocale] = useState("")
+  const [targetLocale, setTargetLocale] = useState("")
   const [prompt, setPrompt] = useState("")
   const [system, setSystem] = useState("")
   const [result, setResult] = useState("")
@@ -54,10 +73,14 @@ const AiAssistant = () => {
     setError(null)
     setResult("")
     try {
+      const body: Record<string, string> = { type, prompt, system }
+      if (sourceLocale) body.sourceLocale = sourceLocale
+      if (targetLocale) body.targetLocale = targetLocale
+
       const res = await fetch("/admin/ai", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt, system }),
+        body: JSON.stringify(body),
       })
       const data = await res.json()
       if (!res.ok) {
@@ -72,8 +95,12 @@ const AiAssistant = () => {
   }
 
   const applyQuick = (index: number) => {
-    setSystem(quickPrompts[index].system)
-    setPrompt(quickPrompts[index].prompt)
+    const q = quickPrompts[index]
+    setType(q.type)
+    setSystem(q.system)
+    setPrompt(q.prompt)
+    setSourceLocale(q.sourceLocale ?? "")
+    setTargetLocale(q.targetLocale ?? "")
     setResult("")
   }
 
@@ -108,6 +135,64 @@ const AiAssistant = () => {
           </Button>
         ))}
       </div>
+
+      <div className="mb-4">
+        <label style={{ fontWeight: 500, display: "block", marginBottom: "0.25rem" }}>
+          Action
+        </label>
+        <select
+          value={type}
+          onChange={(e) => setType(e.target.value as AiAction)}
+          style={{
+            width: "100%",
+            padding: "0.5rem",
+            border: "1px solid #e5e7eb",
+            borderRadius: "6px",
+          }}
+        >
+          <option value="generate">Generation libre</option>
+          <option value="description">Description produit</option>
+          <option value="seo">SEO produit</option>
+          <option value="translate">Traduction</option>
+        </select>
+      </div>
+
+      {type === "translate" && (
+        <div className="grid grid-cols-2 gap-4 mb-4">
+          <div>
+            <label style={{ fontWeight: 500, display: "block", marginBottom: "0.25rem" }}>
+              Langue source
+            </label>
+            <input
+              value={sourceLocale}
+              onChange={(e) => setSourceLocale(e.target.value)}
+              placeholder="fr"
+              style={{
+                width: "100%",
+                padding: "0.5rem",
+                border: "1px solid #e5e7eb",
+                borderRadius: "6px",
+              }}
+            />
+          </div>
+          <div>
+            <label style={{ fontWeight: 500, display: "block", marginBottom: "0.25rem" }}>
+              Langue cible
+            </label>
+            <input
+              value={targetLocale}
+              onChange={(e) => setTargetLocale(e.target.value)}
+              placeholder="en"
+              style={{
+                width: "100%",
+                padding: "0.5rem",
+                border: "1px solid #e5e7eb",
+                borderRadius: "6px",
+              }}
+            />
+          </div>
+        </div>
+      )}
 
       <div className="mb-4">
         <label style={{ fontWeight: 500, display: "block", marginBottom: "0.25rem" }}>
