@@ -1,5 +1,20 @@
 {
   "$schema": "https://turbo.build/schema.json",
+  "globalEnv": [
+    "NEXT_PUBLIC_MEDUSA_BACKEND_URL",
+    "NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY",
+    "NEXT_PUBLIC_SITE_URL",
+    "NEXT_PUBLIC_STRIPE_KEY",
+    "MEDUSA_BACKEND_URL",
+    "STORE_CORS",
+    "ADMIN_CORS",
+    "AUTH_CORS",
+    "REDIS_URL",
+    "JWT_SECRET",
+    "COOKIE_SECRET",
+    "DATABASE_URL",
+    "DB_NAME"
+  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],

@@ -4,15 +4,28 @@ import { locales } from "@/i18n";
 
 const staticPages = ["", "/products", "/shipping", "/returns", "/privacy", "/contact", "/legal", "/terms"];
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
+
+function isLocalhost(url: string): boolean {
+  return /localhost|127\.0\.0\.1/.test(url);
+}
 
 export default async function sitemap() {
-  const [products, config] = await Promise.all([getProducts(), getStoreConfig()]);
-  const base = (
-    config.siteUrl ??
-    process.env.NEXT_PUBLIC_SITE_URL ??
-    "http://localhost:8080"
+  const backendUrl =
+    process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL ??
+    process.env.MEDUSA_BACKEND_URL ??
+    "";
+  const canFetch = backendUrl && !isLocalhost(backendUrl);
+
+  const fallbackBase = (
+    process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:8080"
   ).replace(/\/$/, "");
+
+  const [products, config] = canFetch
+    ? await Promise.all([getProducts(), getStoreConfig()])
+    : [[] as Awaited<ReturnType<typeof getProducts>>, null];
+
+  const base = (config?.siteUrl ?? fallbackBase).replace(/\/$/, "");
 
   const pages = locales.flatMap((locale) =>
     staticPages.map((path) => ({
