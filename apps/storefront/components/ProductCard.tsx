@@ -28,8 +28,8 @@ export function ProductCard({
       : "";
 
   return (
-    <article className="group card-design overflow-hidden">
-      <Link href={`/${locale}/products/${product.handle}`} className="block">
+    <article className="group card-design overflow-hidden" data-testid="product-card">
+      <Link href={`/${locale}/products/${product.handle}`} className="block" data-testid="product-link">
         <div className="relative overflow-hidden h-56">
           {product.thumbnail ? (
             <FadeImage

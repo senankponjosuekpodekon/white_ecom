@@ -5,7 +5,7 @@ test.describe("Cart and checkout", () => {
 
   test("adds a product to the cart and opens checkout", async ({ page }) => {
     await page.goto("/fr/products");
-    const productLink = page.locator("li a").first();
+    const productLink = page.locator('[data-testid="product-link"]').first();
     const count = await productLink.count();
     test.skip(count === 0, "No products available for this test");
 

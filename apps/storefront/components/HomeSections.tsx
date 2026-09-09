@@ -1,3 +1,4 @@
+import Image from "next/image"
 import Link from "next/link"
 import { getProducts } from "@/lib/get-products"
 import { ProductCard } from "./ProductCard"
@@ -118,13 +119,15 @@ export async function HomeSections({
                         href={`/${locale}${item.href ?? "/products"}`}
                         className="group text-center"
                       >
-                        <div className="aspect-square rounded-full overflow-hidden bg-[var(--color-surface)] flex items-center justify-center">
+                        <div className="relative aspect-square rounded-full overflow-hidden bg-[var(--color-surface)] flex items-center justify-center">
                           {item.image ? (
-                            <img
+                            <Image
                               src={item.image}
                               alt={item.title ?? ""}
+                              fill
+                              unoptimized
                               loading="lazy"
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                              className="object-cover group-hover:scale-105 transition-transform duration-300"
                             />
                           ) : (
                             <span className="text-4xl text-[var(--color-muted)]">

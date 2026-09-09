@@ -5,7 +5,7 @@ test.describe("Checkout", () => {
 
   test("completes a manual payment order", async ({ page }) => {
     await page.goto("/fr/products");
-    const productLink = page.locator("li a").first();
+    const productLink = page.locator('[data-testid="product-link"]').first();
     if ((await productLink.count()) === 0) {
       test.skip();
       return;
@@ -25,7 +25,7 @@ test.describe("Checkout", () => {
 
   test("shows product prices in the configured currency", async ({ page }) => {
     await page.goto("/fr/products");
-    const productLink = page.locator("li a").first();
+    const productLink = page.locator('[data-testid="product-link"]').first();
     if ((await productLink.count()) === 0) {
       test.skip();
       return;
