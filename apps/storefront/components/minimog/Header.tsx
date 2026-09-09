@@ -1,6 +1,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import type { Locale } from "@/i18n"
+import { getCart } from "@/lib/cart"
 import type { MinimogSectionProps } from "./types"
 
 type HeaderSettings = {
@@ -17,6 +18,8 @@ export async function MinimogHeader({
   const rawSettings = settings as HeaderSettings
   const { sticky_header = true } = rawSettings ?? {}
   const locale = (localeProp ?? "fr") as Locale
+  const cart = await getCart()
+  const cartCount = cart?.items.reduce((sum, item) => sum + item.quantity, 0) ?? 0
 
   return (
     <header
@@ -51,8 +54,13 @@ export async function MinimogHeader({
             </Link>
           </nav>
           <div className="flex items-center gap-4">
-            <Link href={`/${locale}/cart`} className="text-sm font-medium text-gray-700 hover:text-black">
+            <Link href={`/${locale}/minimog/cart`} className="relative text-sm font-medium text-gray-700 hover:text-black">
               Panier
+              {cartCount > 0 && (
+                <span className="absolute -top-2 -right-3 flex h-4 w-4 items-center justify-center rounded-full bg-gray-900 text-[10px] text-white">
+                  {cartCount}
+                </span>
+              )}
             </Link>
             <Link href={`/${locale}/account`} className="text-sm font-medium text-gray-700 hover:text-black">
               Compte

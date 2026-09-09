@@ -81,3 +81,39 @@ export async function addToCart(
 
   return updated;
 }
+
+export async function removeFromCart(lineItemId: string): Promise<Cart | null> {
+  const cart = await getCart();
+  if (!cart) return null;
+
+  const { cart: updated } = await medusaClient.client.fetch<{
+    cart: Cart;
+  }>(`/store/carts/${cart.id}/line-items/${lineItemId}`, {
+    method: "DELETE",
+  });
+
+  revalidatePath("/");
+  revalidatePath("/cart");
+
+  return updated ?? null;
+}
+
+export async function updateLineItem(
+  lineItemId: string,
+  quantity: number
+): Promise<Cart | null> {
+  const cart = await getCart();
+  if (!cart) return null;
+
+  const { cart: updated } = await medusaClient.client.fetch<{
+    cart: Cart;
+  }>(`/store/carts/${cart.id}/line-items/${lineItemId}`, {
+    method: "POST",
+    body: { quantity },
+  });
+
+  revalidatePath("/");
+  revalidatePath("/cart");
+
+  return updated ?? null;
+}

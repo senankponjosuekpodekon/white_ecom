@@ -27,6 +27,10 @@ export type CartLineItem = {
   title: string;
   quantity: number;
   variant: ProductVariant;
+  product?: {
+    title: string;
+    thumbnail?: string | null;
+  };
   unit_price: number;
 };
 
