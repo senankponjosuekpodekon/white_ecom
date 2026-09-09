@@ -97,7 +97,7 @@ export function renderCsv(
   const localeContent = content[defaultLanguage as "fr" | "en"] ?? content.fr
 
   const siteUrl =
-    localeContent?.siteUrl ?? process.env.SITE_URL ?? "http://localhost:8080"
+    (fileConfig.siteUrl as string) ?? process.env.SITE_URL ?? "http://localhost:8080"
   const merchant = localeContent?.merchant ?? {}
   const defaultBrand =
     merchant.brand ??

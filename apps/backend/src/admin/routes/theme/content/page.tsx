@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { defineRouteConfig } from "@medusajs/admin-sdk"
-import { defaultContent } from "../../../utils/default-content"
+import { defaultContent } from "../../../../utils/default-content"
 
 const locales = ["fr", "en"] as const
 const sectionFields = [
