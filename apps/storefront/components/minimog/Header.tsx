@@ -30,7 +30,7 @@ export async function MinimogHeader({
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
-          <Link href={`/${locale}`} className="flex items-center gap-3">
+          <Link href={`/${locale}/minimog`} className="flex items-center gap-3">
             <Image
               src="/logo.svg"
               alt="Atlas Container"
@@ -43,10 +43,10 @@ export async function MinimogHeader({
             />
           </Link>
           <nav className="hidden md:flex gap-6">
-            <Link href={`/${locale}/products`} className="text-sm font-medium text-gray-700 hover:text-black">
+            <Link href={`/${locale}/minimog/products`} className="text-sm font-medium text-gray-700 hover:text-black">
               Container
             </Link>
-            <Link href={`/${locale}/collections`} className="text-sm font-medium text-gray-700 hover:text-black">
+            <Link href={`/${locale}/minimog/collections`} className="text-sm font-medium text-gray-700 hover:text-black">
               Collections
             </Link>
             <Link href={`/${locale}/contact`} className="text-sm font-medium text-gray-700 hover:text-black">
