@@ -14,7 +14,6 @@ type ThemeData = {
 const ThemeEditor = () => {
   const navigate = useNavigate()
   const [sections, setSections] = useState<MinimogSection[]>([])
-  const [sectionOrder, setSectionOrder] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -25,7 +24,6 @@ const ThemeEditor = () => {
       .then((res) => (res.ok ? res.json() : Promise.reject("Erreur de chargement")))
       .then((data: ThemeData) => {
         const ordered = (data.minimog.sectionOrder ?? data.minimog.sections.map((s) => s.id) ?? [])
-        setSectionOrder(ordered)
         const sectionMap = new Map(data.minimog.sections.map((s) => [s.id, s]))
         setSections(ordered.map((id) => sectionMap.get(id)!).filter(Boolean))
         setLoading(false)
