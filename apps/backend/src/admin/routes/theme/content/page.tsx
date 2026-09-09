@@ -323,8 +323,8 @@ const inputStyle: React.CSSProperties = {
 }
 
 export const config = defineRouteConfig({
-  label: "Contenu",
-  rank: 3,
+  label: "Contenu & Pages",
+  rank: 4,
 })
 
 export default ContentEditor

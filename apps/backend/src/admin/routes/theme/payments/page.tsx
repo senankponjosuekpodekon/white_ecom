@@ -177,7 +177,7 @@ const Payments = () => {
 
 export const config = defineRouteConfig({
   label: "Paiements",
-  rank: 4,
+  rank: 7,
 })
 
 export default Payments

@@ -351,8 +351,8 @@ const inputStyle: React.CSSProperties = {
 }
 
 export const config = defineRouteConfig({
-  label: "Onboarding",
-  rank: 8,
+  label: "Apparence",
+  rank: 1,
 })
 
 export default Onboarding

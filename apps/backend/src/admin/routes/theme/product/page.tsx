@@ -1,39 +1,60 @@
 import { useEffect, useState } from "react"
 import { defineRouteConfig } from "@medusajs/admin-sdk"
 
-type Section = { type: string; enabled: boolean; options?: Record<string, unknown> }
+type Block = { type: string; enabled: boolean; options?: Record<string, unknown> }
 
 const CATALOG: Array<{ type: string; label: string }> = [
-  { type: "hero", label: "Hero (slideshow)" },
-  { type: "marquee", label: "Bandeau défilant" },
-  { type: "collections", label: "Collections" },
-  { type: "featured_products", label: "Produits vedettes" },
-  { type: "features", label: "Avantages" },
-  { type: "value_proposition", label: "Proposition de valeur" },
-  { type: "social_proof", label: "Preuve sociale" },
-  { type: "cta", label: "Call to action" },
+  { type: "breadcrumb", label: "Fil d'Ariane" },
+  { type: "gallery", label: "Galerie" },
+  { type: "title", label: "Titre" },
+  { type: "price", label: "Prix" },
+  { type: "tabs", label: "Onglets (description / livraison)" },
+  { type: "buy_buttons", label: "Boutons d'achat" },
+  { type: "meta", label: "Méta (SKU / marque)" },
+  { type: "badges", label: "Badges" },
+  { type: "shipping_info", label: "Info livraison" },
+  { type: "trust_badge", label: "Badge de confiance" },
+  { type: "inventory_status", label: "Statut stock" },
+  { type: "share", label: "Partage social" },
+  { type: "recommendations", label: "Produits similaires" },
+  { type: "sticky_atc", label: "Sticky Add to Cart" },
 ]
 
-const TEMPLATES: Record<string, { label: string; sections: Section[] }> = {
+const TEMPLATES: Record<string, { label: string; blocks: Block[] }> = {
   classique: {
     label: "Classique",
-    sections: [
-      { type: "hero", enabled: true },
-      { type: "features", enabled: true },
-      { type: "featured_products", enabled: true },
-      { type: "cta", enabled: true },
+    blocks: [
+      { type: "gallery", enabled: true },
+      { type: "title", enabled: true },
+      { type: "price", enabled: true },
+      { type: "buy_buttons", enabled: true },
+      { type: "tabs", enabled: true },
     ],
   },
-  vitrine: {
-    label: "Vitrine (type Pellet Salamanca)",
-    sections: [
-      { type: "hero", enabled: true },
-      { type: "marquee", enabled: true },
-      { type: "collections", enabled: true },
-      { type: "featured_products", enabled: true },
-      { type: "featured_products", enabled: true },
-      { type: "featured_products", enabled: true },
-      { type: "cta", enabled: true },
+  venteflash: {
+    label: "Vente flash",
+    blocks: [
+      { type: "gallery", enabled: true },
+      { type: "title", enabled: true },
+      { type: "price", enabled: true },
+      { type: "badges", enabled: true },
+      { type: "buy_buttons", enabled: true },
+      { type: "inventory_status", enabled: true },
+      { type: "shipping_info", enabled: true },
+      { type: "trust_badge", enabled: true },
+    ],
+  },
+  premium: {
+    label: "Premium",
+    blocks: [
+      { type: "gallery", enabled: true },
+      { type: "title", enabled: true },
+      { type: "price", enabled: true },
+      { type: "buy_buttons", enabled: true },
+      { type: "tabs", enabled: true },
+      { type: "meta", enabled: true },
+      { type: "trust_badge", enabled: true },
+      { type: "shipping_info", enabled: true },
     ],
   },
 }
@@ -46,12 +67,11 @@ const inputStyle: React.CSSProperties = {
   borderRadius: "6px",
 }
 
-const HomePage = () => {
+const ProductPage = () => {
   const [content, setContent] = useState<Record<string, any>>({})
   const [locale, setLocale] = useState("fr")
-  const [sections, setSections] = useState<Section[]>([])
-  const [optionsJson, setOptionsJson] = useState("{}")
-  const [selected, setSelected] = useState<number>(-1)
+  const [layout, setLayout] = useState("split")
+  const [blocks, setBlocks] = useState<Block[]>([])
   const [loading, setLoading] = useState(false)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -62,21 +82,15 @@ const HomePage = () => {
       .then((data) => {
         const c = data.content ?? {}
         setContent(c)
-        setSections(c[locale]?.homePage?.sections ?? [])
+        const pp = c[locale]?.productPage
+        setLayout(pp?.layout ?? "split")
+        setBlocks(pp?.blocks ?? [])
       })
       .catch(() => setError("Impossible de charger le contenu"))
   }, [locale])
 
-  useEffect(() => {
-    if (selected >= 0 && sections[selected]) {
-      setOptionsJson(JSON.stringify(sections[selected].options ?? {}, null, 2))
-    } else {
-      setOptionsJson("{}")
-    }
-  }, [selected, sections])
-
   const move = (index: number, dir: -1 | 1) => {
-    setSections((prev) => {
+    setBlocks((prev) => {
       const next = [...prev]
       const target = index + dir
       if (target < 0 || target >= next.length) return prev
@@ -86,34 +100,21 @@ const HomePage = () => {
   }
 
   const toggle = (index: number) => {
-    setSections((prev) =>
-      prev.map((s, i) => (i === index ? { ...s, enabled: !s.enabled } : s))
+    setBlocks((prev) =>
+      prev.map((b, i) => (i === index ? { ...b, enabled: !b.enabled } : b))
     )
   }
 
   const remove = (index: number) => {
-    setSections((prev) => prev.filter((_, i) => i !== index))
-    setSelected(-1)
+    setBlocks((prev) => prev.filter((_, i) => i !== index))
   }
 
   const add = (type: string) => {
-    setSections((prev) => [...prev, { type, enabled: true }])
+    setBlocks((prev) => [...prev, { type, enabled: true }])
   }
 
   const applyTemplate = (key: string) => {
-    setSections(TEMPLATES[key].sections.map((s) => ({ ...s })))
-  }
-
-  const saveOptions = () => {
-    try {
-      const parsed = JSON.parse(optionsJson)
-      setSections((prev) =>
-        prev.map((s, i) => (i === selected ? { ...s, options: parsed } : s))
-      )
-      setError(null)
-    } catch (e) {
-      setError(`Options JSON invalides : ${(e as Error).message}`)
-    }
+    setBlocks(TEMPLATES[key].blocks.map((b) => ({ ...b })))
   }
 
   const handleSave = async () => {
@@ -123,7 +124,7 @@ const HomePage = () => {
     try {
       const next = { ...content }
       if (!next[locale]) next[locale] = {}
-      next[locale].homePage = { sections }
+      next[locale].productPage = { layout, blocks }
       const res = await fetch("/admin/content", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -146,23 +147,25 @@ const HomePage = () => {
 
   return (
     <div style={{ padding: "2rem", maxWidth: "900px" }}>
-      <h1 style={{ fontSize: "1.5rem", marginBottom: "1rem" }}>Page d&apos;accueil</h1>
+      <h1 style={{ fontSize: "1.5rem", marginBottom: "1rem" }}>Page produit</h1>
       <p style={{ marginBottom: "1.5rem", color: "#666" }}>
-        Configurez les sections de la page d&apos;accueil (inspiré de Shopify).
+        Configurez les blocs affichés sur la fiche produit (inspiré de Shopify).
       </p>
 
       <div style={{ marginBottom: "1.5rem" }}>
         <label style={{ fontWeight: 600, marginRight: "0.5rem" }}>Langue :</label>
-        <select
-          value={locale}
-          onChange={(e) => {
-            setLocale(e.target.value)
-            setSelected(-1)
-          }}
-          style={inputStyle as React.CSSProperties & { width: "auto" }}
-        >
+        <select value={locale} onChange={(e) => setLocale(e.target.value)} style={inputStyle as React.CSSProperties & { width: "auto" }}>
           <option value="fr">Français</option>
           <option value="en">English</option>
+        </select>
+      </div>
+
+      <div style={{ marginBottom: "1.5rem" }}>
+        <label style={{ display: "block", fontWeight: 600, marginBottom: "0.25rem" }}>Layout</label>
+        <select value={layout} onChange={(e) => setLayout(e.target.value)} style={inputStyle as React.CSSProperties & { width: "auto" }}>
+          <option value="split">Split (média à gauche)</option>
+          <option value="stacked">Empilé (média au-dessus)</option>
+          <option value="slider">Slider (média pleine largeur)</option>
         </select>
       </div>
 
@@ -188,14 +191,14 @@ const HomePage = () => {
       </div>
 
       <div style={{ marginBottom: "1rem" }}>
-        <label style={{ display: "block", fontWeight: 600, marginBottom: "0.25rem" }}>Sections</label>
-        {sections.length === 0 ? (
-          <p>Aucune section. Ajoutez-en ci-dessous.</p>
+        <label style={{ display: "block", fontWeight: 600, marginBottom: "0.25rem" }}>Blocs</label>
+        {blocks.length === 0 ? (
+          <p>Aucun bloc. Ajoutez-en ci-dessous.</p>
         ) : (
           <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-            {sections.map((section, index) => (
+            {blocks.map((block, index) => (
               <li
-                key={`${section.type}-${index}`}
+                key={`${block.type}-${index}`}
                 style={{
                   display: "flex",
                   alignItems: "center",
@@ -204,56 +207,22 @@ const HomePage = () => {
                   border: "1px solid #e5e7eb",
                   borderRadius: "6px",
                   marginBottom: "0.5rem",
-                  background: selected === index ? "#f0f9ff" : "white",
-                  cursor: "pointer",
+                  background: "white",
                 }}
-                onClick={() => setSelected(index)}
               >
-                <input
-                  type="checkbox"
-                  checked={section.enabled}
-                  onClick={(e) => e.stopPropagation()}
-                  onChange={() => toggle(index)}
-                />
-                <span style={{ flex: 1 }}>{labelOf(section.type)}</span>
-                <button onClick={(e) => { e.stopPropagation(); move(index, -1) }} style={iconBtn} disabled={index === 0}>↑</button>
-                <button onClick={(e) => { e.stopPropagation(); move(index, 1) }} style={iconBtn} disabled={index === sections.length - 1}>↓</button>
-                <button onClick={(e) => { e.stopPropagation(); remove(index) }} style={iconBtn}>✕</button>
+                <input type="checkbox" checked={block.enabled} onChange={() => toggle(index)} />
+                <span style={{ flex: 1 }}>{labelOf(block.type)}</span>
+                <button onClick={() => move(index, -1)} style={iconBtn} disabled={index === 0}>↑</button>
+                <button onClick={() => move(index, 1)} style={iconBtn} disabled={index === blocks.length - 1}>↓</button>
+                <button onClick={() => remove(index)} style={iconBtn}>✕</button>
               </li>
             ))}
           </ul>
         )}
       </div>
 
-      {selected >= 0 && sections[selected] && (
-        <div style={{ marginBottom: "1.5rem" }}>
-          <label style={{ display: "block", fontWeight: 600, marginBottom: "0.25rem" }}>
-            Options ({labelOf(sections[selected].type)})
-          </label>
-          <textarea
-            value={optionsJson}
-            onChange={(e) => setOptionsJson(e.target.value)}
-            rows={6}
-            style={{ ...inputStyle, fontFamily: "monospace" }}
-          />
-          <button
-            onClick={saveOptions}
-            style={{
-              marginTop: "0.5rem",
-              padding: "0.4rem 1rem",
-              background: "white",
-              border: "1px solid #e5e7eb",
-              borderRadius: "6px",
-              cursor: "pointer",
-            }}
-          >
-            Appliquer les options
-          </button>
-        </div>
-      )}
-
       <div style={{ marginBottom: "1.5rem" }}>
-        <label style={{ display: "block", fontWeight: 600, marginBottom: "0.25rem" }}>Ajouter une section</label>
+        <label style={{ display: "block", fontWeight: 600, marginBottom: "0.25rem" }}>Ajouter un bloc</label>
         <select
           onChange={(e) => {
             if (e.target.value) add(e.target.value)
@@ -303,8 +272,8 @@ const iconBtn: React.CSSProperties = {
 }
 
 export const config = defineRouteConfig({
-  label: "Page d'accueil",
-  rank: 7,
+  label: "Page produit",
+  rank: 3,
 })
 
-export default HomePage
+export default ProductPage
