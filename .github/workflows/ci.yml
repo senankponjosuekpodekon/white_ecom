@@ -154,7 +154,11 @@ jobs:
 
       - name: Install Playwright browsers
         working-directory: apps/storefront
-        run: npx playwright install --with-deps chromium
+        run: |
+          sudo rm -f /etc/apt/sources.list.d/google*.list /etc/apt/sources.list.d/microsoft-edge*.list || true
+          sudo apt-get clean
+          sudo apt-get update -y
+          npx playwright install --with-deps chromium
 
       - name: Run E2E tests
         run: make test-e2e
