@@ -2,6 +2,7 @@
 set -e
 
 npx medusa db:migrate --execute-safe-links
+npx medusa db:migrate:scripts
 
 # Create demo admin users only in non-production or if explicitly requested
 if [ "$NODE_ENV" != "production" ] || [ "$CREATE_DEFAULT_ADMIN" = "true" ]; then
