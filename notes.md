@@ -67,3 +67,9 @@
 - Demarrage : simplifier l'ajout produit (widget admin + templates).
 - Ambition cible : parite Shopify simplifiee.
 - Ce plan est sauvegarde dans notes.md.
+
+
+
+Overview dashboard
+Live view
+Analytics reports
