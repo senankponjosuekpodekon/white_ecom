@@ -1,13 +1,15 @@
 services:
   - type: web
     name: white-ecom-backend
-    runtime: docker
+    runtime: image
     region: frankfurt
     plan: free
-    dockerfilePath: ./apps/backend/Dockerfile
-    dockerContext: ./
+    image:
+      url: ghcr.io/senankponjosuekpodekon/white_ecom/backend:dev
+      creds:
+        fromRegistryCreds:
+          name: ghcr
     healthCheckPath: /health
-    autoDeploy: true
     envVars:
       - key: PORT
         value: "9000"
