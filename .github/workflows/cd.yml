@@ -2,7 +2,7 @@ name: CD
 
 on:
   push:
-    branches: [main]
+    branches: [main, dev]
     tags:
       - "v*"
 
@@ -52,13 +52,24 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=sha,prefix=,suffix=,format=short
 
+      - name: Set image tags
+        id: imagetags
+        run: |
+          if [ "${{ github.ref_name }}" = "dev" ]; then
+            echo "backend=${{ env.BACKEND_IMAGE }}:dev,${{ env.BACKEND_IMAGE }}:latest" >> "$GITHUB_OUTPUT"
+            echo "storefront=${{ env.STOREFRONT_IMAGE }}:dev,${{ env.STOREFRONT_IMAGE }}:latest" >> "$GITHUB_OUTPUT"
+          else
+            echo "backend=${{ env.BACKEND_IMAGE }}:${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+            echo "storefront=${{ env.STOREFRONT_IMAGE }}:${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Build and push backend
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./apps/backend/Dockerfile
           push: true
-          tags: ${{ env.BACKEND_IMAGE }}:${{ github.ref_name }},${{ env.BACKEND_IMAGE }}:latest
+          tags: ${{ steps.imagetags.outputs.backend }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -68,7 +79,7 @@ jobs:
           context: .
           file: ./apps/storefront/Dockerfile
           push: true
-          tags: ${{ env.STOREFRONT_IMAGE }}:${{ github.ref_name }},${{ env.STOREFRONT_IMAGE }}:latest
+          tags: ${{ steps.imagetags.outputs.storefront }}
           build-args: |
             NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=${{ env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY }}
             NEXT_PUBLIC_SITE_URL=${{ env.SITE_URL }}
