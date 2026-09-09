@@ -1,6 +1,6 @@
 # Audit des routes — White Shop
 
-> Généré pour audit live. Dernière mise à jour : 2026-09-08.
+> Généré pour audit live. Dernière mise à jour : 2026-09-09.
 
 ## Types d’utilisateurs
 
@@ -11,11 +11,18 @@
 | **Merchant / Admin** | Gestionnaire de la boutique | Login Medusa admin (`/app`) |
 | **Super-utilisateur** | Configuration système | Accès au serveur, `.env.*`, `config.json`, `content.json` |
 
+## Environnements
+
+| Environnement | Storefront | Backend | Admin |
+|---------------|------------|---------|-------|
+| Local | `http://localhost:3000` | `http://localhost:9000` | `http://localhost:9000/app` |
+| Production | `https://white-ecom-storefront-six.vercel.app` | `https://white-ecom-backend.onrender.com` | `https://white-ecom-backend.onrender.com/app` |
+
 ---
 
 ## 1. Storefront (Next.js)
 
-Base : `http://localhost:3000`
+Base local : `http://localhost:3000` — Production : `https://white-ecom-storefront-six.vercel.app`
 
 | URL | Nom | Méthode | Auth | Utilisateur | Utilité | Notes |
 |-----|-----|---------|------|-------------|---------|-------|
@@ -43,7 +50,7 @@ Base : `http://localhost:3000`
 
 ## 2. Backend — Routes API Medusa personnalisées
 
-Base : `http://localhost:9000`
+Base local : `http://localhost:9000` — Production : `https://white-ecom-backend.onrender.com`
 
 ### 2.1 Health
 
@@ -89,7 +96,7 @@ Disponibles automatiquement via Medusa v2 :
 
 ## 3. Admin UI (Medusa Admin)
 
-Base : `http://localhost:9000/app`
+Base local : `http://localhost:9000/app` — Production : `https://white-ecom-backend.onrender.com/app`
 
 | URL | Méthode | Auth | Utilisateur | Utilité |
 |-----|---------|------|-------------|---------|
@@ -139,9 +146,13 @@ Base : `http://localhost:9000/app`
 # Public
 make verify
 
-# Store API (remplacer par ta clé)
+# Store API local (remplacer par ta clé)
 curl -H "x-publishable-api-key: $NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY" http://localhost:9000/store/store-config
 
-# Admin (nécessite un cookie session)
+# Store API production
+curl -H "x-publishable-api-key: pk_6ea31213a0ac3a83a5fa86488160545cf4a996996528c07af669f537df70b41b" \
+  https://white-ecom-backend.onrender.com/store/store-config
+
+# Admin local (nécessite un cookie session)
 curl -u admin@example.com:password http://localhost:9000/admin/content
 ```
