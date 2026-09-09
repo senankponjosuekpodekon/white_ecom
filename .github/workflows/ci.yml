@@ -131,14 +131,22 @@ jobs:
       - name: Wait for storefront
         run: |
           for i in $(seq 1 60); do
-            if curl -sf http://localhost:3000/fr >/dev/null 2>&1; then
+            status=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/fr || true)
+            if [ "$status" = "200" ]; then
+              echo "Storefront is ready (HTTP 200)."
               exit 0
             fi
+            echo "Storefront not ready yet (HTTP ${status:-none}). Retrying... ($i/60)"
             if [ $((i % 4)) -eq 0 ]; then
+              echo "--- backend logs ---"
               docker compose logs backend --tail 40 || true
+              echo "--- storefront logs ---"
+              docker compose logs storefront --tail 40 || true
             fi
             sleep 5
           done
+          echo "--- final storefront logs ---"
+          docker compose logs storefront --tail 80 || true
           exit 1
 
       - name: Install dependencies for E2E
