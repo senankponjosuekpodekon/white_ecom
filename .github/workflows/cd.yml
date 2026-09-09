@@ -90,11 +90,12 @@ jobs:
     needs: build-and-push
     runs-on: ubuntu-latest
     if: github.ref_name == 'dev' || github.ref_name == 'main'
+    env:
+      RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+      VERCEL_DEPLOY_HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
 
     steps:
       - name: Trigger Render backend deploy
-        env:
-          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
         run: |
           if [ -z "$RENDER_DEPLOY_HOOK" ]; then
             echo "RENDER_DEPLOY_HOOK not set, skipping Render deploy."
@@ -103,8 +104,6 @@ jobs:
           curl -X POST "$RENDER_DEPLOY_HOOK"
 
       - name: Trigger Vercel storefront deploy
-        env:
-          VERCEL_DEPLOY_HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
         run: |
           if [ -z "$VERCEL_DEPLOY_HOOK" ]; then
             echo "VERCEL_DEPLOY_HOOK not set, skipping Vercel deploy."
