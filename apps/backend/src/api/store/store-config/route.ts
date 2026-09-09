@@ -22,22 +22,47 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
   } = process.env
 
   const design = (fileConfig.design as Record<string, unknown>) ?? {}
+  const designColors = (design.colors as Record<string, string>) ?? {}
+  const designTypography = (design.typography as Record<string, string>) ?? {}
+
   const resolvedDesign = {
-    preset: (design.preset as string) ?? DESIGN_PRESET ?? "modern",
     ...design,
+    preset:
+      (design.preset as string) ??
+      (fileConfig.designPreset as string) ??
+      DESIGN_PRESET ??
+      "modern",
+    colors: {
+      ...designColors,
+      primary:
+        designColors.primary ??
+        (fileConfig.primaryColor as string) ??
+        PRIMARY_COLOR ??
+        "#111111",
+    },
+    typography: {
+      ...designTypography,
+      heading:
+        designTypography.heading ??
+        (fileConfig.font as string) ??
+        STORE_FONT ??
+        "Inter",
+      body:
+        designTypography.body ??
+        (fileConfig.font as string) ??
+        STORE_FONT ??
+        "Inter",
+    },
   }
 
-  if (SITE_URL) {
-    if (content.fr && !content.fr.siteUrl) {
-      content.fr.siteUrl = SITE_URL
-    }
-    if (content.en && !content.en.siteUrl) {
-      content.en.siteUrl = SITE_URL
-    }
-  }
+  const siteUrl =
+    (fileConfig.siteUrl as string) ??
+    SITE_URL ??
+    "http://localhost:8080"
 
   res.json({
     name: (fileConfig.name as string) ?? STORE_NAME ?? "White Shop",
+    siteUrl,
     primaryColor: (fileConfig.primaryColor as string) ?? PRIMARY_COLOR ?? "#111111",
     logoUrl: (fileConfig.logoUrl as string) ?? LOGO_URL ?? "",
     font: (fileConfig.font as string) ?? STORE_FONT ?? "Inter",

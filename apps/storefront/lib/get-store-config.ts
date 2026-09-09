@@ -5,6 +5,7 @@ import type { ClientContent } from "./content";
 
 export type StoreConfig = {
   name: string;
+  siteUrl: string;
   primaryColor: string;
   logoUrl: string;
   font: string;
@@ -34,6 +35,7 @@ function resolveDesign(raw?: RawConfig["design"]): DesignFullConfig {
 
 const defaultConfig: StoreConfig = {
   name: "White Shop",
+  siteUrl: "http://localhost:8080",
   primaryColor: defaultPreset.colors.primary,
   logoUrl: "",
   font: defaultPreset.typography.body,
@@ -59,6 +61,7 @@ export const getStoreConfig = cache(async (): Promise<StoreConfig> => {
 
     return {
       name: config.name ?? defaultConfig.name,
+      siteUrl: config.siteUrl ?? defaultConfig.siteUrl,
       primaryColor: config.primaryColor ?? design.colors.primary,
       logoUrl: config.logoUrl ?? defaultConfig.logoUrl,
       font: config.font ?? design.typography.body,

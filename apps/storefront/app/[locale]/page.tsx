@@ -2,7 +2,7 @@ import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 import { locales, defaultLocale, type Locale } from "@/i18n";
 import { getStoreConfig } from "@/lib/get-store-config";
-import { getLocalizedContent, getSiteUrl } from "@/lib/content";
+import { getLocalizedContent } from "@/lib/content";
 import { HomeSections } from "@/components/HomeSections";
 
 export const dynamic = "force-dynamic";
@@ -20,10 +20,10 @@ export async function generateMetadata({
     locale,
     (config.defaultLanguage as Locale) ?? defaultLocale
   );
-  const siteUrl = getSiteUrl(
-    localized,
-    process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:8080"
-  );
+  const siteUrl =
+    config.siteUrl ??
+    process.env.NEXT_PUBLIC_SITE_URL ??
+    "http://localhost:8080";
   const title = config.name;
   const description = localized.site?.description ?? config.name;
   return {

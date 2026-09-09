@@ -3,7 +3,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { locales, defaultLocale, type Locale } from "@/i18n";
 import { getStoreConfig } from "@/lib/get-store-config";
-import { getLocalizedContent, getSiteUrl } from "@/lib/content";
+import { getLocalizedContent } from "@/lib/content";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { GoogleTag } from "@/components/GoogleTag";
@@ -19,10 +19,10 @@ export async function generateMetadata({
   const localized = config
     ? getLocalizedContent(config.content, locale, (config.defaultLanguage as Locale) ?? defaultLocale)
     : getLocalizedContent({}, locale);
-  const siteUrl = getSiteUrl(
-    localized,
-    process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:8080"
-  );
+  const siteUrl =
+    config?.siteUrl ??
+    process.env.NEXT_PUBLIC_SITE_URL ??
+    "http://localhost:8080";
   const seo = config?.design?.seo;
   const site = localized.site;
 

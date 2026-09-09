@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { getProduct } from "@/lib/get-product";
 import { getStoreConfig } from "@/lib/get-store-config";
-import { getLocalizedContent, getSiteUrl } from "@/lib/content";
+import { getLocalizedContent } from "@/lib/content";
 import { locales, defaultLocale, type Locale } from "@/i18n";
 import { JsonLd } from "@/components/JsonLd";
 import { ProductBlocks } from "@/components/ProductBlocks";
@@ -29,10 +29,10 @@ export async function generateMetadata({
     locale,
     (config.defaultLanguage as Locale) ?? defaultLocale
   );
-  const siteUrl = getSiteUrl(
-    localized,
-    process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:8080"
-  );
+  const siteUrl =
+    config.siteUrl ??
+    process.env.NEXT_PUBLIC_SITE_URL ??
+    "http://localhost:8080";
   const title = product.title;
   const description = product.description ?? localized.site?.description ?? "";
 
@@ -78,10 +78,10 @@ export default async function ProductPage({
     locale,
     (config.defaultLanguage as Locale) ?? defaultLocale
   );
-  const siteUrl = getSiteUrl(
-    localized,
-    process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:8080"
-  );
+  const siteUrl =
+    config.siteUrl ??
+    process.env.NEXT_PUBLIC_SITE_URL ??
+    "http://localhost:8080";
   const brand = localized.merchant?.brand ?? config.name;
 
   const offers = product.variants.map((variant) => {
@@ -158,7 +158,7 @@ export default async function ProductPage({
       <JsonLd data={[productJsonLd, breadcrumbJsonLd]} />
       <AnalyticsViewItem item={viewItemData} />
       <div className="max-w-5xl mx-auto">
-        <ProductBlocks product={product} locale={locale} content={localized} design={config.design} t={t} />
+        <ProductBlocks product={product} locale={locale} content={localized} design={config.design} siteUrl={siteUrl} t={t} />
       </div>
     </main>
   );

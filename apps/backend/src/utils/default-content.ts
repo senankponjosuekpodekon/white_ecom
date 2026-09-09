@@ -78,7 +78,6 @@ export type LocalizedContent = {
     gtagId?: string;
     pixelId?: string;
   };
-  siteUrl?: string;
 };
 
 export type ClientContent = {
@@ -232,7 +231,6 @@ const defaultLocalizedContent: LocalizedContent = {
     gtagId: "",
     pixelId: "",
   },
-  siteUrl: "http://localhost:8080",
 };
 
 const defaultEnglishContent: LocalizedContent = {
@@ -381,7 +379,6 @@ const defaultEnglishContent: LocalizedContent = {
     gtagId: "",
     pixelId: "",
   },
-  siteUrl: "http://localhost:8080",
 };
 
 export const defaultContent: ClientContent = {

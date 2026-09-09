@@ -79,7 +79,6 @@ export type LocalizedContent = {
     gtagId?: string;
     pixelId?: string;
   };
-  siteUrl?: string;
 };
 
 export type ClientContent = {
@@ -97,9 +96,4 @@ export function getLocalizedContent(
   return mergeObjects(base, override);
 }
 
-export function getSiteUrl(
-  content: LocalizedContent | undefined,
-  fallback = "http://localhost:8080"
-): string {
-  return content?.siteUrl ?? fallback;
-}
+

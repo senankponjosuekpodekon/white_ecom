@@ -120,6 +120,7 @@ export async function ProductBlocks({
   locale: string
   content: LocalizedContent
   design: DesignFullConfig
+  siteUrl: string
   t: (key: string) => string
 }) {
   const blocks = content.productPage?.blocks ?? defaultBlocks
@@ -138,7 +139,6 @@ export async function ProductBlocks({
       b.type !== "recommendations"
   )
 
-  const siteUrl = content.siteUrl ?? "http://localhost:8080"
   const productUrl = `${siteUrl}/${locale}/products/${product.handle}`
 
   let recProducts: Product[] = []
