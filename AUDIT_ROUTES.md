@@ -62,7 +62,7 @@ Base local : `http://localhost:9000` — Production : `https://white-ecom-backen
 
 | URL | Méthode | Auth | Utilisateur | Utilité | Notes |
 |-----|---------|------|-------------|---------|-------|
-| `/store/store-config` | GET | `x-publishable-api-key` | Public/Client | Configuration + contenu du client (nom, design, devises, pays, modèle économique) | Utilisé par toutes les pages SSR |
+| `/store/store-config` | GET | `x-publishable-api-key` | Public/Client | Configuration du client (nom, URL, design, devises, pays, modèle économique) et contenu localise | Utilise `config.json` + `content.json` |
 | `/store/feed/google` | GET | `x-publishable-api-key` | Public | Flux Google Merchant CSV |  |
 | `/store/feed/facebook` | GET | `x-publishable-api-key` | Public | Flux Facebook CSV |  |
 | `/store/feed/pinterest` | GET | `x-publishable-api-key` | Public | Flux Pinterest CSV |  |
@@ -80,6 +80,7 @@ Base local : `http://localhost:9000` — Production : `https://white-ecom-backen
 | `/admin/clients` | GET | Super-admin | Super-admin | Lister les boutiques white-label | Email = `SUPER_ADMIN_EMAIL` |
 | `/admin/clients` | POST | Super-admin | Super-admin | Créer une boutique (dossier + config + contenu) | Email = `SUPER_ADMIN_EMAIL` |
 | `/admin/payment-config` | GET | Admin | Admin | Statut Stripe (clé, webhook) |  |
+| `/admin/ai` | GET/POST | Admin | Admin | Statut de l'assistant IA + generation de texte | `AI_PROVIDER`, cles API cote serveur |
 | `/admin/custom` | GET | Admin | Merchant/Admin | Route test admin | Retourne `200` |
 
 ### 2.4 Routes Medusa natives (non personnalisées)
@@ -101,16 +102,20 @@ Base local : `http://localhost:9000/app` — Production : `https://white-ecom-ba
 | URL | Méthode | Auth | Utilisateur | Utilité |
 |-----|---------|------|-------------|---------|
 | `/app` | GET | Admin | Admin | Dashboard Medusa |
-| `/app/content` | GET | Admin | Admin | Éditeur visuel `content.json` (formulaire + aperçu live) |
-| `/app/onboarding` | GET | Admin | Super-admin | Onboarding boutique (nom, design, modèle économique, devises, pays) |
-| `/app/dashboard` | GET | Admin | Admin | Vue d’ensemble (KPIs + aperçu analytics) |
-| `/app/payments` | GET | Admin | Admin | Gestion des providers de paiement par région |
-| `/app/product-page` | GET | Admin | Admin | Builder page produit (blocs, layout, templates) |
-| `/app/home-page` | GET | Admin | Admin | Builder page d’accueil (sections, templates) |
-| `/collections` | GET | Public | Public | Page “Toutes les catégories” (cartes + compteurs) |
-| `/app/analytics` | GET | Admin | Admin | Analytics (Overview, Live view, Reports) avec filtres période et export CSV |
-| `/app/quick-product` | GET | Admin | Admin | Ajout / édition rapide de produit (une page) |
-| `/app/clients` | GET | Admin | Super-admin | Liste et création des boutiques white-label |
+| `/app/theme` | GET | Admin | Admin | Boutique en ligne : tableau de bord theme |
+| `/app/theme/appearance` | GET | Admin | Admin | Apparence et marque (nom, logo, couleurs, typographie, langues, URL) |
+| `/app/theme/home` | GET | Admin | Admin | Builder page d'accueil (sections, templates) |
+| `/app/theme/product` | GET | Admin | Admin | Builder page produit (blocs, layout, templates) |
+| `/app/theme/content` | GET | Admin | Admin | Contenu & pages (SEO, hero, CTA, politiques, contact, footer) |
+| `/app/theme/navigation` | GET | Admin | Admin | Menus header et footer (en preparation) |
+| `/app/theme/seo` | GET | Admin | Admin | SEO global (title template, meta description, mots-cles) |
+| `/app/theme/payments` | GET | Admin | Admin | Gestion des providers de paiement par region |
+| `/app/theme/ai` | GET | Admin | Admin | Assistant IA (descriptions, SEO, traductions) |
+| `/app/dashboard` | GET | Admin | Admin | Vue d'ensemble (KPIs + aperçu analytics) |
+| `/app/analytics` | GET | Admin | Admin | Analytics (Overview, Live view, Reports) avec filtres periode et export CSV |
+| `/app/quick-product` | GET | Admin | Admin | Ajout / edition rapide de produit (une page) |
+| `/app/csv` | GET | Admin | Admin | Import / export CSV produits |
+| `/app/clients` | GET | Admin | Super-admin | Liste et creation des boutiques white-label |
 
 ---
 
