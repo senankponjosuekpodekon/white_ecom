@@ -214,7 +214,7 @@ const ProductPage = () => {
                 <span style={{ flex: 1 }}>{labelOf(block.type)}</span>
                 <button onClick={() => move(index, -1)} style={iconBtn} disabled={index === 0}>↑</button>
                 <button onClick={() => move(index, 1)} style={iconBtn} disabled={index === blocks.length - 1}>↓</button>
-                <button onClick={() => remove(index)} style={iconBtn}>✕</button>
+                <button onClick={() => remove(index)} style={iconBtn}>x</button>
               </li>
             ))}
           </ul>

@@ -218,7 +218,7 @@ const HomePage = () => {
                 <span style={{ flex: 1 }}>{labelOf(section.type)}</span>
                 <button onClick={(e) => { e.stopPropagation(); move(index, -1) }} style={iconBtn} disabled={index === 0}>↑</button>
                 <button onClick={(e) => { e.stopPropagation(); move(index, 1) }} style={iconBtn} disabled={index === sections.length - 1}>↓</button>
-                <button onClick={(e) => { e.stopPropagation(); remove(index) }} style={iconBtn}>✕</button>
+                <button onClick={(e) => { e.stopPropagation(); remove(index) }} style={iconBtn}>x</button>
               </li>
             ))}
           </ul>

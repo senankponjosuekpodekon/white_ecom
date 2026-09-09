@@ -35,7 +35,12 @@ const Onboarding = () => {
 
   useEffect(() => {
     fetch("/admin/config")
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Impossible de charger la configuration")
+        }
+        return res.json()
+      })
       .then((data) => {
         const config = data.config ?? {}
         setForm({
@@ -60,7 +65,7 @@ const Onboarding = () => {
           defaultRegion: config.defaultRegion ?? defaultConfig.defaultRegion,
         })
       })
-      .catch(() => setError("Impossible de charger la configuration"))
+      .catch((err) => setError((err as Error).message))
   }, [])
 
   const handleChange = (
@@ -112,10 +117,10 @@ const Onboarding = () => {
   return (
     <div style={{ padding: "2rem", maxWidth: "700px" }}>
       <h1 style={{ fontSize: "1.5rem", marginBottom: "1rem" }}>
-        Bienvenue dans White Shop
+        Apparence et marque
       </h1>
       <p style={{ marginBottom: "1.5rem", color: "#666" }}>
-        Configurez les informations de base de votre boutique. Vous pourrez les modifier plus tard dans l&apos;éditeur de contenu.
+        Configurez l'identite de la boutique : nom, logo, couleurs, typographie, langues et URL.
       </p>
       <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
         <div>

@@ -42,6 +42,9 @@ const Payments = () => {
       fetch("/admin/payment-config"),
     ])
       .then(async ([r, c]) => {
+        if (!r.ok || !c.ok) {
+          throw new Error("Impossible de charger la configuration des paiements")
+        }
         const regionsData = await r.json()
         const config = await c.json()
         const regions = regionsData.regions ?? []
@@ -53,7 +56,7 @@ const Payments = () => {
         }
         setSelected(sel)
       })
-      .catch(() => setError("Impossible de charger la configuration des paiements"))
+      .catch((err) => setError((err as Error).message))
       .finally(() => setLoading(false))
   }, [])
 
@@ -73,11 +76,15 @@ const Payments = () => {
     setError(null)
     try {
       for (const region of regions) {
-        await fetch(`/admin/regions/${region.id}`, {
+        const res = await fetch(`/admin/regions/${region.id}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ payment_providers: selected[region.id] ?? [] }),
         })
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}))
+          throw new Error(data.message ?? `Erreur region ${region.name}`)
+        }
       }
       setSaved(true)
     } catch (err) {
@@ -98,13 +105,13 @@ const Payments = () => {
             <li style={{ padding: "0.25rem 0" }}>
               Clé API :{" "}
               {stripe.configured
-                ? "✅ configurée"
+                ? "configuree"
                 : stripe.hasPlaceholder
-                ? "⚠️ placeholder (test)"
-                : "❌ non configurée"}
+                ? "placeholder (test)"
+                : "non configuree"}
             </li>
             <li style={{ padding: "0.25rem 0" }}>
-              Webhook : {stripe.webhookConfigured ? "✅ configuré" : "❌ non configuré"}
+              Webhook : {stripe.webhookConfigured ? "configure" : "non configure"}
             </li>
           </ul>
         ) : (
