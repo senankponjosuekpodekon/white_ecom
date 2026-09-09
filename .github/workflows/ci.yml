@@ -49,10 +49,60 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Create env files for compose
+      - name: Create env file for compose
         run: |
-          printf 'STRIPE_API_KEY=sk_test_placeholder\nSTRIPE_WEBHOOK_SECRET=whsec_placeholder\n' > .env.backend
-          touch .env.storefront
+          cat > .env <<'EOF'
+          # --- Infra ---
+          DATABASE_URL=postgresql://postgres:postgres@postgres:5432/white_local?sslmode=disable
+          REDIS_URL=redis://redis:6379
+          JWT_SECRET=ci_jwt_secret
+          COOKIE_SECRET=ci_cookie_secret
+          COOKIE_SECURE=false
+          COOKIE_SAME_SITE=lax
+          COOKIE_HTTP_ONLY=true
+          COOKIE_MAX_AGE=604800000
+          SESSION_COOKIE_NAME=connect.sid
+          NODE_ENV=development
+          PORT=9000
+
+          # --- CORS ---
+          STORE_CORS=http://localhost:3000,http://localhost:8080
+          ADMIN_CORS=http://localhost:9000,http://localhost:3000,http://localhost:8080
+          AUTH_CORS=http://localhost:3000,http://localhost:8080
+
+          # --- White-label store ---
+          CLIENT_NAME=default
+          STORE_NAME=White Shop
+          PRIMARY_COLOR=#3B82F6
+          LOGO_URL=
+          STORE_FONT=Inter
+          DEFAULT_LANGUAGE=fr
+          SUPPORTED_LANGUAGES=fr,en
+          DESIGN_PRESET=modern
+          SITE_URL=http://localhost:8080
+
+          # --- Stripe ---
+          STRIPE_API_KEY=sk_test_placeholder
+          STRIPE_WEBHOOK_SECRET=whsec_placeholder
+          NEXT_PUBLIC_STRIPE_KEY=pk_test_placeholder
+
+          # --- Demo accounts ---
+          CREATE_DEFAULT_ADMIN=true
+          SUPER_ADMIN_EMAIL=super@example.com
+          SUPER_ADMIN_PASSWORD=superpassword
+          ADMIN_EMAIL=admin@example.com
+          ADMIN_PASSWORD=password
+          MANAGER_EMAIL=manager@example.com
+          MANAGER_PASSWORD=managerpassword
+          DEMO_CUSTOMER_EMAIL=customer@example.com
+          DEMO_CUSTOMER_PASSWORD=password
+
+          # --- Storefront ---
+          MEDUSA_BACKEND_URL=http://backend:9000
+          NEXT_PUBLIC_MEDUSA_BACKEND_URL=http://localhost:9000
+          NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=pk_5c328ce90bc55ba4df7101f655c08b7e4b870875051600e69ef40f671bcab75b
+          NEXT_PUBLIC_SITE_URL=http://localhost:8080
+          EOF
 
       - name: Start postgres, redis and backend
         run: docker compose up -d --build postgres redis backend
