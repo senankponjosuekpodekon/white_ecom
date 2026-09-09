@@ -53,7 +53,6 @@ const ThemeEditor = () => {
     setSections((prev) => {
       const next = [...prev]
       ;[next[index], next[index + dir]] = [next[index + dir], next[index]]
-      setSectionOrder(next.map((s) => s.id))
       return next
     })
   }
