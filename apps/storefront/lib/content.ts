@@ -13,7 +13,23 @@ export type HomePageSection = {
   options?: Record<string, unknown>
 }
 
+export type MinimogBlock = Record<string, unknown>
+
+export type MinimogSection = {
+  id: string
+  type: string
+  enabled?: boolean
+  design?: string
+  settings?: Record<string, unknown>
+  blocks?: Record<string, MinimogBlock>
+  block_order?: string[]
+}
+
 export type LocalizedContent = {
+  minimog?: {
+    sections?: MinimogSection[]
+    sectionOrder?: string[]
+  }
   homePage?: {
     sections?: HomePageSection[]
   }

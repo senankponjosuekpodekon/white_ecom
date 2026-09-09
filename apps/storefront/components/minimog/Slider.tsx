@@ -42,7 +42,7 @@ type SliderSettings = {
   animations?: string
 }
 
-type Slide = MinimogBlock & { settings: SlideSettings }
+type Slide = MinimogBlock & { type: string; settings: SlideSettings }
 
 const FALLBACK_IMAGE = "https://placehold.co/1920x900/111827/FFFFFF?text=Hero+Slide"
 
