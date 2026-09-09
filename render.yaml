@@ -6,9 +6,6 @@ services:
     plan: free
     image:
       url: ghcr.io/senankponjosuekpodekon/white_ecom/backend:dev
-      creds:
-        fromRegistryCreds:
-          name: ghcr
     healthCheckPath: /health
     envVars:
       - key: PORT
