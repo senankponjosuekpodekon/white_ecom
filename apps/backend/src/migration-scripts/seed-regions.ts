@@ -29,43 +29,46 @@ export default async function seed_regions({
   const defaultCountry = (config.defaultCountry as string) ?? "FR"
   const countries = countryByRegion[defaultRegion] ?? [defaultCountry]
 
-  const { data: regions } = await query.graph({
-    entity: "region",
-    fields: ["id", "name"],
-  })
-  const existingNames = new Set(regions.map((r: { name: string }) => r.name))
-
   for (const currency of currencies) {
     const name = `Region ${currency.toUpperCase()}`
-    if (existingNames.has(name)) {
+    let region
+
+    try {
+      const { result } = await createRegionsWorkflow(container).run({
+        input: {
+          regions: [
+            {
+              name,
+              currency_code: currency,
+              countries,
+              payment_providers: ["pp_system_default"],
+            },
+          ],
+        },
+      })
+      region = result[0]
+      logger.info(`Created region ${name}`)
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e)
+      logger.warn(`Skipped region ${name}: ${message}`)
+    }
+
+    if (!region) {
       continue
     }
 
-    const { result } = await createRegionsWorkflow(container).run({
-      input: {
-        regions: [
-          {
-            name,
-            currency_code: currency,
-            countries,
-            payment_providers: ["pp_system_default"],
-          },
-        ],
-      },
-    })
-
-    const region = result[0]
-    if (region) {
-      logger.info(`Created region ${name}`)
+    try {
+      await createTaxRegionsWorkflow(container).run({
+        input: countries.map((country_code) => ({
+          country_code,
+          provider_id: "tp_system",
+        })),
+      })
+      logger.info(`Seeded tax regions for ${name}`)
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e)
+      logger.warn(`Skipped tax regions for ${name}: ${message}`)
     }
-
-    await createTaxRegionsWorkflow(container).run({
-      input: countries.map((country_code) => ({
-        country_code,
-        provider_id: "tp_system",
-      })),
-    })
-    logger.info(`Seeded tax regions for ${name}`)
   }
 
   logger.info("Finished seeding extra regions")
