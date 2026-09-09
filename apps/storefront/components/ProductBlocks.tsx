@@ -114,6 +114,7 @@ export async function ProductBlocks({
   locale,
   content,
   design,
+  siteUrl,
   t,
 }: {
   product: Product

@@ -5,7 +5,6 @@ import type { Metadata } from "next";
 import { getProducts } from "@/lib/get-products";
 import { getCategories } from "@/lib/get-categories";
 import { getStoreConfig } from "@/lib/get-store-config";
-import { getLocalizedContent } from "@/lib/content";
 import { locales, defaultLocale, type Locale } from "@/i18n";
 import { ProductCard } from "@/components/ProductCard";
 import { SortSelect } from "@/components/SortSelect";
@@ -49,11 +48,6 @@ export async function generateMetadata({
   const locale = locales.includes(raw as Locale) ? (raw as Locale) : defaultLocale;
   const t = await getTranslations({ locale, namespace: "products" });
   const config = await getStoreConfig();
-  const localized = getLocalizedContent(
-    config.content,
-    locale,
-    (config.defaultLanguage as Locale) ?? defaultLocale
-  );
   const siteUrl =
     config.siteUrl ??
     process.env.NEXT_PUBLIC_SITE_URL ??

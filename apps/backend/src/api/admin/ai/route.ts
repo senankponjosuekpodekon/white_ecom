@@ -1,4 +1,5 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import { MedusaError } from "@medusajs/framework/utils"
 import { requireUser } from "../utils"
 
 type AiProvider = "openai" | "workers-ai" | "none"
@@ -55,13 +56,19 @@ async function generate(
   if (provider === "workers-ai") {
     return generateWorkersAI(prompt, system)
   }
-  throw new Error("Unsupported AI provider")
+  throw new MedusaError(
+    MedusaError.Types.INVALID_DATA,
+    "Unsupported AI provider"
+  )
 }
 
 async function generateOpenAI(prompt: string, system?: string): Promise<string> {
   const key = process.env.OPENAI_API_KEY
   if (!key) {
-    throw new Error("OPENAI_API_KEY is not set")
+    throw new MedusaError(
+      MedusaError.Types.INVALID_DATA,
+      "OPENAI_API_KEY is not set"
+    )
   }
 
   const messages: Array<{ role: string; content: string }> = []
@@ -85,7 +92,10 @@ async function generateOpenAI(prompt: string, system?: string): Promise<string> 
 
   const data = await response.json()
   if (!response.ok) {
-    throw new Error(data.error?.message ?? "OpenAI request failed")
+    throw new MedusaError(
+      MedusaError.Types.INVALID_DATA,
+      data.error?.message ?? "OpenAI request failed"
+    )
   }
   return data.choices?.[0]?.message?.content?.trim() ?? ""
 }
@@ -97,7 +107,10 @@ async function generateWorkersAI(
   const accountId = process.env.CLOUDFLARE_ACCOUNT_ID
   const token = process.env.CLOUDFLARE_API_TOKEN
   if (!accountId || !token) {
-    throw new Error("CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN are required")
+    throw new MedusaError(
+      MedusaError.Types.INVALID_DATA,
+      "CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN are required"
+    )
   }
 
   const model = process.env.CLOUDFLARE_AI_MODEL ?? "@cf/meta/llama-3-8b-instruct"
@@ -120,7 +133,8 @@ async function generateWorkersAI(
 
   const data = await response.json()
   if (!response.ok) {
-    throw new Error(
+    throw new MedusaError(
+      MedusaError.Types.INVALID_DATA,
       data.errors?.[0]?.message ?? data.messages?.[0] ?? "Workers AI request failed"
     )
   }

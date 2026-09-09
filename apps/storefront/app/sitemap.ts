@@ -1,7 +1,6 @@
 import { getProducts } from "@/lib/get-products";
 import { getStoreConfig } from "@/lib/get-store-config";
-import { getLocalizedContent } from "@/lib/content";
-import { locales, defaultLocale, type Locale } from "@/i18n";
+import { locales } from "@/i18n";
 
 const staticPages = ["", "/products", "/shipping", "/returns", "/privacy", "/contact", "/legal", "/terms"];
 
@@ -9,8 +8,6 @@ export const revalidate = 3600;
 
 export default async function sitemap() {
   const [products, config] = await Promise.all([getProducts(), getStoreConfig()]);
-  const defaultLoc = (config.defaultLanguage as Locale) ?? defaultLocale;
-  const localized = getLocalizedContent(config.content, defaultLoc, defaultLoc);
   const base = (
     config.siteUrl ??
     process.env.NEXT_PUBLIC_SITE_URL ??
