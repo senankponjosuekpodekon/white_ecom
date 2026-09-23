@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { defineRouteConfig } from "@medusajs/admin-sdk"
+import { Container, Heading, Text, Button } from "@medusajs/ui"
 
 type Region = {
   id: string
@@ -8,28 +9,24 @@ type Region = {
   payment_providers?: Array<{ id: string }>
 }
 
-type StripeStatus = {
-  configured: boolean
-  webhookConfigured: boolean
-  hasPlaceholder: boolean
+type Provider = {
+  id: string
+  label: string
 }
 
-const PROVIDERS = [
-  { id: "pp_stripe_stripe", label: "Stripe" },
-  { id: "pp_system_default", label: "Paiement manuel" },
-]
-
-const cardStyle: React.CSSProperties = {
-  padding: "1rem",
-  background: "white",
-  border: "1px solid #e5e7eb",
-  borderRadius: "8px",
-  marginBottom: "1.5rem",
+type PaymentConfig = {
+  stripe: {
+    configured: boolean
+    webhookConfigured: boolean
+    hasPlaceholder: boolean
+  }
+  providers?: Provider[]
 }
 
 const Payments = () => {
   const [regions, setRegions] = useState<Region[]>([])
-  const [stripe, setStripe] = useState<StripeStatus | null>(null)
+  const [providers, setProviders] = useState<Provider[]>([])
+  const [stripe, setStripe] = useState<PaymentConfig["stripe"] | null>(null)
   const [selected, setSelected] = useState<Record<string, string[]>>({})
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -46,9 +43,10 @@ const Payments = () => {
           throw new Error("Impossible de charger la configuration des paiements")
         }
         const regionsData = await r.json()
-        const config = await c.json()
+        const config: PaymentConfig = await c.json()
         const regions = regionsData.regions ?? []
         setRegions(regions)
+        setProviders(config.providers ?? [])
         setStripe(config.stripe ?? null)
         const sel: Record<string, string[]> = {}
         for (const region of regions) {
@@ -95,44 +93,53 @@ const Payments = () => {
   }
 
   return (
-    <div style={{ padding: "2rem", maxWidth: "800px" }}>
-      <h1 style={{ fontSize: "1.5rem", marginBottom: "1rem" }}>Paiements</h1>
+    <Container className="p-6" style={{ maxWidth: "900px" }}>
+      <Heading level="h1">Paiements</Heading>
+      <Text className="text-ui-fg-subtle mt-1 mb-6">
+        Configurez Stripe et les providers actifs par région.
+      </Text>
 
-      <div style={cardStyle}>
-        <h2 style={{ fontSize: "1.1rem", marginBottom: "0.5rem" }}>Statut Stripe</h2>
+      <Container className="p-4 bg-white border border-gray-200 rounded-lg mb-4">
+        <Heading level="h2" className="text-base mb-2">
+          Statut Stripe
+        </Heading>
         {stripe ? (
-          <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-            <li style={{ padding: "0.25rem 0" }}>
-              Clé API :{" "}
+          <div className="space-y-1">
+            <Text className="text-sm">
+              Clé API : {" "}
               {stripe.configured
-                ? "configuree"
+                ? "configurée"
                 : stripe.hasPlaceholder
                 ? "placeholder (test)"
-                : "non configuree"}
-            </li>
-            <li style={{ padding: "0.25rem 0" }}>
-              Webhook : {stripe.webhookConfigured ? "configure" : "non configure"}
-            </li>
-          </ul>
+                : "non configurée"}
+            </Text>
+            <Text className="text-sm">
+              Webhook : {stripe.webhookConfigured ? "configuré" : "non configuré"}
+            </Text>
+          </div>
         ) : (
-          <p>Chargement…</p>
+          <Text>Chargement…</Text>
         )}
-      </div>
+      </Container>
 
-      <div style={cardStyle}>
-        <h2 style={{ fontSize: "1.1rem", marginBottom: "1rem" }}>Providers par région</h2>
+      <Container className="p-4 bg-white border border-gray-200 rounded-lg mb-4">
+        <Heading level="h2" className="text-base mb-4">
+          Providers par région
+        </Heading>
         {loading ? (
-          <p>Chargement…</p>
+          <Text>Chargement…</Text>
         ) : regions.length === 0 ? (
-          <p>Aucune région.</p>
+          <Text>Aucune région.</Text>
+        ) : providers.length === 0 ? (
+          <Text>Aucun provider disponible.</Text>
         ) : (
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <table className="w-full text-left border-collapse">
             <thead>
-              <tr style={{ borderBottom: "1px solid #e5e7eb" }}>
-                <th style={{ textAlign: "left", padding: "0.5rem" }}>Région</th>
-                <th style={{ textAlign: "left", padding: "0.5rem" }}>Devise</th>
-                {PROVIDERS.map((p) => (
-                  <th key={p.id} style={{ textAlign: "left", padding: "0.5rem" }}>
+              <tr className="border-b border-gray-200">
+                <th className="py-2 pr-4 font-medium text-sm">Région</th>
+                <th className="py-2 pr-4 font-medium text-sm">Devise</th>
+                {providers.map((p) => (
+                  <th key={p.id} className="py-2 pr-4 font-medium text-sm">
                     {p.label}
                   </th>
                 ))}
@@ -140,11 +147,11 @@ const Payments = () => {
             </thead>
             <tbody>
               {regions.map((region) => (
-                <tr key={region.id} style={{ borderBottom: "1px solid #f3f4f6" }}>
-                  <td style={{ padding: "0.5rem" }}>{region.name}</td>
-                  <td style={{ padding: "0.5rem" }}>{region.currency_code.toUpperCase()}</td>
-                  {PROVIDERS.map((p) => (
-                    <td key={p.id} style={{ padding: "0.5rem" }}>
+                <tr key={region.id} className="border-b border-gray-200 last:border-0">
+                  <td className="py-2 pr-4 text-sm">{region.name}</td>
+                  <td className="py-2 pr-4 text-sm">{region.currency_code.toUpperCase()}</td>
+                  {providers.map((p) => (
+                    <td key={p.id} className="py-2 pr-4">
                       <input
                         type="checkbox"
                         checked={(selected[region.id] ?? []).includes(p.id)}
@@ -157,28 +164,21 @@ const Payments = () => {
             </tbody>
           </table>
         )}
-      </div>
+      </Container>
 
-      <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
-        <button
+      <div className="flex items-center gap-4">
+        <Button
+          variant="primary"
+          isLoading={saving}
+          disabled={loading}
           onClick={handleSave}
-          disabled={saving || loading}
-          style={{
-            padding: "0.5rem 1.5rem",
-            background: "#111827",
-            color: "white",
-            border: "none",
-            borderRadius: "6px",
-            cursor: saving ? "not-allowed" : "pointer",
-            opacity: saving ? 0.6 : 1,
-          }}
         >
-          {saving ? "Sauvegarde..." : "Sauvegarder"}
-        </button>
-        {saved && <span style={{ color: "#16a34a" }}>Sauvegardé !</span>}
-        {error && <span style={{ color: "#dc2626" }}>{error}</span>}
+          Sauvegarder
+        </Button>
+        {saved && <Text className="text-emerald-600">Sauvegardé !</Text>}
+        {error && <Text className="text-red-600">{error}</Text>}
       </div>
-    </div>
+    </Container>
   )
 }
 
