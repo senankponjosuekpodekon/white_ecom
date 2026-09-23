@@ -11,6 +11,10 @@ type ThemeData = {
   }
 }
 
+const selectClass = "w-full mt-1 px-2 py-1 text-sm border border-gray-200 rounded-md bg-white"
+const inputClass = "w-full mt-1 px-2 py-1 text-sm border border-gray-200 rounded-md"
+const textareaClass = "w-full mt-1 px-2 py-1 text-sm border border-gray-200 rounded-md font-mono text-xs"
+
 const ThemeEditor = () => {
   const navigate = useNavigate()
   const [sections, setSections] = useState<MinimogSection[]>([])
@@ -52,7 +56,9 @@ const ThemeEditor = () => {
     if (index + dir < 0 || index + dir >= sections.length) return
     setSections((prev) => {
       const next = [...prev]
-      ;[next[index], next[index + dir]] = [next[index + dir], next[index]]
+      const a = next[index]
+      next[index] = next[index + dir]
+      next[index + dir] = a
       return next
     })
   }
@@ -89,7 +95,7 @@ const ThemeEditor = () => {
         <div>
           <Heading level="h1">Thème / Boutique en ligne</Heading>
           <Text className="text-ui-fg-subtle mt-1">
-            Activez, désactivez, réordonnez et personnalisez les sections de la page d’accueil Minimog.
+            Activez, désactivez, réordonnez et personnalisez les sections de la page d&apos;accueil Minimog.
           </Text>
         </div>
         <Button variant="secondary" onClick={() => navigate("/theme/ai")}>
@@ -128,9 +134,9 @@ const ThemeEditor = () => {
 
           <div className="space-y-4">
             {sections.map((section, index) => (
-              <div
+              <Container
                 key={section.id}
-                className="border border-gray-200 rounded-lg p-4 bg-white"
+                className="p-4 bg-white border border-gray-200 rounded-lg"
               >
                 <div className="grid grid-cols-12 gap-4 items-start">
                   <div className="col-span-2">
@@ -138,7 +144,7 @@ const ThemeEditor = () => {
                     <input
                       value={section.id}
                       onChange={(e) => updateSection(index, { id: e.target.value })}
-                      className="w-full mt-1 px-2 py-1 border rounded"
+                      className={inputClass}
                     />
                   </div>
                   <div className="col-span-2">
@@ -146,7 +152,7 @@ const ThemeEditor = () => {
                     <select
                       value={section.type}
                       onChange={(e) => updateSection(index, { type: e.target.value })}
-                      className="w-full mt-1 px-2 py-1 border rounded bg-white"
+                      className={selectClass}
                     >
                       <option value="header">Header</option>
                       <option value="slider">Slider</option>
@@ -172,7 +178,7 @@ const ThemeEditor = () => {
                       value={section.design ?? ""}
                       onChange={(e) => updateSection(index, { design: e.target.value })}
                       placeholder="ex: default, slider"
-                      className="w-full mt-1 px-2 py-1 border rounded"
+                      className={inputClass}
                     />
                   </div>
                   <div className="col-span-5">
@@ -181,7 +187,7 @@ const ThemeEditor = () => {
                       value={JSON.stringify(section.settings ?? {}, null, 2)}
                       onChange={(e) => updateSettings(index, e.target.value)}
                       rows={4}
-                      className="w-full mt-1 px-2 py-1 border rounded font-mono text-xs"
+                      className={textareaClass}
                     />
                   </div>
                 </div>
@@ -212,7 +218,7 @@ const ThemeEditor = () => {
                     Supprimer
                   </Button>
                 </div>
-              </div>
+              </Container>
             ))}
           </div>
         </>

@@ -48,6 +48,9 @@ const quickPrompts: QuickPrompt[] = [
   },
 ]
 
+const selectClass = "w-full p-2 text-sm border border-gray-200 rounded-md"
+const fieldClass = "w-full p-2 text-sm border border-gray-200 rounded-md"
+
 const AiAssistant = () => {
   const navigate = useNavigate()
   const [status, setStatus] = useState<{ provider: string; configured: boolean } | null>(null)
@@ -137,18 +140,13 @@ const AiAssistant = () => {
       </div>
 
       <div className="mb-4">
-        <label style={{ fontWeight: 500, display: "block", marginBottom: "0.25rem" }}>
+        <label className="font-medium block mb-1">
           Action
         </label>
         <select
           value={type}
           onChange={(e) => setType(e.target.value as AiAction)}
-          style={{
-            width: "100%",
-            padding: "0.5rem",
-            border: "1px solid #e5e7eb",
-            borderRadius: "6px",
-          }}
+          className={selectClass}
         >
           <option value="generate">Generation libre</option>
           <option value="description">Description produit</option>
@@ -160,71 +158,51 @@ const AiAssistant = () => {
       {type === "translate" && (
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div>
-            <label style={{ fontWeight: 500, display: "block", marginBottom: "0.25rem" }}>
+            <label className="font-medium block mb-1">
               Langue source
             </label>
             <input
               value={sourceLocale}
               onChange={(e) => setSourceLocale(e.target.value)}
               placeholder="fr"
-              style={{
-                width: "100%",
-                padding: "0.5rem",
-                border: "1px solid #e5e7eb",
-                borderRadius: "6px",
-              }}
+              className={fieldClass}
             />
           </div>
           <div>
-            <label style={{ fontWeight: 500, display: "block", marginBottom: "0.25rem" }}>
+            <label className="font-medium block mb-1">
               Langue cible
             </label>
             <input
               value={targetLocale}
               onChange={(e) => setTargetLocale(e.target.value)}
               placeholder="en"
-              style={{
-                width: "100%",
-                padding: "0.5rem",
-                border: "1px solid #e5e7eb",
-                borderRadius: "6px",
-              }}
+              className={fieldClass}
             />
           </div>
         </div>
       )}
 
       <div className="mb-4">
-        <label style={{ fontWeight: 500, display: "block", marginBottom: "0.25rem" }}>
+        <label className="font-medium block mb-1">
           System prompt (optionnel)
         </label>
         <textarea
           value={system}
           onChange={(e) => setSystem(e.target.value)}
           rows={2}
-          style={{
-            width: "100%",
-            padding: "0.5rem",
-            border: "1px solid #e5e7eb",
-            borderRadius: "6px",
-          }}
+          className={fieldClass}
         />
       </div>
 
       <div className="mb-4">
-        <label style={{ fontWeight: 500, display: "block", marginBottom: "0.25rem" }}>
+        <label className="font-medium block mb-1">
           Prompt
         </label>
         <textarea
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           rows={6}
-          style={{
-            width: "100%",
-            padding: "0.5rem",
-            border: "1px solid #e5e7eb",
-            borderRadius: "6px",
-          }}
+          className={fieldClass}
         />
       </div>
 
@@ -240,7 +218,7 @@ const AiAssistant = () => {
       {error && <Text className="text-red-600 mb-4">{error}</Text>}
 
       {result && (
-        <Container className="p-4" style={{ background: "#f9fafb" }}>
+        <Container className="p-4 bg-gray-50">
           <div className="flex justify-between items-center mb-2">
             <Heading level="h3" className="text-base">
               Resultat
@@ -249,14 +227,7 @@ const AiAssistant = () => {
               Copier
             </Button>
           </div>
-          <pre
-            style={{
-              whiteSpace: "pre-wrap",
-              fontFamily: "monospace",
-              fontSize: "14px",
-              lineHeight: 1.5,
-            }}
-          >
+          <pre className="whitespace-pre-wrap font-mono text-sm leading-relaxed">
             {result}
           </pre>
         </Container>
