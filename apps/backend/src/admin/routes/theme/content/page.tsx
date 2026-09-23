@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { defineRouteConfig } from "@medusajs/admin-sdk"
+import { Container, Heading, Text, Button } from "@medusajs/ui"
 import { defaultContent } from "../../../../utils/default-content"
 
 const locales = ["fr", "en"] as const
@@ -75,8 +76,10 @@ const sectionFields = [
   },
 ]
 
+const fieldClass = "w-full p-2 text-sm border border-gray-200 rounded-md"
+
 const ContentEditor = () => {
-  const [content, setContent] = useState<Record<string, any>>(defaultContent)
+  const [content, setContent] = useState<Record<string, any>>(defaultContent as Record<string, any>)
   const [activeLocale, setActiveLocale] = useState<string>("fr")
   const [tab, setTab] = useState<"edit" | "preview">("edit")
   const [loading, setLoading] = useState(false)
@@ -139,80 +142,54 @@ const ContentEditor = () => {
     "http://localhost:8080"
 
   return (
-    <div style={{ padding: "2rem" }}>
-      <h1 style={{ fontSize: "1.5rem", marginBottom: "1rem" }}>
-        Contenu client
-      </h1>
-      <p style={{ marginBottom: "1rem", color: "#666" }}>
+    <Container className="p-6" style={{ maxWidth: "1100px" }}>
+      <Heading level="h1">Contenu & Pages</Heading>
+      <Text className="text-ui-fg-subtle mt-1 mb-6">
         Éditez les textes, le SEO, les politiques et le tracking de la boutique.
-      </p>
+      </Text>
 
-      <div style={{ display: "flex", gap: "1rem", marginBottom: "1.5rem" }}>
-        <button
+      <div className="flex gap-2 mb-6">
+        <Button
+          variant={tab === "edit" ? "primary" : "secondary"}
           onClick={() => setTab("edit")}
-          style={{
-            padding: "0.5rem 1rem",
-            background: tab === "edit" ? "#111827" : "white",
-            color: tab === "edit" ? "white" : "#111827",
-            border: "1px solid #e5e7eb",
-            borderRadius: "6px",
-            cursor: "pointer",
-          }}
         >
           Formulaire
-        </button>
-        <button
+        </Button>
+        <Button
+          variant={tab === "preview" ? "primary" : "secondary"}
           onClick={() => setTab("preview")}
-          style={{
-            padding: "0.5rem 1rem",
-            background: tab === "preview" ? "#111827" : "white",
-            color: tab === "preview" ? "white" : "#111827",
-            border: "1px solid #e5e7eb",
-            borderRadius: "6px",
-            cursor: "pointer",
-          }}
         >
           Aperçu
-        </button>
+        </Button>
       </div>
 
       {tab === "edit" ? (
         <>
-          <div style={{ marginBottom: "1.5rem" }}>
-            <label style={{ fontWeight: 600, marginRight: "0.5rem" }}>Langue :</label>
+          <div className="mb-6">
+            <label className="font-medium mr-2">Langue :</label>
             <select
               value={activeLocale}
               onChange={(e) => setActiveLocale(e.target.value)}
-              style={{ padding: "0.5rem", border: "1px solid #e5e7eb", borderRadius: "6px" }}
+              className="p-2 text-sm border border-gray-200 rounded-md"
             >
               <option value="fr">Français</option>
               <option value="en">English</option>
             </select>
           </div>
 
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr",
-              gap: "1.5rem",
-              marginBottom: "2rem",
-            }}
-          >
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             {sectionFields.map((section) => (
-              <div
+              <Container
                 key={section.name}
-                style={{
-                  border: "1px solid #e5e7eb",
-                  borderRadius: "8px",
-                  padding: "1rem",
-                  background: "white",
-                }}
+                className="p-4 bg-white border border-gray-200 rounded-lg"
               >
-                <h2 style={{ fontSize: "1.1rem", marginBottom: "1rem" }}>{section.label}</h2>
-                <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                <Heading level="h2" className="text-base mb-3">
+                  {section.label}
+                </Heading>
+                <div className="flex flex-col gap-3">
                   {section.fields.map((field) => (
                     <div key={field.key}>
-                      <label style={{ display: "block", fontSize: "14px", marginBottom: "0.25rem" }}>
+                      <label className="block text-sm mb-1">
                         {field.label}
                       </label>
                       {field.textarea ? (
@@ -222,7 +199,7 @@ const ContentEditor = () => {
                             setString(activeLocale, section.name, field.key, e.target.value)
                           }
                           rows={4}
-                          style={inputStyle}
+                          className={fieldClass}
                         />
                       ) : (
                         <input
@@ -230,78 +207,58 @@ const ContentEditor = () => {
                           onChange={(e) =>
                             setString(activeLocale, section.name, field.key, e.target.value)
                           }
-                          style={inputStyle}
+                          className={fieldClass}
                         />
                       )}
                     </div>
                   ))}
                 </div>
-              </div>
+              </Container>
             ))}
 
-            <div
-              style={{
-                border: "1px solid #e5e7eb",
-                borderRadius: "8px",
-                padding: "1rem",
-                background: "white",
-              }}
-            >
-              <h2 style={{ fontSize: "1.1rem", marginBottom: "1rem" }}>URL publique</h2>
+            <Container className="p-4 bg-white border border-gray-200 rounded-lg">
+              <Heading level="h2" className="text-base mb-3">
+                URL publique
+              </Heading>
               <input
                 value={content[activeLocale]?.siteUrl ?? ""}
                 onChange={(e) => setSiteUrl(e.target.value)}
-                style={inputStyle}
+                className={fieldClass}
                 placeholder="https://votre-boutique.com"
               />
-            </div>
+            </Container>
           </div>
 
-          <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
-            <button
+          <div className="flex items-center gap-4">
+            <Button
+              variant="primary"
+              isLoading={loading}
               onClick={handleSave}
-              disabled={loading}
-              style={{
-                padding: "0.5rem 1.5rem",
-                background: "#111827",
-                color: "white",
-                border: "none",
-                borderRadius: "6px",
-                cursor: loading ? "not-allowed" : "pointer",
-                opacity: loading ? 0.6 : 1,
-              }}
             >
               {loading ? "Sauvegarde..." : "Sauvegarder"}
-            </button>
-            {saved && <span style={{ color: "#16a34a" }}>Sauvegardé !</span>}
-            {error && <span style={{ color: "#dc2626" }}>{error}</span>}
+            </Button>
+            {saved && <Text className="text-emerald-600">Sauvegardé !</Text>}
+            {error && <Text className="text-red-600">{error}</Text>}
           </div>
         </>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center gap-2">
             <input
               value={previewUrl}
               onChange={() => {}}
-              style={{ ...inputStyle, flex: 1 }}
+              className={fieldClass}
               readOnly
             />
-            <button
+            <Button
+              variant="secondary"
               onClick={() => {
                 const iframe = document.getElementById("preview-frame") as HTMLIFrameElement
                 if (iframe) iframe.src = iframe.src
               }}
-              style={{
-                padding: "0.5rem 1rem",
-                background: "#111827",
-                color: "white",
-                border: "none",
-                borderRadius: "6px",
-                cursor: "pointer",
-              }}
             >
               Rafraîchir
-            </button>
+            </Button>
           </div>
           <iframe
             id="preview-frame"
@@ -310,16 +267,8 @@ const ContentEditor = () => {
           />
         </div>
       )}
-    </div>
+    </Container>
   )
-}
-
-const inputStyle: React.CSSProperties = {
-  width: "100%",
-  padding: "0.5rem",
-  fontSize: "14px",
-  border: "1px solid #e5e7eb",
-  borderRadius: "6px",
 }
 
 export const config = defineRouteConfig({
