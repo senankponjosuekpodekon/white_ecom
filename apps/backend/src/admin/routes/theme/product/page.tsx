@@ -61,7 +61,6 @@ const TEMPLATES: Record<string, { label: string; blocks: Block[] }> = {
 }
 
 const selectClass = "p-2 text-sm border border-gray-200 rounded-md"
-const iconClass = "px-2 py-1 bg-white border border-gray-200 rounded text-sm"
 
 const ProductPage = () => {
   const [content, setContent] = useState<Record<string, any>>({})
