@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { defineRouteConfig } from "@medusajs/admin-sdk"
+import { Container, Heading, Text, Button } from "@medusajs/ui"
 
 type Block = { type: string; enabled: boolean; options?: Record<string, unknown> }
 
@@ -59,13 +60,8 @@ const TEMPLATES: Record<string, { label: string; blocks: Block[] }> = {
   },
 }
 
-const inputStyle: React.CSSProperties = {
-  width: "100%",
-  padding: "0.5rem",
-  fontSize: "14px",
-  border: "1px solid #e5e7eb",
-  borderRadius: "6px",
-}
+const selectClass = "p-2 text-sm border border-gray-200 rounded-md"
+const iconClass = "px-2 py-1 bg-white border border-gray-200 rounded text-sm"
 
 const ProductPage = () => {
   const [content, setContent] = useState<Record<string, any>>({})
@@ -94,7 +90,9 @@ const ProductPage = () => {
       const next = [...prev]
       const target = index + dir
       if (target < 0 || target >= next.length) return prev
-      ;[next[index], next[target]] = [next[target], next[index]]
+      const a = next[index]
+      next[index] = next[target]
+      next[target] = a
       return next
     })
   }
@@ -146,89 +144,102 @@ const ProductPage = () => {
   const labelOf = (type: string) => CATALOG.find((c) => c.type === type)?.label ?? type
 
   return (
-    <div style={{ padding: "2rem", maxWidth: "900px" }}>
-      <h1 style={{ fontSize: "1.5rem", marginBottom: "1rem" }}>Page produit</h1>
-      <p style={{ marginBottom: "1.5rem", color: "#666" }}>
+    <Container className="p-6" style={{ maxWidth: "900px" }}>
+      <Heading level="h1">Page produit</Heading>
+      <Text className="text-ui-fg-subtle mt-1 mb-6">
         Configurez les blocs affichés sur la fiche produit (inspiré de Shopify).
-      </p>
+      </Text>
 
-      <div style={{ marginBottom: "1.5rem" }}>
-        <label style={{ fontWeight: 600, marginRight: "0.5rem" }}>Langue :</label>
-        <select value={locale} onChange={(e) => setLocale(e.target.value)} style={inputStyle as React.CSSProperties & { width: "auto" }}>
+      <div className="mb-6">
+        <label className="font-medium mr-2">Langue :</label>
+        <select value={locale} onChange={(e) => setLocale(e.target.value)} className={selectClass}>
           <option value="fr">Français</option>
           <option value="en">English</option>
         </select>
       </div>
 
-      <div style={{ marginBottom: "1.5rem" }}>
-        <label style={{ display: "block", fontWeight: 600, marginBottom: "0.25rem" }}>Layout</label>
-        <select value={layout} onChange={(e) => setLayout(e.target.value)} style={inputStyle as React.CSSProperties & { width: "auto" }}>
+      <Container className="p-4 bg-white border border-gray-200 rounded-lg mb-4">
+        <Heading level="h2" className="text-base mb-3">
+          Layout
+        </Heading>
+        <select value={layout} onChange={(e) => setLayout(e.target.value)} className={selectClass}>
           <option value="split">Split (média à gauche)</option>
           <option value="stacked">Empilé (média au-dessus)</option>
           <option value="slider">Slider (média pleine largeur)</option>
         </select>
-      </div>
+      </Container>
 
-      <div style={{ marginBottom: "1.5rem" }}>
-        <label style={{ display: "block", fontWeight: 600, marginBottom: "0.25rem" }}>Templates</label>
-        <div style={{ display: "flex", gap: "0.5rem" }}>
+      <Container className="p-4 bg-white border border-gray-200 rounded-lg mb-4">
+        <Heading level="h2" className="text-base mb-3">
+          Templates
+        </Heading>
+        <div className="flex gap-2 flex-wrap">
           {Object.entries(TEMPLATES).map(([key, tpl]) => (
-            <button
-              key={key}
-              onClick={() => applyTemplate(key)}
-              style={{
-                padding: "0.5rem 1rem",
-                background: "white",
-                border: "1px solid #e5e7eb",
-                borderRadius: "6px",
-                cursor: "pointer",
-              }}
-            >
+            <Button key={key} variant="secondary" onClick={() => applyTemplate(key)}>
               {tpl.label}
-            </button>
+            </Button>
           ))}
         </div>
-      </div>
+      </Container>
 
-      <div style={{ marginBottom: "1rem" }}>
-        <label style={{ display: "block", fontWeight: 600, marginBottom: "0.25rem" }}>Blocs</label>
+      <Container className="p-4 bg-white border border-gray-200 rounded-lg mb-4">
+        <Heading level="h2" className="text-base mb-3">
+          Blocs
+        </Heading>
         {blocks.length === 0 ? (
-          <p>Aucun bloc. Ajoutez-en ci-dessous.</p>
+          <Text>Aucun bloc. Ajoutez-en ci-dessous.</Text>
         ) : (
-          <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+          <ul className="space-y-2">
             {blocks.map((block, index) => (
               <li
                 key={`${block.type}-${index}`}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "0.75rem",
-                  padding: "0.5rem",
-                  border: "1px solid #e5e7eb",
-                  borderRadius: "6px",
-                  marginBottom: "0.5rem",
-                  background: "white",
-                }}
+                className="flex items-center gap-3 p-2 border border-gray-200 rounded-md bg-white"
               >
-                <input type="checkbox" checked={block.enabled} onChange={() => toggle(index)} />
-                <span style={{ flex: 1 }}>{labelOf(block.type)}</span>
-                <button onClick={() => move(index, -1)} style={iconBtn} disabled={index === 0}>↑</button>
-                <button onClick={() => move(index, 1)} style={iconBtn} disabled={index === blocks.length - 1}>↓</button>
-                <button onClick={() => remove(index)} style={iconBtn}>x</button>
+                <input
+                  type="checkbox"
+                  checked={block.enabled}
+                  onChange={() => toggle(index)}
+                />
+                <span className="flex-1 text-sm">{labelOf(block.type)}</span>
+                <Button
+                  variant="secondary"
+                  size="small"
+                  onClick={() => move(index, -1)}
+                  disabled={index === 0}
+                >
+                  ↑
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="small"
+                  onClick={() => move(index, 1)}
+                  disabled={index === blocks.length - 1}
+                >
+                  ↓
+                </Button>
+                <Button
+                  variant="danger"
+                  size="small"
+                  onClick={() => remove(index)}
+                >
+                  x
+                </Button>
               </li>
             ))}
           </ul>
         )}
-      </div>
+      </Container>
 
-      <div style={{ marginBottom: "1.5rem" }}>
-        <label style={{ display: "block", fontWeight: 600, marginBottom: "0.25rem" }}>Ajouter un bloc</label>
+      <Container className="p-4 bg-white border border-gray-200 rounded-lg mb-4">
+        <Heading level="h2" className="text-base mb-3">
+          Ajouter un bloc
+        </Heading>
         <select
           onChange={(e) => {
             if (e.target.value) add(e.target.value)
             e.target.value = ""
           }}
-          style={inputStyle as React.CSSProperties & { width: "auto" }}
+          className={selectClass}
           defaultValue=""
         >
           <option value="">— Choisir —</option>
@@ -238,37 +249,21 @@ const ProductPage = () => {
             </option>
           ))}
         </select>
-      </div>
+      </Container>
 
-      <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
-        <button
+      <div className="flex items-center gap-4">
+        <Button
+          variant="primary"
+          isLoading={loading}
           onClick={handleSave}
-          disabled={loading}
-          style={{
-            padding: "0.5rem 1.5rem",
-            background: "#111827",
-            color: "white",
-            border: "none",
-            borderRadius: "6px",
-            cursor: loading ? "not-allowed" : "pointer",
-            opacity: loading ? 0.6 : 1,
-          }}
         >
           {loading ? "Sauvegarde..." : "Sauvegarder"}
-        </button>
-        {saved && <span style={{ color: "#16a34a" }}>Sauvegardé !</span>}
-        {error && <span style={{ color: "#dc2626" }}>{error}</span>}
+        </Button>
+        {saved && <Text className="text-emerald-600">Sauvegardé !</Text>}
+        {error && <Text className="text-red-600">{error}</Text>}
       </div>
-    </div>
+    </Container>
   )
-}
-
-const iconBtn: React.CSSProperties = {
-  padding: "0.25rem 0.5rem",
-  background: "white",
-  border: "1px solid #e5e7eb",
-  borderRadius: "4px",
-  cursor: "pointer",
 }
 
 export const config = defineRouteConfig({
