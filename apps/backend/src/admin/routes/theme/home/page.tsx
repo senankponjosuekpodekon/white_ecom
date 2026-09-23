@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { defineRouteConfig } from "@medusajs/admin-sdk"
+import { Container, Heading, Text, Button } from "@medusajs/ui"
 
 type Section = { type: string; enabled: boolean; options?: Record<string, unknown> }
 
@@ -38,13 +39,8 @@ const TEMPLATES: Record<string, { label: string; sections: Section[] }> = {
   },
 }
 
-const inputStyle: React.CSSProperties = {
-  width: "100%",
-  padding: "0.5rem",
-  fontSize: "14px",
-  border: "1px solid #e5e7eb",
-  borderRadius: "6px",
-}
+const selectClass = "p-2 text-sm border border-gray-200 rounded-md"
+const fieldClass = "w-full p-2 text-sm border border-gray-200 rounded-md font-mono"
 
 const HomePage = () => {
   const [content, setContent] = useState<Record<string, any>>({})
@@ -80,7 +76,9 @@ const HomePage = () => {
       const next = [...prev]
       const target = index + dir
       if (target < 0 || target >= next.length) return prev
-      ;[next[index], next[target]] = [next[target], next[index]]
+      const a = next[index]
+      next[index] = next[target]
+      next[target] = a
       return next
     })
   }
@@ -145,68 +143,54 @@ const HomePage = () => {
   const labelOf = (type: string) => CATALOG.find((c) => c.type === type)?.label ?? type
 
   return (
-    <div style={{ padding: "2rem", maxWidth: "900px" }}>
-      <h1 style={{ fontSize: "1.5rem", marginBottom: "1rem" }}>Page d&apos;accueil</h1>
-      <p style={{ marginBottom: "1.5rem", color: "#666" }}>
+    <Container className="p-6" style={{ maxWidth: "900px" }}>
+      <Heading level="h1">Page d&apos;accueil</Heading>
+      <Text className="text-ui-fg-subtle mt-1 mb-6">
         Configurez les sections de la page d&apos;accueil (inspiré de Shopify).
-      </p>
+      </Text>
 
-      <div style={{ marginBottom: "1.5rem" }}>
-        <label style={{ fontWeight: 600, marginRight: "0.5rem" }}>Langue :</label>
+      <div className="mb-6">
+        <label className="font-medium mr-2">Langue :</label>
         <select
           value={locale}
           onChange={(e) => {
             setLocale(e.target.value)
             setSelected(-1)
           }}
-          style={inputStyle as React.CSSProperties & { width: "auto" }}
+          className={selectClass}
         >
           <option value="fr">Français</option>
           <option value="en">English</option>
         </select>
       </div>
 
-      <div style={{ marginBottom: "1.5rem" }}>
-        <label style={{ display: "block", fontWeight: 600, marginBottom: "0.25rem" }}>Templates</label>
-        <div style={{ display: "flex", gap: "0.5rem" }}>
+      <Container className="p-4 bg-white border border-gray-200 rounded-lg mb-4">
+        <Heading level="h2" className="text-base mb-3">
+          Templates
+        </Heading>
+        <div className="flex gap-2 flex-wrap">
           {Object.entries(TEMPLATES).map(([key, tpl]) => (
-            <button
-              key={key}
-              onClick={() => applyTemplate(key)}
-              style={{
-                padding: "0.5rem 1rem",
-                background: "white",
-                border: "1px solid #e5e7eb",
-                borderRadius: "6px",
-                cursor: "pointer",
-              }}
-            >
+            <Button key={key} variant="secondary" onClick={() => applyTemplate(key)}>
               {tpl.label}
-            </button>
+            </Button>
           ))}
         </div>
-      </div>
+      </Container>
 
-      <div style={{ marginBottom: "1rem" }}>
-        <label style={{ display: "block", fontWeight: 600, marginBottom: "0.25rem" }}>Sections</label>
+      <Container className="p-4 bg-white border border-gray-200 rounded-lg mb-4">
+        <Heading level="h2" className="text-base mb-3">
+          Sections
+        </Heading>
         {sections.length === 0 ? (
-          <p>Aucune section. Ajoutez-en ci-dessous.</p>
+          <Text>Aucune section. Ajoutez-en ci-dessous.</Text>
         ) : (
-          <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+          <ul className="space-y-2">
             {sections.map((section, index) => (
               <li
                 key={`${section.type}-${index}`}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "0.75rem",
-                  padding: "0.5rem",
-                  border: "1px solid #e5e7eb",
-                  borderRadius: "6px",
-                  marginBottom: "0.5rem",
-                  background: selected === index ? "#f0f9ff" : "white",
-                  cursor: "pointer",
-                }}
+                className={`flex items-center gap-3 p-2 border border-gray-200 rounded-md cursor-pointer ${
+                  selected === index ? "bg-blue-50" : "bg-white"
+                }`}
                 onClick={() => setSelected(index)}
               >
                 <input
@@ -215,51 +199,67 @@ const HomePage = () => {
                   onClick={(e) => e.stopPropagation()}
                   onChange={() => toggle(index)}
                 />
-                <span style={{ flex: 1 }}>{labelOf(section.type)}</span>
-                <button onClick={(e) => { e.stopPropagation(); move(index, -1) }} style={iconBtn} disabled={index === 0}>↑</button>
-                <button onClick={(e) => { e.stopPropagation(); move(index, 1) }} style={iconBtn} disabled={index === sections.length - 1}>↓</button>
-                <button onClick={(e) => { e.stopPropagation(); remove(index) }} style={iconBtn}>x</button>
+                <span className="flex-1 text-sm">{labelOf(section.type)}</span>
+                <Button
+                  variant="secondary"
+                  size="small"
+                  onClick={(e) => { e.stopPropagation(); move(index, -1) }}
+                  disabled={index === 0}
+                >
+                  ↑
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="small"
+                  onClick={(e) => { e.stopPropagation(); move(index, 1) }}
+                  disabled={index === sections.length - 1}
+                >
+                  ↓
+                </Button>
+                <Button
+                  variant="danger"
+                  size="small"
+                  onClick={(e) => { e.stopPropagation(); remove(index) }}
+                >
+                  x
+                </Button>
               </li>
             ))}
           </ul>
         )}
-      </div>
+      </Container>
 
       {selected >= 0 && sections[selected] && (
-        <div style={{ marginBottom: "1.5rem" }}>
-          <label style={{ display: "block", fontWeight: 600, marginBottom: "0.25rem" }}>
+        <Container className="p-4 bg-white border border-gray-200 rounded-lg mb-4">
+          <Heading level="h2" className="text-base mb-3">
             Options ({labelOf(sections[selected].type)})
-          </label>
+          </Heading>
           <textarea
             value={optionsJson}
             onChange={(e) => setOptionsJson(e.target.value)}
             rows={6}
-            style={{ ...inputStyle, fontFamily: "monospace" }}
+            className={fieldClass}
           />
-          <button
+          <Button
+            variant="secondary"
+            className="mt-2"
             onClick={saveOptions}
-            style={{
-              marginTop: "0.5rem",
-              padding: "0.4rem 1rem",
-              background: "white",
-              border: "1px solid #e5e7eb",
-              borderRadius: "6px",
-              cursor: "pointer",
-            }}
           >
             Appliquer les options
-          </button>
-        </div>
+          </Button>
+        </Container>
       )}
 
-      <div style={{ marginBottom: "1.5rem" }}>
-        <label style={{ display: "block", fontWeight: 600, marginBottom: "0.25rem" }}>Ajouter une section</label>
+      <Container className="p-4 bg-white border border-gray-200 rounded-lg mb-4">
+        <Heading level="h2" className="text-base mb-3">
+          Ajouter une section
+        </Heading>
         <select
           onChange={(e) => {
             if (e.target.value) add(e.target.value)
             e.target.value = ""
           }}
-          style={inputStyle as React.CSSProperties & { width: "auto" }}
+          className={selectClass}
           defaultValue=""
         >
           <option value="">— Choisir —</option>
@@ -269,37 +269,21 @@ const HomePage = () => {
             </option>
           ))}
         </select>
-      </div>
+      </Container>
 
-      <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
-        <button
+      <div className="flex items-center gap-4">
+        <Button
+          variant="primary"
+          isLoading={loading}
           onClick={handleSave}
-          disabled={loading}
-          style={{
-            padding: "0.5rem 1.5rem",
-            background: "#111827",
-            color: "white",
-            border: "none",
-            borderRadius: "6px",
-            cursor: loading ? "not-allowed" : "pointer",
-            opacity: loading ? 0.6 : 1,
-          }}
         >
           {loading ? "Sauvegarde..." : "Sauvegarder"}
-        </button>
-        {saved && <span style={{ color: "#16a34a" }}>Sauvegardé !</span>}
-        {error && <span style={{ color: "#dc2626" }}>{error}</span>}
+        </Button>
+        {saved && <Text className="text-emerald-600">Sauvegardé !</Text>}
+        {error && <Text className="text-red-600">{error}</Text>}
       </div>
-    </div>
+    </Container>
   )
-}
-
-const iconBtn: React.CSSProperties = {
-  padding: "0.25rem 0.5rem",
-  background: "white",
-  border: "1px solid #e5e7eb",
-  borderRadius: "4px",
-  cursor: "pointer",
 }
 
 export const config = defineRouteConfig({
