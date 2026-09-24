@@ -1,3 +1,4 @@
+import { Suspense } from "react"
 import Link from "next/link"
 import { FadeImage } from "./FadeImage"
 import { AddToCartButton } from "./AddToCartButton"
@@ -109,7 +110,39 @@ function VariantList({
   )
 }
 
-export async function ProductBlocks({
+async function Recommendations({
+  product,
+  locale,
+  feed,
+  title,
+}: {
+  product: Product
+  locale: string
+  feed: DesignFullConfig["feed"]
+  title: string
+}) {
+  const all = await getProducts(5)
+  const recProducts = all.filter((p) => p.id !== product.id).slice(0, 4)
+
+  if (recProducts.length === 0) return null
+
+  return (
+    <section className="mt-12">
+      <h2 className="text-2xl font-heading font-bold mb-6 text-[var(--color-foreground)]">
+        {title}
+      </h2>
+      <ul className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        {recProducts.map((p) => (
+          <li key={p.id}>
+            <ProductCard product={p} locale={locale} feed={feed} />
+          </li>
+        ))}
+      </ul>
+    </section>
+  )
+}
+
+export function ProductBlocks({
   product,
   locale,
   content,
@@ -141,12 +174,6 @@ export async function ProductBlocks({
   )
 
   const productUrl = `${siteUrl}/${locale}/products/${product.handle}`
-
-  let recProducts: Product[] = []
-  if (recBlock) {
-    const all = await getProducts(5)
-    recProducts = all.filter((p) => p.id !== product.id).slice(0, 4)
-  }
 
   const renderBlock = (block: ProductPageBlock) => {
     switch (block.type) {
@@ -288,23 +315,6 @@ export async function ProductBlocks({
           </div>
         )
       }
-      case "recommendations": {
-        if (recProducts.length === 0) return null
-        return (
-          <section className="mt-12">
-            <h2 className="text-2xl font-heading font-bold mb-6 text-[var(--color-foreground)]">
-              {t("recommendationsTitle")}
-            </h2>
-            <ul className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              {recProducts.map((p) => (
-                <li key={p.id}>
-                  <ProductCard product={p} locale={locale} feed={design.feed} />
-                </li>
-              ))}
-            </ul>
-          </section>
-        )
-      }
       case "sticky_atc": {
         const variant = product.variants[0]
         const price = variant?.prices?.[0]
@@ -355,7 +365,16 @@ export async function ProductBlocks({
           {info}
         </div>
       )}
-      {recBlock && renderBlock(recBlock)}
+      {recBlock && (
+        <Suspense fallback={null}>
+          <Recommendations
+            product={product}
+            locale={locale}
+            feed={design.feed}
+            title={t("recommendationsTitle")}
+          />
+        </Suspense>
+      )}
       {sticky && renderBlock(sticky)}
     </>
   )
