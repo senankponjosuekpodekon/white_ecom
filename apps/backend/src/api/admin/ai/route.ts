@@ -102,7 +102,7 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
     res.json({ text })
   } catch (error) {
     const message =
-      error instanceof MedusaError
+      error instanceof Error
         ? error.message
         : "AI generation failed"
     res.status(500).json({ error: message })
