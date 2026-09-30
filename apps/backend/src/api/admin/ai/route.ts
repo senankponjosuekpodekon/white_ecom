@@ -105,6 +105,19 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
       error instanceof Error
         ? error.message
         : "AI generation failed"
+
+    const fallback = process.env.AI_PROVIDER_FALLBACK as AiProvider | undefined
+    if (fallback && fallback !== provider && isProviderConfigured(fallback)) {
+      try {
+        const text = await generate(fallback, prompt, system)
+        res.json({ text })
+        return
+      } catch {
+        res.status(500).json({ error: message })
+        return
+      }
+    }
+
     res.status(500).json({ error: message })
   }
 }
@@ -328,11 +341,17 @@ async function generateOllama(
   }
 
   const model = process.env.OLLAMA_MODEL ?? "llama3.2"
+  const headers: Record<string, string> = { "Content-Type": "application/json" }
+  const cfClientId = process.env.OLLAMA_CF_ACCESS_CLIENT_ID
+  const cfClientSecret = process.env.OLLAMA_CF_ACCESS_CLIENT_SECRET
+  if (cfClientId && cfClientSecret) {
+    headers["CF-Access-Client-Id"] = cfClientId
+    headers["CF-Access-Client-Secret"] = cfClientSecret
+  }
+
   const response = await fetch(`${baseUrl.replace(/\/$/, "")}/api/generate`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers,
     body: JSON.stringify({
       model,
       prompt,
