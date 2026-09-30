@@ -50,10 +50,11 @@ export async function createCart(): Promise<Cart> {
   );
 
   const cookieStore = await cookies()
+  const isProduction = process.env.NODE_ENV === "production"
   cookieStore.set(CART_COOKIE, cart.id, {
     httpOnly: true,
-    secure: process.env.COOKIE_SECURE === "true",
-    sameSite: "lax",
+    secure: isProduction || process.env.COOKIE_SECURE === "true",
+    sameSite: (process.env.COOKIE_SAME_SITE as "lax" | "strict" | "none") || "lax",
     path: "/",
   });
 

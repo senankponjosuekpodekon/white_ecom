@@ -55,11 +55,23 @@ NODE
   fi
 }
 
-# Create demo admin users only in non-production or if explicitly requested
-if [ "$NODE_ENV" != "production" ] || [ "$CREATE_DEFAULT_ADMIN" = "true" ]; then
-  create_user_if_missing "${SUPER_ADMIN_EMAIL:-super@example.com}" "${SUPER_ADMIN_PASSWORD:-superpassword}"
-  create_user_if_missing "${ADMIN_EMAIL:-admin@example.com}" "${ADMIN_PASSWORD:-password}"
-  create_user_if_missing "${MANAGER_EMAIL:-manager@example.com}" "${MANAGER_PASSWORD:-managerpassword}"
+create_user_if_configured() {
+  local email="$1"
+  local password="$2"
+
+  if [ -z "$email" ] || [ -z "$password" ]; then
+    echo "Skipping user creation: email or password not configured"
+    return
+  fi
+
+  create_user_if_missing "$email" "$password"
+}
+
+# Create default admin users only when explicitly requested
+if [ "$CREATE_DEFAULT_ADMIN" = "true" ]; then
+  create_user_if_configured "$SUPER_ADMIN_EMAIL" "$SUPER_ADMIN_PASSWORD"
+  create_user_if_configured "$ADMIN_EMAIL" "$ADMIN_PASSWORD"
+  create_user_if_configured "$MANAGER_EMAIL" "$MANAGER_PASSWORD"
 fi
 
 exec npx medusa start -H 0.0.0.0 -p "${PORT:-9000}"

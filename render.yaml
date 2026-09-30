@@ -29,7 +29,7 @@ services:
       - key: COOKIE_SECURE
         value: "true"
       - key: COOKIE_SAME_SITE
-        value: "lax"
+        sync: false
       - key: COOKIE_HTTP_ONLY
         value: "true"
       - key: SITE_URL

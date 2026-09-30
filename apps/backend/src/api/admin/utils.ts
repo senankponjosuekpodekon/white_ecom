@@ -1,11 +1,22 @@
 import path from "path"
-import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import { MedusaRequest, MedusaResponse, AuthenticatedMedusaRequest } from "@medusajs/framework/http"
 
 const clientsDir = path.resolve(process.cwd(), "clients")
 
+function getAuthContext(req: MedusaRequest) {
+  return (req as unknown as AuthenticatedMedusaRequest).auth_context
+}
+
+function getUserEmail(req: MedusaRequest): string | undefined {
+  const ctx = getAuthContext(req)
+  const metadata = ctx?.user_metadata ?? ctx?.app_metadata
+  const raw = metadata?.email
+  return typeof raw === "string" ? raw.toLowerCase().trim() : undefined
+}
+
 export function requireUser(req: MedusaRequest, res: MedusaResponse): boolean {
-  const user = (req as { user?: unknown }).user
-  if (!user) {
+  const ctx = getAuthContext(req)
+  if (!ctx || ctx.actor_type !== "user" || !ctx.actor_id) {
     res.status(401).json({ error: "Unauthorized" })
     return false
   }
@@ -16,9 +27,13 @@ export function requireSuperAdmin(req: MedusaRequest, res: MedusaResponse): bool
   if (!requireUser(req, res)) {
     return false
   }
-  const user = (req as { user?: { email?: string } }).user
-  const superAdminEmail = process.env.SUPER_ADMIN_EMAIL ?? "super@example.com"
-  if (!user?.email || user.email !== superAdminEmail) {
+  const superAdminEmail = process.env.SUPER_ADMIN_EMAIL?.toLowerCase().trim()
+  if (!superAdminEmail) {
+    res.status(403).json({ error: "Forbidden: super-admin email not configured" })
+    return false
+  }
+  const email = getUserEmail(req)
+  if (!email || email !== superAdminEmail) {
     res.status(403).json({ error: "Forbidden: super-admin only" })
     return false
   }

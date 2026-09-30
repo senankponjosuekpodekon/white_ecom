@@ -67,7 +67,6 @@ export default async function CheckoutPage({
         <div className="mt-8 border-t border-[var(--color-border)] pt-6">
           {isDigital ? (
             <form action={completeManualPaymentAction} className="space-y-4">
-              <input type="hidden" name="cartId" value={cart.id} />
               <input type="hidden" name="locale" value={locale} />
               <input type="hidden" name="optionId" value="none" />
               <p className="text-sm text-[var(--color-muted)] mb-4">
@@ -81,7 +80,6 @@ export default async function CheckoutPage({
             <p className="text-red-600">{t("noShipping")}</p>
           ) : (
             <form action={completeManualPaymentAction} className="space-y-4">
-              <input type="hidden" name="cartId" value={cart.id} />
               <input type="hidden" name="locale" value={locale} />
 
               <div>

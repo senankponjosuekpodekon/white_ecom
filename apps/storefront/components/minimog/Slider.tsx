@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
+import { sanitizeHtml } from "@/lib/sanitize"
 import type { MinimogSectionProps, MinimogBlock } from "./types"
 
 type SlideSettings = {
@@ -150,19 +151,19 @@ export function MinimogSlider({
           {s.subheading && (
             <div
               className="text-sm md:text-base font-medium uppercase tracking-wide mb-3"
-              dangerouslySetInnerHTML={{ __html: s.subheading }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(s.subheading) }}
             />
           )}
           {s.title && (
             <h2
               className={`font-bold mb-4 ${sizeToClass(s.text_size)}`}
-              dangerouslySetInnerHTML={{ __html: s.title }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(s.title) }}
             />
           )}
           {s.description && (
             <div
               className="text-base md:text-lg mb-6 opacity-90"
-              dangerouslySetInnerHTML={{ __html: s.description }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(s.description) }}
             />
           )}
           <div className={`flex flex-wrap gap-4 ${s.text_alignment === "right" ? "justify-end" : s.text_alignment === "left" ? "justify-start" : "justify-center"}`}>

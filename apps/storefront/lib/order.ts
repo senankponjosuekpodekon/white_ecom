@@ -36,7 +36,8 @@ export async function getOrder(id: string): Promise<Order | null> {
       }
     );
     return order ?? null;
-  } catch {
+  } catch (err) {
+    console.error(`[getOrder] Failed to load order ${id}:`, err);
     return null;
   }
 }

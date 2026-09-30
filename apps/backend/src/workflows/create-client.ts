@@ -39,6 +39,12 @@ const createClientStep = createStep(
     if (!clientDir.startsWith(clientsDir + path.sep)) {
       throw new MedusaError(MedusaError.Types.INVALID_DATA, "Invalid client path")
     }
+    if (fs.existsSync(clientDir)) {
+      throw new MedusaError(
+        MedusaError.Types.DUPLICATE_ERROR,
+        `Client "${input.name}" already exists`
+      )
+    }
     fs.mkdirSync(clientDir, { recursive: true })
     fs.writeFileSync(
       path.join(clientDir, "config.json"),

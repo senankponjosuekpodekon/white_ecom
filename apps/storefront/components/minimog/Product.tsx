@@ -3,6 +3,7 @@ import Link from "next/link"
 import { getTranslations } from "next-intl/server"
 import { AddToCartButton } from "@/components/AddToCartButton"
 import { formatPrice } from "@/lib/format"
+import { sanitizeHtml } from "@/lib/sanitize"
 import type { Product } from "@/lib/types"
 import type { Locale } from "@/i18n"
 
@@ -57,7 +58,7 @@ export async function MinimogProduct({
             {product.description && (
               <div
                 className="prose prose-sm text-gray-600"
-                dangerouslySetInnerHTML={{ __html: product.description }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(product.description) }}
               />
             )}
             {firstVariant && firstPrice && (

@@ -1,6 +1,6 @@
 {
   "name": "white-shop",
-  "private": false,
+  "private": true,
   "packageManager": "npm@11.6.2",
   "engines": {
     "node": "^20.19.0 || >=22.12.0"

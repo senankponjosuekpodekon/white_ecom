@@ -6,6 +6,7 @@ import {
   createWorkflow,
   StepResponse,
 } from "@medusajs/framework/workflows-sdk"
+import { writeJsonAtomic } from "../utils/atomic-write"
 
 const clientsDir = path.resolve(process.cwd(), "clients")
 
@@ -26,7 +27,7 @@ const writeContentStep = createStep(
   "write-content",
   async (input: { content: Record<string, unknown> }) => {
     const filePath = safeClientPath("content.json")
-    fs.writeFileSync(filePath, JSON.stringify(input.content, null, 2))
+    writeJsonAtomic(filePath, input.content)
     return new StepResponse({ filePath })
   }
 )

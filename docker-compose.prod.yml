@@ -24,6 +24,11 @@ services:
       - ./letsencrypt:/letsencrypt
     labels:
       - "traefik.enable=true"
+      - "traefik.http.middlewares.securityHeaders.headers.contentTypeNosniff=true"
+      - "traefik.http.middlewares.securityHeaders.headers.frameDeny=true"
+      - "traefik.http.middlewares.securityHeaders.headers.browserXssFilter=true"
+      - "traefik.http.middlewares.rateLimit.ratelimit.average=100"
+      - "traefik.http.middlewares.rateLimit.ratelimit.burst=50"
 
   postgres:
     image: postgres:16
@@ -42,8 +47,16 @@ services:
   redis:
     image: redis:7-alpine
     restart: unless-stopped
+    command: >
+      redis-server
+      --requirepass ${REDIS_PASSWORD:-}
     volumes:
       - redisdata:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a ${REDIS_PASSWORD:-} ping | grep PONG"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   backend:
     image: ${BACKEND_IMAGE:-white_ecom-backend:latest}
@@ -51,11 +64,23 @@ services:
       - .env.production
     environment:
       DATABASE_URL: postgres://${DB_USER:-postgres}:${DB_PASSWORD:-postgres}@postgres:5432/${DB_NAME:-white_main}
-      REDIS_URL: redis://redis:6379
+      REDIS_URL: redis://:${REDIS_PASSWORD:-}@redis:6379
     restart: unless-stopped
     depends_on:
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "node -e \"require('http').get('http://127.0.0.1:9000/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))\"",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 120s
     volumes:
       - ./clients/${CLIENT_NAME:-default}:/app/clients/${CLIENT_NAME:-default}:ro
     labels:
@@ -63,6 +88,7 @@ services:
       - "traefik.http.routers.backend.rule=Host(`${DOMAIN}`) && PathPrefix(`/admin`,`/api`,`/store`,`/auth`,`/app`,`/health`)"
       - "traefik.http.routers.backend.entrypoints=websecure"
       - "traefik.http.routers.backend.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.backend.middlewares=securityHeaders,rateLimit"
       - "traefik.http.services.backend.loadbalancer.server.port=9000"
 
   storefront:
@@ -73,12 +99,20 @@ services:
       MEDUSA_BACKEND_URL: http://backend:9000
     restart: unless-stopped
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://127.0.0.1:3000/fr', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))\""]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.storefront.rule=Host(`${DOMAIN}`)"
       - "traefik.http.routers.storefront.entrypoints=websecure"
       - "traefik.http.routers.storefront.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.storefront.middlewares=securityHeaders,rateLimit"
       - "traefik.http.services.storefront.loadbalancer.server.port=3000"
 
 volumes:

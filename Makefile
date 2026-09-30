@@ -49,10 +49,7 @@ client-backup:
 
 admin:
 	@echo "Admin: http://localhost:9000/app"
-	@echo "Email: admin@example.com"
-	@echo "Password: password"
 
 open:
 	@echo "Storefront: http://localhost:3000"
 	@echo "Backend API: http://localhost:9000"
-	@echo "Traefik dashboard: http://localhost:8081"

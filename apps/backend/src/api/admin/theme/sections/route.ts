@@ -5,10 +5,16 @@ import {
   saveClientContent,
 } from "../../../../utils/client-config"
 import type { ClientContent, MinimogSection } from "../../../../utils/default-content"
+import { requireUser } from "../../utils"
+
+const supportedLocales = ["fr", "en"]
 
 export async function GET(req: MedusaRequest, res: MedusaResponse) {
+  if (!requireUser(req, res)) return
   const content = loadClientContent()
-  const locale = (req.query.locale as string) ?? "fr"
+  const locale = supportedLocales.includes(req.query.locale as string)
+    ? (req.query.locale as string)
+    : "fr"
   const localized = content[locale as keyof ClientContent] ?? content.fr ?? content.en ?? {}
   res.json({
     minimog: localized.minimog ?? { sections: [], sectionOrder: [] },
@@ -16,9 +22,10 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
 }
 
 export async function POST(req: MedusaRequest, res: MedusaResponse) {
+  if (!requireUser(req, res)) return
   try {
     const body = req.body as { locale?: string; minimog: { sections?: MinimogSection[]; sectionOrder?: string[] } }
-    const locale = body.locale ?? "fr"
+    const locale = supportedLocales.includes(body.locale as string) ? (body.locale as string) : "fr"
 
     if (!body.minimog || !Array.isArray(body.minimog.sections)) {
       res.status(400).json({ error: "Invalid minimog.sections array" })
@@ -37,6 +44,6 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
 
     res.status(200).json({ ok: true })
   } catch (err) {
-    res.status(500).json({ error: (err as Error).message })
+    res.status(500).json({ error: "Failed to save theme sections" })
   }
 }

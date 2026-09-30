@@ -1,9 +1,39 @@
-import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import { MedusaRequest, MedusaResponse, AuthenticatedMedusaRequest } from "@medusajs/framework/http"
 import { MedusaError } from "@medusajs/framework/utils"
+import { z } from "@medusajs/framework/zod"
 import { requireUser } from "../utils"
 
 type AiProvider = "openai" | "workers-ai" | "ollama" | "none"
 type AiAction = "generate" | "description" | "seo" | "translate"
+
+const MAX_PROMPT_LENGTH = 4000
+const MAX_SYSTEM_LENGTH = 2000
+const RATE_LIMIT_MS = 5000
+const rateLimits = new Map<string, number>()
+
+const requestSchema = z.object({
+  type: z.enum(["generate", "description", "seo", "translate"]).optional(),
+  prompt: z.string().min(1).max(MAX_PROMPT_LENGTH),
+  system: z.string().max(MAX_SYSTEM_LENGTH).optional(),
+  sourceLocale: z.string().max(10).optional(),
+  targetLocale: z.string().max(10).optional(),
+})
+
+function getUserId(req: MedusaRequest): string | undefined {
+  const ctx = (req as unknown as AuthenticatedMedusaRequest).auth_context
+  return ctx?.actor_id ?? ctx?.auth_identity_id
+}
+
+function checkRateLimit(userId?: string): boolean {
+  if (!userId) return false
+  const now = Date.now()
+  const last = rateLimits.get(userId)
+  if (last && now - last < RATE_LIMIT_MS) {
+    return false
+  }
+  rateLimits.set(userId, now)
+  return true
+}
 
 export async function GET(req: MedusaRequest, res: MedusaResponse) {
   if (!requireUser(req, res)) {
@@ -21,16 +51,22 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
     return
   }
 
-  const body = req.body as {
-    type?: AiAction
-    prompt?: string
-    system?: string
-    sourceLocale?: string
-    targetLocale?: string
+  const userId = getUserId(req)
+  if (!checkRateLimit(userId)) {
+    res.status(429).json({ error: "Too many requests. Please wait a few seconds." })
+    return
+  }
+
+  let body: z.infer<typeof requestSchema>
+  try {
+    body = requestSchema.parse(req.body)
+  } catch (err) {
+    res.status(400).json({ error: "Invalid request body" })
+    return
   }
 
   const provider = (process.env.AI_PROVIDER ?? "none") as AiProvider
-  if (provider === "none") {
+  if (provider === "none" || !isProviderConfigured(provider)) {
     res.status(400).json({
       error:
         "AI_PROVIDER is not configured. Set AI_PROVIDER=openai, ollama or workers-ai and the matching credentials.",
@@ -39,16 +75,16 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
   }
 
   const { prompt, system } = buildPrompt(body)
-  if (!prompt) {
-    res.status(400).json({ error: "Prompt is required" })
-    return
-  }
 
   try {
     const text = await generate(provider, prompt, system)
     res.json({ text })
   } catch (error) {
-    res.status(500).json({ error: (error as Error).message })
+    const message =
+      error instanceof MedusaError
+        ? error.message
+        : "AI generation failed"
+    res.status(500).json({ error: message })
   }
 }
 
@@ -65,14 +101,8 @@ function isProviderConfigured(provider: AiProvider): boolean {
   return false
 }
 
-function buildPrompt(body: {
-  type?: AiAction
-  prompt?: string
-  system?: string
-  sourceLocale?: string
-  targetLocale?: string
-}): { prompt: string | undefined; system: string | undefined } {
-  const userPrompt = body.prompt?.trim()
+function buildPrompt(body: z.infer<typeof requestSchema>): { prompt: string; system?: string } {
+  const userPrompt = body.prompt.trim()
   const type = body.type ?? "generate"
 
   if (type === "translate") {
@@ -85,7 +115,9 @@ function buildPrompt(body: {
     const source = body.sourceLocale ? `from ${body.sourceLocale}` : "from the source language"
     return {
       prompt: userPrompt,
-      system: `Translate the text ${source} to ${body.targetLocale}. Preserve formatting, HTML tags and placeholders. Return only the translated text, without explanations.`,
+      system:
+        body.system ??
+        `Translate the text ${source} to ${body.targetLocale}. Preserve formatting, HTML tags and placeholders. Return only the translated text, without explanations.`,
     }
   }
 
@@ -155,14 +187,16 @@ async function generateOpenAI(prompt: string, system?: string): Promise<string> 
       model: "gpt-4o-mini",
       messages,
       temperature: 0.7,
+      max_tokens: 1000,
     }),
+    signal: AbortSignal.timeout(30000),
   })
 
   const data = await response.json()
   if (!response.ok) {
     throw new MedusaError(
       MedusaError.Types.INVALID_DATA,
-      data.error?.message ?? "OpenAI request failed"
+      "OpenAI request failed"
     )
   }
   return data.choices?.[0]?.message?.content?.trim() ?? ""
@@ -195,7 +229,9 @@ async function generateWorkersAI(
           ...(system ? [{ role: "system", content: system }] : []),
           { role: "user", content: prompt },
         ],
+        max_tokens: 1000,
       }),
+      signal: AbortSignal.timeout(30000),
     }
   )
 
@@ -203,7 +239,7 @@ async function generateWorkersAI(
   if (!response.ok) {
     throw new MedusaError(
       MedusaError.Types.INVALID_DATA,
-      data.errors?.[0]?.message ?? data.messages?.[0] ?? "Workers AI request failed"
+      "Workers AI request failed"
     )
   }
   return data.result?.response?.trim() ?? ""
@@ -232,14 +268,18 @@ async function generateOllama(
       prompt,
       system,
       stream: false,
+      options: {
+        num_predict: 1000,
+      },
     }),
+    signal: AbortSignal.timeout(30000),
   })
 
   const data = await response.json()
   if (!response.ok) {
     throw new MedusaError(
       MedusaError.Types.INVALID_DATA,
-      data.error ?? "Ollama request failed"
+      "Ollama request failed"
     )
   }
   return data.response?.trim() ?? ""

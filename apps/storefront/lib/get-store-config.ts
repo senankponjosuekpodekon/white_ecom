@@ -1,4 +1,5 @@
 import { cache } from "react";
+import { unstable_cache } from "next/cache";
 import { medusaClient } from "./medusa-client";
 import { presets, defaultPreset, mergeDesignConfig, DesignFullConfig } from "./design";
 import type { ClientContent } from "./content";
@@ -50,13 +51,21 @@ const defaultConfig: StoreConfig = {
   content: {},
 };
 
-export const getStoreConfig = cache(async (): Promise<StoreConfig> => {
-  try {
+const fetchStoreConfig = unstable_cache(
+  async (): Promise<RawConfig> => {
     const config = await medusaClient.client.fetch<RawConfig>(
       "/store/store-config",
-      { method: "GET", cache: "no-store" }
+      { method: "GET" }
     );
+    return config;
+  },
+  ["store-config"],
+  { revalidate: 60, tags: ["store-config"] }
+);
 
+export const getStoreConfig = cache(async (): Promise<StoreConfig> => {
+  try {
+    const config = await fetchStoreConfig();
     const design = resolveDesign(config.design);
 
     return {
@@ -76,7 +85,8 @@ export const getStoreConfig = cache(async (): Promise<StoreConfig> => {
       design,
       content: config.content ?? defaultConfig.content,
     };
-  } catch {
+  } catch (err) {
+    console.error("[getStoreConfig] Failed to load store config:", err);
     return defaultConfig;
   }
 });
