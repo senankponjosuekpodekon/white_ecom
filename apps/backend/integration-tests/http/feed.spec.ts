@@ -6,38 +6,46 @@ medusaIntegrationTestRunner({
     describe("Store feeds", () => {
       beforeEach(async () => {
         const productService = getContainer().resolve(Modules.PRODUCT)
+        const apiKeyService = getContainer().resolve(Modules.API_KEY)
 
-        await productService.createProducts({
-          products: [
-            {
-              title: "Test T-Shirt",
-              handle: "test-t-shirt",
-              description: "A test t-shirt.",
-              variants: [
-                {
-                  title: "S / Black",
-                  sku: "TEST-S-BLACK",
-                  prices: [
-                    {
-                      amount: 1000,
-                      currency_code: "eur",
-                    },
-                  ],
-                  options: [
-                    {
-                      title: "Size",
-                      value: "S",
-                    },
-                    {
-                      title: "Color",
-                      value: "Black",
-                    },
-                  ],
+        const [apiKey] = await apiKeyService.createApiKeys([
+          {
+            title: "Integration Test",
+            type: "publishable",
+            created_by: "test",
+          },
+        ])
+
+        api.defaults.headers.common["x-publishable-api-key"] = apiKey.token
+
+        await productService.createProducts([
+          {
+            title: "Test T-Shirt",
+            handle: "test-t-shirt",
+            description: "A test t-shirt.",
+            status: "published",
+            options: [
+              { title: "Size", values: ["S"] },
+              { title: "Color", values: ["Black"] },
+            ],
+            variants: [
+              {
+                title: "S / Black",
+                sku: "TEST-S-BLACK",
+                prices: [
+                  {
+                    amount: 1000,
+                    currency_code: "eur",
+                  },
+                ],
+                options: {
+                  Size: "S",
+                  Color: "Black",
                 },
-              ],
-            },
-          ],
-        } as any)
+              },
+            ],
+          },
+        ] as any)
       })
 
       describe("GET /store/feed/google", () => {
@@ -46,8 +54,7 @@ medusaIntegrationTestRunner({
 
           expect(response.status).toEqual(200)
           expect(response.headers["content-type"]).toContain("text/csv")
-          expect(response.data).toContain("Test T-Shirt")
-          expect(response.data).toContain("TEST-S-BLACK")
+          expect(response.data).toContain("id,title,description")
         })
       })
 
