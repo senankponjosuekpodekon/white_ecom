@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { defineRouteConfig } from "@medusajs/admin-sdk"
+import { AiGenerateButton } from "../../components/ai-generate-button"
 
 const toHandle = (title: string) =>
   title
@@ -28,6 +29,7 @@ const QuickProduct = () => {
   const [loading, setLoading] = useState(false)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [aiError, setAiError] = useState<string | null>(null)
 
   useEffect(() => {
     fetch("/admin/config")
@@ -245,6 +247,16 @@ const QuickProduct = () => {
             rows={4}
             style={inputStyle}
           />
+          <div style={{ marginTop: "0.5rem" }}>
+            <AiGenerateButton
+              type="description"
+              prompt={form.title}
+              context={`Prix: ${form.price} ${form.currency.toUpperCase()}`}
+              label="Générer une description"
+              onResult={(text) => setForm((prev) => ({ ...prev, description: text }))}
+              onError={setAiError}
+            />
+          </div>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
           <div>
@@ -322,6 +334,24 @@ const QuickProduct = () => {
         </div>
         <div style={{ borderTop: "1px solid #e5e7eb", paddingTop: "1rem" }}>
           <h2 style={{ fontSize: "1.1rem", marginBottom: "0.75rem" }}>SEO</h2>
+          <div style={{ marginBottom: "0.75rem" }}>
+            <AiGenerateButton
+              type="seo"
+              prompt={form.title}
+              context={form.description}
+              label="Générer meta title & description"
+              onResult={(text) => {
+                const [title = "", ...rest] = text.split("\n")
+                const desc = rest.join(" ").trim()
+                setForm((prev) => ({
+                  ...prev,
+                  metaTitle: title.trim().slice(0, 60),
+                  metaDescription: desc.slice(0, 160),
+                }))
+              }}
+              onError={setAiError}
+            />
+          </div>
           <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
             <div>
               <label style={{ display: "block", marginBottom: "0.25rem", fontWeight: 600 }}>
@@ -333,6 +363,16 @@ const QuickProduct = () => {
                 onChange={handleChange}
                 style={inputStyle}
               />
+              <div style={{ marginTop: "0.5rem" }}>
+                <AiGenerateButton
+                  type="description"
+                  prompt={form.title}
+                  system="You are an e-commerce copywriter. Write a very short product hook (1 sentence, max 150 characters). Return only the hook, no commentary."
+                  label="Résumer"
+                  onResult={(text) => setForm((prev) => ({ ...prev, shortDescription: text }))}
+                  onError={setAiError}
+                />
+              </div>
             </div>
             <div>
               <label style={{ display: "block", marginBottom: "0.25rem", fontWeight: 600 }}>
@@ -379,6 +419,7 @@ const QuickProduct = () => {
           </button>
           {saved && <span style={{ color: "#16a34a" }}>Produit créé !</span>}
           {error && <span style={{ color: "#dc2626" }}>{error}</span>}
+          {aiError && <span style={{ color: "#dc2626" }}>{aiError}</span>}
         </div>
       </form>
     </div>

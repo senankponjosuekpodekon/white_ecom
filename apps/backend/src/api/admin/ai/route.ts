@@ -4,16 +4,37 @@ import { z } from "@medusajs/framework/zod"
 import { requireUser } from "../utils"
 
 type AiProvider = "openai" | "workers-ai" | "ollama" | "none"
-type AiAction = "generate" | "description" | "seo" | "translate"
+type AiAction =
+  | "generate"
+  | "description"
+  | "seo"
+  | "translate"
+  | "category-suggest"
+  | "email-order"
+  | "review-summary"
+  | "legal-page"
+  | "alt-tags"
 
 const MAX_PROMPT_LENGTH = 4000
 const MAX_SYSTEM_LENGTH = 2000
+const MAX_CONTEXT_LENGTH = 4000
 const RATE_LIMIT_MS = 5000
 const rateLimits = new Map<string, number>()
 
 const requestSchema = z.object({
-  type: z.enum(["generate", "description", "seo", "translate"]).optional(),
+  type: z.enum([
+    "generate",
+    "description",
+    "seo",
+    "translate",
+    "category-suggest",
+    "email-order",
+    "review-summary",
+    "legal-page",
+    "alt-tags",
+  ]).optional(),
   prompt: z.string().min(1).max(MAX_PROMPT_LENGTH),
+  context: z.string().max(MAX_CONTEXT_LENGTH).optional(),
   system: z.string().max(MAX_SYSTEM_LENGTH).optional(),
   sourceLocale: z.string().max(10).optional(),
   targetLocale: z.string().max(10).optional(),
@@ -103,6 +124,7 @@ function isProviderConfigured(provider: AiProvider): boolean {
 
 function buildPrompt(body: z.infer<typeof requestSchema>): { prompt: string; system?: string } {
   const userPrompt = body.prompt.trim()
+  const context = body.context?.trim() ? `\n\nContexte : ${body.context.trim()}` : ""
   const type = body.type ?? "generate"
 
   if (type === "translate") {
@@ -114,7 +136,7 @@ function buildPrompt(body: z.infer<typeof requestSchema>): { prompt: string; sys
     }
     const source = body.sourceLocale ? `from ${body.sourceLocale}` : "from the source language"
     return {
-      prompt: userPrompt,
+      prompt: `${userPrompt}${context}`,
       system:
         body.system ??
         `Translate the text ${source} to ${body.targetLocale}. Preserve formatting, HTML tags and placeholders. Return only the translated text, without explanations.`,
@@ -123,7 +145,7 @@ function buildPrompt(body: z.infer<typeof requestSchema>): { prompt: string; sys
 
   if (type === "description") {
     return {
-      prompt: userPrompt,
+      prompt: `Produit : ${userPrompt}${context}`,
       system:
         body.system ??
         "You are an e-commerce copywriter. Write a concise, appealing product description. Return only the description, no commentary.",
@@ -132,14 +154,59 @@ function buildPrompt(body: z.infer<typeof requestSchema>): { prompt: string; sys
 
   if (type === "seo") {
     return {
-      prompt: userPrompt,
+      prompt: `Produit : ${userPrompt}${context}`,
       system:
         body.system ??
-        "You are an SEO expert. Suggest a meta title (max 60 chars) and a meta description (max 160 chars) for the product described below. Return them as plain text on two lines: title, then description.",
+        "You are an SEO expert. Suggest a meta title (max 60 chars) and a meta description (max 160 chars). Return them as plain text on two lines: title, then description.",
     }
   }
 
-  return { prompt: userPrompt, system: body.system?.trim() }
+  if (type === "category-suggest") {
+    return {
+      prompt: `Produit : ${userPrompt}${context}`,
+      system:
+        body.system ??
+        "You are an e-commerce taxonomy expert. Suggest 3 to 5 relevant product categories or tags. Return a JSON array of strings, nothing else.",
+    }
+  }
+
+  if (type === "email-order") {
+    return {
+      prompt: `Commande : ${userPrompt}${context}`,
+      system:
+        body.system ??
+        "You write professional, friendly e-commerce transactional emails. Return only the email body, no subject line or commentary.",
+    }
+  }
+
+  if (type === "review-summary") {
+    return {
+      prompt: `Avis clients : ${userPrompt}${context}`,
+      system:
+        body.system ??
+        "You summarize customer reviews. Return a short paragraph with the main strengths and weaknesses, in the same language as the reviews.",
+    }
+  }
+
+  if (type === "legal-page") {
+    return {
+      prompt: `Page : ${userPrompt}${context}`,
+      system:
+        body.system ??
+        "You draft standard e-commerce legal texts. Return the text only, no legal disclaimer. It must be usable as a public store page.",
+    }
+  }
+
+  if (type === "alt-tags") {
+    return {
+      prompt: `Produit : ${userPrompt}${context}`,
+      system:
+        body.system ??
+        "You write concise, SEO-friendly image alt text for e-commerce products (max 125 characters). Return only the alt text, no commentary.",
+    }
+  }
+
+  return { prompt: `${userPrompt}${context}`, system: body.system?.trim() }
 }
 
 async function generate(

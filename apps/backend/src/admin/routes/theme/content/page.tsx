@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { defineRouteConfig } from "@medusajs/admin-sdk"
 import { Container, Heading, Text, Button } from "@medusajs/ui"
 import { defaultContent } from "../../../../utils/default-content"
+import { AiGenerateButton } from "../../../components/ai-generate-button"
 
 const locales = ["fr", "en"] as const
 const sectionFields = [
@@ -23,8 +24,26 @@ const sectionFields = [
     name: "hero",
     label: "Hero",
     fields: [
-      { key: "title", label: "Titre" },
-      { key: "subtitle", label: "Sous-titre", textarea: true },
+      {
+        key: "title",
+        label: "Titre",
+        ai: {
+          type: "description" as const,
+          label: "Générer",
+          getPrompt: (c: any, l: string) => c[l]?.merchant?.brand ?? "Boutique en ligne",
+        },
+      },
+      {
+        key: "subtitle",
+        label: "Sous-titre",
+        textarea: true,
+        ai: {
+          type: "description" as const,
+          label: "Générer",
+          system: "You are an e-commerce copywriter. Write a short, engaging hero subtitle (1-2 sentences). Return only the subtitle, no commentary.",
+          getPrompt: (c: any, l: string) => c[l]?.hero?.title ?? c[l]?.merchant?.brand ?? "Boutique en ligne",
+        },
+      },
       { key: "cta", label: "Texte du bouton" },
       { key: "image", label: "Image (URL)" },
     ],
@@ -33,8 +52,26 @@ const sectionFields = [
     name: "cta",
     label: "Call to action",
     fields: [
-      { key: "title", label: "Titre" },
-      { key: "subtitle", label: "Sous-titre", textarea: true },
+      {
+        key: "title",
+        label: "Titre",
+        ai: {
+          type: "description" as const,
+          label: "Générer",
+          getPrompt: (c: any, l: string) => c[l]?.hero?.title ?? c[l]?.merchant?.brand ?? "Boutique en ligne",
+        },
+      },
+      {
+        key: "subtitle",
+        label: "Sous-titre",
+        textarea: true,
+        ai: {
+          type: "description" as const,
+          label: "Générer",
+          system: "You are an e-commerce copywriter. Write a short call-to-action paragraph (max 2 sentences). Return only the text, no commentary.",
+          getPrompt: (c: any, l: string) => c[l]?.cta?.title ?? c[l]?.merchant?.brand ?? "Boutique en ligne",
+        },
+      },
       { key: "button", label: "Texte du bouton" },
     ],
   },
@@ -52,18 +89,78 @@ const sectionFields = [
     name: "policies",
     label: "Politiques",
     fields: [
-      { key: "shipping", label: "Livraison", textarea: true },
-      { key: "returns", label: "Retours", textarea: true },
-      { key: "privacy", label: "Confidentialité", textarea: true },
-      { key: "legal", label: "Légal", textarea: true },
+      {
+        key: "shipping",
+        label: "Livraison",
+        textarea: true,
+        ai: {
+          type: "legal-page" as const,
+          label: "Générer",
+          getPrompt: () => "Politique de livraison",
+          getContext: (c: any, l: string) => `Boutique: ${c[l]?.merchant?.brand ?? ""}, Site: ${c[l]?.siteUrl ?? ""}`,
+        },
+      },
+      {
+        key: "returns",
+        label: "Retours",
+        textarea: true,
+        ai: {
+          type: "legal-page" as const,
+          label: "Générer",
+          getPrompt: () => "Politique de retours",
+          getContext: (c: any, l: string) => `Boutique: ${c[l]?.merchant?.brand ?? ""}, Site: ${c[l]?.siteUrl ?? ""}`,
+        },
+      },
+      {
+        key: "privacy",
+        label: "Confidentialité",
+        textarea: true,
+        ai: {
+          type: "legal-page" as const,
+          label: "Générer",
+          getPrompt: () => "Politique de confidentialité",
+          getContext: (c: any, l: string) => `Boutique: ${c[l]?.merchant?.brand ?? ""}, Site: ${c[l]?.siteUrl ?? ""}`,
+        },
+      },
+      {
+        key: "legal",
+        label: "Légal",
+        textarea: true,
+        ai: {
+          type: "legal-page" as const,
+          label: "Générer",
+          getPrompt: () => "Informations légales",
+          getContext: (c: any, l: string) => `Boutique: ${c[l]?.merchant?.brand ?? ""}, Site: ${c[l]?.siteUrl ?? ""}`,
+        },
+      },
     ],
   },
   {
     name: "legal",
     label: "Mentions légales",
     fields: [
-      { key: "mentions", label: "Mentions légales", textarea: true },
-      { key: "terms", label: "CGV", textarea: true },
+      {
+        key: "mentions",
+        label: "Mentions légales",
+        textarea: true,
+        ai: {
+          type: "legal-page" as const,
+          label: "Générer",
+          getPrompt: () => "Mentions légales",
+          getContext: (c: any, l: string) => `Boutique: ${c[l]?.merchant?.brand ?? ""}, Site: ${c[l]?.siteUrl ?? ""}`,
+        },
+      },
+      {
+        key: "terms",
+        label: "CGV",
+        textarea: true,
+        ai: {
+          type: "legal-page" as const,
+          label: "Générer",
+          getPrompt: () => "Conditions générales de vente",
+          getContext: (c: any, l: string) => `Boutique: ${c[l]?.merchant?.brand ?? ""}, Site: ${c[l]?.siteUrl ?? ""}`,
+        },
+      },
     ],
   },
   {
@@ -85,6 +182,7 @@ const ContentEditor = () => {
   const [loading, setLoading] = useState(false)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [aiError, setAiError] = useState<string | null>(null)
 
   useEffect(() => {
     fetch("/admin/content")
@@ -187,7 +285,7 @@ const ContentEditor = () => {
                   {section.label}
                 </Heading>
                 <div className="flex flex-col gap-3">
-                  {section.fields.map((field) => (
+                  {section.fields.map((field: any) => (
                     <div key={field.key}>
                       <label className="block text-sm mb-1">
                         {field.label}
@@ -209,6 +307,21 @@ const ContentEditor = () => {
                           }
                           className={fieldClass}
                         />
+                      )}
+                      {field.ai && (
+                        <div className="mt-2">
+                          <AiGenerateButton
+                            type={field.ai.type}
+                            prompt={field.ai.getPrompt?.(content, activeLocale) ?? ""}
+                            context={field.ai.getContext?.(content, activeLocale)}
+                            system={field.ai.system}
+                            label={field.ai.label}
+                            onResult={(text) =>
+                              setString(activeLocale, section.name, field.key, text)
+                            }
+                            onError={setAiError}
+                          />
+                        </div>
                       )}
                     </div>
                   ))}
@@ -239,6 +352,7 @@ const ContentEditor = () => {
             </Button>
             {saved && <Text className="text-emerald-600">Sauvegardé !</Text>}
             {error && <Text className="text-red-600">{error}</Text>}
+            {aiError && <Text className="text-red-600">{aiError}</Text>}
           </div>
         </>
       ) : (

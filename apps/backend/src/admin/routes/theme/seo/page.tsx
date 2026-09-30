@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { defineRouteConfig } from "@medusajs/admin-sdk"
 import { Container, Heading, Text, Button } from "@medusajs/ui"
+import { AiGenerateButton } from "../../../components/ai-generate-button"
 
 const locales = ["fr", "en"] as const
 
@@ -19,6 +20,7 @@ const SeoSettings = () => {
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [aiError, setAiError] = useState<string | null>(null)
 
   useEffect(() => {
     setLoading(true)
@@ -139,6 +141,14 @@ const SeoSettings = () => {
           onChange={(e) => setSiteField("description", e.target.value)}
           placeholder="Description du site affichée dans les moteurs de recherche."
         />
+        <AiGenerateButton
+          type="description"
+          prompt={site.titleTemplate ?? "Boutique en ligne"}
+          system="You are an SEO expert. Write a concise website meta description (max 160 characters). Return only the description, no commentary."
+          label="Générer description"
+          onResult={(text) => setSiteField("description", text.slice(0, 160))}
+          onError={setAiError}
+        />
 
         <label style={styles.label}>Mots-clés</label>
         <input
@@ -146,6 +156,14 @@ const SeoSettings = () => {
           value={site.keywords ?? ""}
           onChange={(e) => setSiteField("keywords", e.target.value)}
           placeholder="boutique, e-commerce, produits"
+        />
+        <AiGenerateButton
+          type="description"
+          prompt={site.titleTemplate ?? "Boutique en ligne"}
+          system="You are an SEO expert. Suggest 5 to 10 relevant keywords separated by commas. Return only the comma-separated list, no commentary."
+          label="Générer mots-clés"
+          onResult={(text) => setSiteField("keywords", text)}
+          onError={setAiError}
         />
 
         <div className="flex items-center gap-2">
@@ -159,6 +177,7 @@ const SeoSettings = () => {
 
         {saved && <Text className="text-emerald-600 mt-2">Enregistré.</Text>}
         {error && <Text className="text-red-600 mt-2">{error}</Text>}
+        {aiError && <Text className="text-red-600 mt-2">{aiError}</Text>}
       </form>
     </Container>
   )
