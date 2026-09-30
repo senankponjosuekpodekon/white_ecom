@@ -100,7 +100,7 @@ jobs:
           # --- Storefront ---
           MEDUSA_BACKEND_URL=http://backend:9000
           NEXT_PUBLIC_MEDUSA_BACKEND_URL=http://localhost:9000
-          NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=
+          NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=pk_ci_placeholder
           NEXT_PUBLIC_SITE_URL=http://localhost:8080
           EOF
 

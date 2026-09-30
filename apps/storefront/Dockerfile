@@ -3,7 +3,7 @@ FROM node:20 AS builder
 WORKDIR /app
 
 # Copy package manifests first so npm ci is cached until dependencies change
-COPY package.json package-lock.json .npmrc ./
+COPY package.json package-lock.json ./
 COPY apps/backend/package.json ./apps/backend/
 COPY apps/storefront/package.json ./apps/storefront/
 
