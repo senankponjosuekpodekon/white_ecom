@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "ESLINT_USE_FLAT_CONFIG=false eslint .",
+    "lint": "eslint .",
     "test:e2e": "playwright test"
   },
   "dependencies": {
@@ -19,6 +19,7 @@
     "react-dom": "^18"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.7",
     "@next/eslint-plugin-next": "^15.5.25",
     "@playwright/test": "^1.62.1",
     "@types/node": "^20",
