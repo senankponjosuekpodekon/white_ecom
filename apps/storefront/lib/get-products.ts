@@ -21,11 +21,19 @@ const fields = [
 ].join(",");
 
 const fetchProducts = unstable_cache(
-  async (limit: number, categoryId?: string): Promise<Product[]> => {
-    const category = categoryId ? `&category_id[]=${encodeURIComponent(categoryId)}` : "";
+  async (
+    limit: number,
+    categoryId?: string,
+    offset = 0,
+    order?: string
+  ): Promise<Product[]> => {
+    const params = new URLSearchParams({ limit: String(limit), fields });
+    if (offset > 0) params.set("offset", String(offset));
+    if (categoryId) params.append("category_id[]", categoryId);
+    if (order) params.set("order", order);
     const { products } = await medusaClient.client.fetch<{
       products: Product[];
-    }>(`/store/products?limit=${limit}&fields=${fields}${category}`, { method: "GET" });
+    }>(`/store/products?${params.toString()}`, { method: "GET" });
     return products ?? [];
   },
   ["products"],
@@ -34,10 +42,12 @@ const fetchProducts = unstable_cache(
 
 export const getProducts = async (
   limit = 20,
-  categoryId?: string
+  categoryId?: string,
+  offset = 0,
+  order?: string
 ): Promise<Product[]> => {
   try {
-    return await fetchProducts(limit, categoryId);
+    return await fetchProducts(limit, categoryId, offset, order);
   } catch (err) {
     console.error("[getProducts] Failed to load products:", err);
     return [];

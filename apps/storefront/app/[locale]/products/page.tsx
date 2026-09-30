@@ -151,21 +151,34 @@ export default async function ProductsPage({
   const sort = SORTS.some((s) => s.value === sp.sort) ? (sp.sort as string) : "default";
   const cols = gridCols[Number(sp.cols) as 2 | 3 | 4] ? (sp.cols as string) : undefined;
 
-  const [allProducts, categories, config] = await Promise.all([
-    getProducts(100, categoryId),
+  const [categories, config] = await Promise.all([
     getCategories(),
     getStoreConfig(),
   ]);
+
   const feed = config.design.feed;
-  const perPage = feed?.itemsPerPage ?? 12;
+  const perPage = feed.itemsPerPage ?? 12;
   const page = Math.max(1, Number(sp.page) || 1);
+  const feedLimit = perPage * page;
+
+  const backendOrder = (sort === "newest"
+    ? "-created_at"
+    : sort === "title-asc"
+    ? "title"
+    : sort === "title-desc"
+    ? "-title"
+    : undefined) as string | undefined;
+
+  const allProducts = await getProducts(feedLimit, categoryId, 0, backendOrder);
+
   const visibleCount = perPage * page;
 
   const products = applySort(
     applyFilters(allProducts, { stock: stockFilter, min, max }),
     sort
   );
-  const columns = cols ? gridCols[Number(cols) as 2 | 3 | 4] : gridCols[feed.cardsPerRow] ?? gridCols[3];
+  const cardsPerRow = (feed.cardsPerRow ?? 3) as 2 | 3 | 4;
+  const columns = cols ? gridCols[Number(cols) as 2 | 3 | 4] : gridCols[cardsPerRow] ?? gridCols[3];
 
   const items: AnalyticsItem[] = products
     .map((product) => {
