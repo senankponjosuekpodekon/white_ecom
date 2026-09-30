@@ -17,6 +17,7 @@ export type Product = {
   id: string
   title: string
   handle: string
+  status?: string | null
   description?: string | null
   thumbnail?: string | null
   metadata?: Record<string, unknown>

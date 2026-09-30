@@ -1,31 +1,8 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
-import { type Product, renderCsv } from "../../../../utils/build-feed"
+import { getFeedProducts, renderCsv } from "../../../../utils/build-feed"
 
 export async function GET(req: MedusaRequest, res: MedusaResponse) {
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY) as {
-    graph: <T>(config: {
-      entity: string
-      fields: string[]
-      take?: number
-      skip?: number
-    }) => Promise<{ data: T[] }>
-  }
-
-  const { data: products } = await query.graph<Product>({
-    entity: "product",
-    fields: [
-      "*",
-      "variants.*",
-      "variants.prices.*",
-      "variants.inventory_quantity",
-      "variants.manage_inventory",
-      "variants.allow_backorder",
-      "images.url",
-      "categories.name",
-    ],
-    take: 1000,
-  })
+  const products = await getFeedProducts(req)
 
   const header = [
     "id",

@@ -1,4 +1,5 @@
-import { MedusaResponse } from "@medusajs/framework/http"
+import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import {
   type Product,
   type ProductVariant,
@@ -81,6 +82,55 @@ export function buildFeedValues(
   }
 }
 
+const MAX_FEED_TAKE = 1000
+const DEFAULT_FEED_TAKE = 1000
+
+const feedFields = [
+  "*",
+  "variants.*",
+  "variants.prices.*",
+  "variants.inventory_quantity",
+  "variants.manage_inventory",
+  "variants.allow_backorder",
+  "images.url",
+  "categories.name",
+]
+
+function parseIntParam(value: unknown, defaultValue: number, max: number): number {
+  const parsed = value === undefined ? defaultValue : Number(value)
+  if (!Number.isFinite(parsed) || parsed < 0) return defaultValue
+  return Math.min(parsed, max)
+}
+
+export async function getFeedProducts(
+  req: MedusaRequest,
+  { maxTake = MAX_FEED_TAKE }: { maxTake?: number } = {}
+): Promise<Product[]> {
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY) as {
+    graph: <T>(config: {
+      entity: string
+      fields: string[]
+      take?: number
+      skip?: number
+    }) => Promise<{ data: T[] }>
+  }
+
+  const rawLimit = (req.query?.limit ?? req.query?.take) as string | undefined
+  const rawOffset = (req.query?.offset ?? req.query?.skip) as string | undefined
+
+  const take = parseIntParam(rawLimit, DEFAULT_FEED_TAKE, maxTake)
+  const skip = parseIntParam(rawOffset, 0, Number.MAX_SAFE_INTEGER)
+
+  const { data } = await query.graph<Product>({
+    entity: "product",
+    fields: feedFields,
+    take,
+    skip,
+  })
+
+  return data.filter((p) => p.status === "published" || !p.status)
+}
+
 export function renderCsv(
   res: MedusaResponse,
   products: Product[],
@@ -131,5 +181,6 @@ export function renderCsv(
 
   res.setHeader("Content-Type", "text/csv; charset=utf-8")
   res.setHeader("Content-Disposition", `attachment; filename="${filename}"`)
+  res.setHeader("Cache-Control", "public, max-age=300")
   res.send(rows.join("\n"))
 }
