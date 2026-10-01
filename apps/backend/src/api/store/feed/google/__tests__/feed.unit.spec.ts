@@ -48,8 +48,8 @@ describe("feed helpers", () => {
   })
 
   describe("formatPrice", () => {
-    it("converts cents to major units", () => {
-      expect(formatPrice(1000)).toBe("10.00")
+    it("formats major-unit amounts", () => {
+      expect(formatPrice(10)).toBe("10.00")
     })
   })
 
