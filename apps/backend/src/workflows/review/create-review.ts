@@ -21,7 +21,8 @@ const createReviewStep = createStep(
     })
     return new StepResponse(review, review.id)
   },
-  async (id: string, { container }) => {
+  async (id: string | undefined, { container }) => {
+    if (!id) return
     const service = container.resolve<ReviewModuleService>(REVIEW_MODULE)
     await service.deleteReviews(id)
   }

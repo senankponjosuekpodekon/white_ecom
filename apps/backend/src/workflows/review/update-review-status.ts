@@ -18,7 +18,7 @@ const updateReviewStatusStep = createStep(
       status: previous.status,
     })
   },
-  async (compensation: { id: string; status: string }, { container }) => {
+  async (compensation: { id: string; status: string } | undefined, { container }) => {
     if (!compensation?.id) return
     const service = container.resolve<ReviewModuleService>(REVIEW_MODULE)
     await service.updateReviews({

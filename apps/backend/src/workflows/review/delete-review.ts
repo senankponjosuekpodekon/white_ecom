@@ -10,7 +10,7 @@ const deleteReviewStep = createStep(
     await service.deleteReviews(input.id)
     return new StepResponse(input.id, previous)
   },
-  async (previous: { id: string } & Record<string, unknown>, { container }) => {
+  async (previous: ({ id: string } & Record<string, unknown>) | undefined, { container }) => {
     if (!previous?.id) return
     const service = container.resolve<ReviewModuleService>(REVIEW_MODULE)
     await service.createReviews(previous)
