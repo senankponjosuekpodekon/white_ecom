@@ -111,11 +111,11 @@ export const presets: Record<string, DesignFullConfig> = {
     colors: {
       primary: "#111111",
       secondary: "#4B5563",
-      accent: "#3B82F6",
+      accent: "#1D4ED8",
       surface: "#FFFFFF",
       background: "#FFFFFF",
       foreground: "#111111",
-      muted: "#9CA3AF",
+      muted: "#6B7280",
       border: "#F3F4F6",
     },
     typography: {
@@ -146,7 +146,7 @@ export const presets: Record<string, DesignFullConfig> = {
       surface: "#FDFBF7",
       background: "#FFFFFF",
       foreground: "#1C1C1C",
-      muted: "#8C8C8C",
+      muted: "#737373",
       border: "#E8E4DD",
     },
     typography: {

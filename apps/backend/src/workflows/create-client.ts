@@ -12,7 +12,7 @@ const clientsDir = path.resolve(process.cwd(), "clients")
 
 const defaultConfig = {
   name: "White Shop",
-  primaryColor: "#3B82F6",
+  primaryColor: "#1D4ED8",
   logoUrl: "",
   font: "Inter",
   defaultLanguage: "fr",

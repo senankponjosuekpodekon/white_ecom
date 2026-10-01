@@ -73,7 +73,7 @@ jobs:
           # --- White-label store ---
           CLIENT_NAME=default
           STORE_NAME=White Shop
-          PRIMARY_COLOR=#3B82F6
+          PRIMARY_COLOR=#1D4ED8
           LOGO_URL=
           STORE_FONT=Inter
           DEFAULT_LANGUAGE=fr
