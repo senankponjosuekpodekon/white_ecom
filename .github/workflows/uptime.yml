@@ -35,19 +35,29 @@ jobs:
         run: echo "PROD_SITE_URL / PROD_API_URL non définies (repo variables) — checks ignorés"
 
       - name: Alert via Slack
-        if: failure() && secrets.SLACK_WEBHOOK_URL != ''
+        if: failure()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: |
-          curl -s -X POST "${{ secrets.SLACK_WEBHOOK_URL }}" \
+          if [ -z "$SLACK_WEBHOOK_URL" ]; then
+            echo "SLACK_WEBHOOK_URL non défini — alerte Slack ignorée"
+            exit 0
+          fi
+          curl -s -X POST "$SLACK_WEBHOOK_URL" \
             -H "Content-Type: application/json" \
             -d "{\"text\": \"🚨 Uptime check FAILED on ${{ github.repository }} (${{ github.ref_name }}) — run ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}"
 
       - name: Alert via email (Resend)
-        if: failure() && secrets.RESEND_API_KEY != '' && vars.ALERT_EMAIL != ''
+        if: failure()
         env:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           ALERT_EMAIL: ${{ vars.ALERT_EMAIL }}
           ALERT_FROM: ${{ vars.ALERT_FROM }}
         run: |
+          if [ -z "$RESEND_API_KEY" ] || [ -z "$ALERT_EMAIL" ]; then
+            echo "RESEND_API_KEY / ALERT_EMAIL non définis — alerte email ignorée"
+            exit 0
+          fi
           FROM="${ALERT_FROM:-uptime@stiamond.com}"
           RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           curl -s -X POST "https://api.resend.com/emails" \
