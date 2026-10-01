@@ -12,7 +12,10 @@ import {
   getMetadataValue,
 } from "./feed"
 export * from "./feed"
-import { loadClientConfig, loadClientContent } from "./client-config"
+import {
+  resolveClientConfig,
+  resolveClientContent,
+} from "./client-config"
 
 export type FeedValue = string | number | undefined | null
 
@@ -131,7 +134,8 @@ export async function getFeedProducts(
   return data.filter((p) => p.status === "published" || !p.status)
 }
 
-export function renderCsv(
+export async function renderCsv(
+  req: MedusaRequest,
   res: MedusaResponse,
   products: Product[],
   header: string[],
@@ -140,8 +144,8 @@ export function renderCsv(
 ) {
   const rows: string[] = [header.join(",")]
 
-  const fileConfig = loadClientConfig()
-  const content = loadClientContent()
+  const fileConfig = await resolveClientConfig(req.scope)
+  const content = await resolveClientContent(req.scope)
   const defaultLanguage =
     (fileConfig.defaultLanguage as string) ?? process.env.DEFAULT_LANGUAGE ?? "fr"
   const localeContent = content[defaultLanguage as "fr" | "en"] ?? content.fr

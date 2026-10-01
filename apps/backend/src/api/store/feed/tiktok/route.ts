@@ -28,7 +28,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
     "gender",
   ]
 
-  renderCsv(res, products, header, "tiktok.csv", (v) => [
+  await renderCsv(req, res, products, header, "tiktok.csv", (v) => [
     v.id,
     v.title,
     v.description,

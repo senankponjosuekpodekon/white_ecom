@@ -98,8 +98,7 @@ export type LocalizedContent = {
 };
 
 export type ClientContent = {
-  fr?: Partial<LocalizedContent>;
-  en?: Partial<LocalizedContent>;
+  [locale: string]: Partial<LocalizedContent> | undefined;
 };
 
 export function getLocalizedContent(

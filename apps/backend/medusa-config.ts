@@ -11,20 +11,62 @@ const modules: Record<string, any>[] = [
   {
     resolve: "@medusajs/medusa/payment",
     options: {
+      providers: process.env.STRIPE_API_KEY
+        ? [
+            {
+              resolve: "@medusajs/medusa/payment-stripe",
+              id: "stripe",
+              options: {
+                apiKey: process.env.STRIPE_API_KEY,
+                webhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
+                automatic_payment_methods: true,
+              },
+            },
+          ]
+        : [],
+    },
+  },
+  {
+    resolve: "@medusajs/medusa/notification",
+    options: {
       providers: [
         {
-          resolve: "@medusajs/medusa/payment-stripe",
-          id: "stripe",
+          resolve: "./src/modules/email",
+          id: "email",
           options: {
-            apiKey: process.env.STRIPE_API_KEY,
-            webhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
-            automatic_payment_methods: true,
+            channels: ["email"],
+            apiKey: process.env.RESEND_API_KEY,
+            from: process.env.EMAIL_FROM,
+            storeName: process.env.STORE_NAME,
           },
         },
       ],
     },
   },
 ]
+
+if (process.env.S3_BUCKET && process.env.S3_ACCESS_KEY_ID && process.env.S3_SECRET_ACCESS_KEY) {
+  modules.push({
+    resolve: "@medusajs/medusa/file",
+    options: {
+      providers: [
+        {
+          resolve: "@medusajs/file-s3",
+          id: "s3",
+          options: {
+            file_url: process.env.S3_FILE_URL,
+            access_key_id: process.env.S3_ACCESS_KEY_ID,
+            secret_access_key: process.env.S3_SECRET_ACCESS_KEY,
+            region: process.env.S3_REGION,
+            bucket: process.env.S3_BUCKET,
+            endpoint: process.env.S3_ENDPOINT,
+            prefix: process.env.S3_PREFIX ?? "products/",
+          },
+        },
+      ],
+    },
+  })
+}
 
 if (redisUrl) {
   modules.push({

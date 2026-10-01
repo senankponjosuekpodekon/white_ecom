@@ -17,7 +17,9 @@ export const medusaClient = new Medusa({
   baseUrl: getBaseUrl(),
   publishableKey: process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY,
   auth: {
-    type: "session",
+    type: "jwt",
+    jwtTokenStorageKey: "medusa_auth_token",
+    jwtTokenStorageMethod: "local",
   },
   debug: process.env.NODE_ENV === "development",
 });

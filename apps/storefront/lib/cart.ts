@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { medusaClient } from "./medusa-client";
 import { getStoreConfig } from "./get-store-config";
-import type { Cart } from "./types";
+import type { Cart, CartAddress } from "./types";
 
 const CART_COOKIE = "cartId";
 
@@ -20,6 +20,10 @@ export async function getCart(): Promise<Cart | null> {
     const fields = [
       "total",
       "currency_code",
+      "email",
+      "shipping_address.*",
+      "billing_address.*",
+      "shipping_methods.*",
       "items.*",
       "items.variant.id",
       "items.variant.title",
@@ -117,4 +121,23 @@ export async function updateLineItem(
   revalidatePath("/cart");
 
   return updated ?? null;
+}
+
+export async function updateCartDetails(
+  cartId: string,
+  data: {
+    email: string;
+    shipping_address: CartAddress;
+    billing_address: CartAddress;
+  }
+): Promise<boolean> {
+  try {
+    await medusaClient.client.fetch(`/store/carts/${cartId}`, {
+      method: "POST",
+      body: data,
+    });
+    return true;
+  } catch {
+    return false;
+  }
 }

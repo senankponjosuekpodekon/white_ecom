@@ -31,35 +31,13 @@ npm install
 
 ### 2. Créer les fichiers d’environnement
 
-`docker-compose.yml` attend `.env.backend` et `.env.storefront` à la racine. Crée-les :
-
-**`.env.backend`**
+`docker-compose.yml` attend un `.env` unique à la racine. Copie `.env.example` puis ajuste :
 
 ```bash
-STORE_CORS=http://localhost:3000
-ADMIN_CORS=http://localhost:3000,http://localhost:9000
-AUTH_CORS=http://localhost:3000
-REDIS_URL=redis://redis:6379
-JWT_SECRET=local-jwt-secret
-COOKIE_SECRET=local-cookie-secret
-DATABASE_URL=postgres://postgres:postgres@postgres:5432/white_local?ssl=false&sslmode=disable
-DB_NAME=white_local
-
-# White-label store config (served by GET /store/store-config)
-STORE_NAME=White Shop
-PRIMARY_COLOR=#111111
-LOGO_URL=
-STORE_FONT=Inter
-DEFAULT_LANGUAGE=fr
-SUPPORTED_LANGUAGES=fr,en
+cp .env.example .env
 ```
 
-**`.env.storefront`**
-
-```bash
-MEDUSA_BACKEND_URL=http://localhost:9000
-NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=pk_xxxx
-```
+Variables minimales : `DATABASE_URL`, `REDIS_URL`, `JWT_SECRET`, `COOKIE_SECRET`, `STORE_CORS`, `ADMIN_CORS`, `AUTH_CORS`, `CLIENT_NAME`, `SITE_URL`, `MEDUSA_BACKEND_URL`, `NEXT_PUBLIC_MEDUSA_BACKEND_URL`, `NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY`, `NEXT_PUBLIC_SITE_URL`.
 
 La clé `NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY` est générée une fois le backend démarré (voir étape 4).
 
@@ -90,7 +68,7 @@ curl -s -X POST http://localhost:9000/admin/api-keys \
   -d '{"title":"Storefront Key","type":"publishable"}'
 ```
 
-Copie la valeur `token` (`pk_...`) dans `.env.storefront`, puis redémarre le storefront :
+Copie la valeur `token` (`pk_...`) dans `.env` (`NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY`), puis redémarre le storefront :
 
 ```bash
 docker compose up -d storefront

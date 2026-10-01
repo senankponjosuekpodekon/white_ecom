@@ -93,18 +93,7 @@ check "Robots" "$BASE/robots.txt" 200
 echo ""
 echo "=== Vérification des flux produits ==="
 for platform in google facebook pinterest tiktok; do
-  url="$API/store/feed/$platform"
-  if [ -n "$PK" ]; then
-    if curl -s -H "x-publishable-api-key: $PK" -o /dev/null -w "%{http_code}" "$url" | grep -q "200"; then
-      echo "[OK] Feed $platform (200)"
-      PASS=$((PASS + 1))
-    else
-      echo "[FAIL] Feed $platform"
-      FAIL=$((FAIL + 1))
-    fi
-  else
-    echo "[SKIP] Feed $platform (pas de NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY)"
-  fi
+  check "Feed $platform" "$API/feeds/$platform" 200
 done
 
 echo ""

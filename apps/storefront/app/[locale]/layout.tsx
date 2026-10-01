@@ -6,7 +6,7 @@ import { getStoreConfig } from "@/lib/get-store-config";
 import { getLocalizedContent } from "@/lib/content";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { GoogleTag } from "@/components/GoogleTag";
+import { ConsentGate } from "@/components/ConsentGate";
 
 export async function generateMetadata({
   params,
@@ -93,13 +93,16 @@ export default async function LocaleLayout({
         className="antialiased min-h-screen flex flex-col"
         style={{ fontFamily: design?.typography?.body ?? "Inter" }}
       >
-        {localized.ads?.gtagId && <GoogleTag gtagId={localized.ads.gtagId} />}
         <Header
           name={config?.name ?? "White Shop"}
           logoUrl={config?.logoUrl}
           locale={locale}
+          availableLocales={(config?.supportedLanguages ?? ["fr"]).filter((l) =>
+            locales.includes(l)
+          )}
         />
         <NextIntlClientProvider messages={messages} locale={locale}>
+          <ConsentGate gtagId={localized.ads?.gtagId} locale={locale} />
           <main className="flex-1">{children}</main>
         </NextIntlClientProvider>
         {design?.ux?.footerEnabled !== false && (

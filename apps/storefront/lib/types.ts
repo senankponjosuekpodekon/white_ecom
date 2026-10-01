@@ -34,9 +34,29 @@ export type CartLineItem = {
   unit_price: number;
 };
 
+export type CartAddress = {
+  first_name?: string | null;
+  last_name?: string | null;
+  address_1?: string | null;
+  city?: string | null;
+  postal_code?: string | null;
+  country_code?: string | null;
+  phone?: string | null;
+};
+
+export type CartShippingMethod = {
+  id: string;
+  name?: string | null;
+  amount?: number;
+};
+
 export type Cart = {
   id: string;
   currency_code: string;
   items: CartLineItem[];
   total: number;
+  email?: string | null;
+  shipping_address?: CartAddress | null;
+  billing_address?: CartAddress | null;
+  shipping_methods?: CartShippingMethod[];
 };

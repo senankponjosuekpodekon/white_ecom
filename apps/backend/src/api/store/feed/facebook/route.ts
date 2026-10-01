@@ -29,7 +29,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
     "sale_price",
   ]
 
-  renderCsv(res, products, header, "facebook.csv", (v) => [
+  await renderCsv(req, res, products, header, "facebook.csv", (v) => [
     v.id,
     v.title,
     v.description,

@@ -27,7 +27,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
     "gender",
   ]
 
-  renderCsv(res, products, header, "pinterest.csv", (v) => [
+  await renderCsv(req, res, products, header, "pinterest.csv", (v) => [
     v.id,
     v.title,
     v.description,

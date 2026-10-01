@@ -33,7 +33,7 @@ async function refreshPaymentCollectionId(cartId: string): Promise<string | null
   }
 }
 
-async function setShippingMethod(
+export async function setShippingMethod(
   cartId: string,
   optionId: string
 ): Promise<boolean> {

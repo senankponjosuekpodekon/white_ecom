@@ -1,9 +1,12 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { loadClientConfig, loadClientContent } from "../../../utils/client-config"
+import {
+  resolveClientConfig,
+  resolveClientContent,
+} from "../../../utils/client-config"
 
 export async function GET(req: MedusaRequest, res: MedusaResponse) {
-  const fileConfig = loadClientConfig()
-  const content = loadClientContent()
+  const fileConfig = await resolveClientConfig(req.scope)
+  const content = await resolveClientContent(req.scope)
 
   const {
     STORE_NAME,

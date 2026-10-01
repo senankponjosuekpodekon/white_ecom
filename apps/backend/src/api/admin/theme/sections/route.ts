@@ -1,9 +1,11 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import {
-  loadClientContent,
+  loadDbContent,
   loadRawClientContent,
-  saveClientContent,
+  resolveClientContent,
+  saveClientContentDb,
 } from "../../../../utils/client-config"
+import { deepMerge } from "../../../../utils/merge"
 import type { ClientContent, MinimogSection } from "../../../../utils/default-content"
 import { requireUser } from "../../utils"
 
@@ -11,7 +13,7 @@ const supportedLocales = ["fr", "en"]
 
 export async function GET(req: MedusaRequest, res: MedusaResponse) {
   if (!requireUser(req, res)) return
-  const content = loadClientContent()
+  const content = await resolveClientContent(req.scope)
   const locale = supportedLocales.includes(req.query.locale as string)
     ? (req.query.locale as string)
     : "fr"
@@ -32,7 +34,10 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
       return
     }
 
-    const raw = loadRawClientContent()
+    const raw = deepMerge(
+      loadRawClientContent() as Record<string, unknown>,
+      (await loadDbContent(req.scope)) as Record<string, unknown>
+    )
     ;(raw as Record<string, unknown>)[locale] = {
       ...((raw as Record<string, unknown>)[locale] ?? {}),
       minimog: {
@@ -40,7 +45,7 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
         sectionOrder: body.minimog.sectionOrder ?? body.minimog.sections.map((s) => s.id),
       },
     }
-    saveClientContent(raw)
+    await saveClientContentDb(req.scope, raw as ClientContent)
 
     res.status(200).json({ ok: true })
   } catch (err) {

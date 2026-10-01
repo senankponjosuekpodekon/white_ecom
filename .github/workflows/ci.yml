@@ -102,6 +102,7 @@ jobs:
           NEXT_PUBLIC_MEDUSA_BACKEND_URL=http://localhost:9000
           NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=pk_ci_placeholder
           NEXT_PUBLIC_SITE_URL=http://localhost:8080
+          MANUAL_PAYMENT_ENABLED=true
           EOF
 
       - name: Start postgres, redis and backend

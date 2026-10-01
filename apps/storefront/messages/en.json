@@ -105,19 +105,37 @@
   "checkout": {
     "title": "Checkout",
     "pay": "Pay",
+    "stepContact": "Your details",
+    "stepPayment": "Payment",
+    "email": "Email",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "address": "Address",
+    "city": "City",
+    "postalCode": "Postal code",
+    "country": "Country",
+    "phone": "Phone (optional)",
+    "continue": "Continue",
+    "errorGeneric": "Something went wrong. Check your details and try again.",
     "digitalCheckout": "No shipping required for digital products and services.",
     "securePayment": "Secure payment by Stripe",
     "missingPayment": "Could not initialize payment.",
     "missingStripeKey": "Missing Stripe public key.",
     "paymentFailed": "Payment failed. Please try again.",
     "processing": "Processing…",
-    "payManually": "Pay manually (test)",
-    "stripeDisabled": "Stripe is not configured. Use manual payment to test.",
+    "payManually": "Pay on delivery / by bank transfer",
+    "stripeDisabled": "Card payment is unavailable. You can pay on delivery or by bank transfer.",
     "total": "Total",
     "orderNumber": "Order",
     "continueShopping": "Continue shopping",
     "selectShipping": "Choose a shipping option",
     "noShipping": "No shipping option available."
+  },
+  "consent": {
+    "text": "We use cookies to measure traffic and improve your experience.",
+    "learnMore": "Learn more",
+    "accept": "Accept",
+    "reject": "Reject"
   },
   "account": {
     "registerTitle": "Create account",
@@ -135,6 +153,11 @@
     "notLogged": "You are not logged in.",
     "loading": "Loading…",
     "unknownError": "An error occurred.",
-    "loginUnsupported": "This login method is not supported."
+    "loginUnsupported": "This login method is not supported.",
+    "ordersTitle": "My orders",
+    "noOrders": "No orders yet.",
+    "orderDate": "Date",
+    "orderStatus": "Status",
+    "orderTotal": "Total"
   }
 }

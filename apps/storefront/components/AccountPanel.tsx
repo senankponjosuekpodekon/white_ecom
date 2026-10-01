@@ -5,20 +5,43 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useTranslations } from "next-intl"
 import { medusaClient } from "@/lib/medusa-client"
+import { formatPrice } from "@/lib/format"
 import type { Locale } from "@/i18n"
+
+type Customer = {
+  email: string
+  first_name: string | null
+  last_name: string | null
+}
+
+type OrderRow = {
+  id: string
+  display_id?: number
+  status: string
+  total: number
+  currency_code: string
+  created_at: string
+}
 
 export function AccountPanel({ locale }: { locale: Locale }) {
   const t = useTranslations("account")
   const router = useRouter()
-  const [customer, setCustomer] = useState<{ email: string; first_name: string | null; last_name: string | null } | null>(null)
+  const [customer, setCustomer] = useState<Customer | null>(null)
+  const [orders, setOrders] = useState<OrderRow[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     medusaClient.store.customer
       .retrieve()
-      .then(({ customer }: { customer: { email: string; first_name: string | null; last_name: string | null } }) =>
+      .then(({ customer }: { customer: Customer }) => {
         setCustomer(customer)
-      )
+        return medusaClient.client
+          .fetch<{ orders: OrderRow[] }>(
+            "/store/orders?order=-created_at&limit=20&fields=id,display_id,status,total,currency_code,created_at"
+          )
+          .then((data) => setOrders(data.orders ?? []))
+          .catch(() => setOrders([]))
+      })
       .catch(() => setCustomer(null))
       .finally(() => setLoading(false))
   }, [])
@@ -62,6 +85,50 @@ export function AccountPanel({ locale }: { locale: Locale }) {
         </p>
         <p className="text-[var(--color-muted)]">{customer.email}</p>
       </div>
+
+      <h2 className="text-xl font-heading font-semibold mb-4 text-[var(--color-foreground)]">
+        {t("ordersTitle")}
+      </h2>
+      {orders.length === 0 ? (
+        <p className="text-[var(--color-muted)] mb-6">{t("noOrders")}</p>
+      ) : (
+        <div className="card-design overflow-hidden mb-6">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-[var(--color-border)] text-left text-[var(--color-muted)]">
+                <th className="px-4 py-3">#</th>
+                <th className="px-4 py-3">{t("orderDate")}</th>
+                <th className="px-4 py-3">{t("orderStatus")}</th>
+                <th className="px-4 py-3">{t("orderTotal")}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {orders.map((order) => (
+                <tr
+                  key={order.id}
+                  className="border-b border-[var(--color-border)] last:border-0"
+                >
+                  <td className="px-4 py-3 text-[var(--color-foreground)]">
+                    {order.display_id ?? order.id.slice(-8)}
+                  </td>
+                  <td className="px-4 py-3 text-[var(--color-muted)]">
+                    {order.created_at
+                      ? new Date(order.created_at).toLocaleDateString(locale)
+                      : "-"}
+                  </td>
+                  <td className="px-4 py-3 text-[var(--color-muted)]">
+                    {order.status}
+                  </td>
+                  <td className="px-4 py-3 text-[var(--color-foreground)]">
+                    {formatPrice(order.total, order.currency_code)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
       <button onClick={handleLogout} className="btn-primary">
         {t("logout")}
       </button>

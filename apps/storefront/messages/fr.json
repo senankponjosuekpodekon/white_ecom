@@ -103,21 +103,39 @@
     "terms": "Conditions de service à compléter."
   },
   "checkout": {
-    "title": "Paiement",
+    "title": "Commande",
     "pay": "Payer",
+    "stepContact": "Vos coordonnées",
+    "stepPayment": "Paiement",
+    "email": "Email",
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "address": "Adresse",
+    "city": "Ville",
+    "postalCode": "Code postal",
+    "country": "Pays",
+    "phone": "Téléphone (optionnel)",
+    "continue": "Continuer",
+    "errorGeneric": "Une erreur est survenue. Vérifiez vos informations et réessayez.",
     "digitalCheckout": "Aucune livraison requise pour les produits numériques et services.",
     "securePayment": "Paiement sécurisé par Stripe",
     "missingPayment": "Impossible d'initialiser le paiement.",
     "missingStripeKey": "Clé Stripe publique manquante.",
     "paymentFailed": "Le paiement a échoué. Veuillez réessayer.",
     "processing": "Traitement en cours…",
-    "payManually": "Payer manuellement (test)",
-    "stripeDisabled": "Stripe n'est pas configuré. Utilisez le paiement manuel pour tester.",
+    "payManually": "Payer à la livraison / par virement",
+    "stripeDisabled": "Le paiement par carte n'est pas disponible. Vous pouvez payer à la livraison ou par virement.",
     "total": "Total",
     "orderNumber": "Commande",
     "continueShopping": "Continuer les achats",
     "selectShipping": "Choisir une livraison",
     "noShipping": "Aucune option de livraison disponible."
+  },
+  "consent": {
+    "text": "Nous utilisons des cookies pour mesurer l'audience et améliorer votre expérience.",
+    "learnMore": "En savoir plus",
+    "accept": "Accepter",
+    "reject": "Refuser"
   },
   "account": {
     "registerTitle": "Créer un compte",
@@ -135,6 +153,11 @@
     "notLogged": "Vous n'êtes pas connecté.",
     "loading": "Chargement…",
     "unknownError": "Une erreur est survenue.",
-    "loginUnsupported": "Ce mode de connexion n'est pas supporté."
+    "loginUnsupported": "Ce mode de connexion n'est pas supporté.",
+    "ordersTitle": "Mes commandes",
+    "noOrders": "Aucune commande pour le moment.",
+    "orderDate": "Date",
+    "orderStatus": "Statut",
+    "orderTotal": "Total"
   }
 }

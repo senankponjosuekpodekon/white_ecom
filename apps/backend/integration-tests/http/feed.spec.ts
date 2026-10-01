@@ -1,5 +1,6 @@
 import { medusaIntegrationTestRunner } from "@medusajs/test-utils"
 import { Modules } from "@medusajs/framework/utils"
+import axios from "axios"
 
 medusaIntegrationTestRunner({
   testSuite: ({ api, getContainer }) => {
@@ -82,6 +83,19 @@ medusaIntegrationTestRunner({
 
           expect(response.status).toEqual(200)
           expect(response.headers["content-type"]).toContain("text/csv")
+        })
+      })
+
+      describe("GET /feeds/* (public)", () => {
+        it("serves feeds without a publishable key", async () => {
+          const publicApi = axios.create({ baseURL: api.defaults.baseURL })
+          delete publicApi.defaults.headers.common["x-publishable-api-key"]
+
+          const response = await publicApi.get("/feeds/google")
+
+          expect(response.status).toEqual(200)
+          expect(response.headers["content-type"]).toContain("text/csv")
+          expect(response.data).toContain("id,title,description")
         })
       })
     })

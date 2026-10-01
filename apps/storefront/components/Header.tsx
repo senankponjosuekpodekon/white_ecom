@@ -1,16 +1,19 @@
 import Image from "next/image";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
+import { LocaleSwitcher } from "./LocaleSwitcher";
 import type { Locale } from "@/i18n";
 
 export async function Header({
   name,
   logoUrl,
   locale,
+  availableLocales,
 }: {
   name: string;
   logoUrl?: string;
   locale: Locale;
+  availableLocales?: string[];
 }) {
   const t = await getTranslations({ locale, namespace: "nav" });
 
@@ -62,6 +65,10 @@ export async function Header({
             >
               {t("login")}
             </Link>
+            <LocaleSwitcher
+              locale={locale}
+              locales={availableLocales ?? [locale]}
+            />
           </nav>
         </div>
       </div>
