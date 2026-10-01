@@ -72,7 +72,7 @@ export default async function CheckoutPage({
     item_id: item.variant.id,
     item_name: item.title,
     item_variant: item.variant.title,
-    price: item.unit_price / 100,
+    price: item.unit_price,
     quantity: item.quantity,
     currency: cart.currency_code.toUpperCase(),
   }));
@@ -93,7 +93,7 @@ export default async function CheckoutPage({
   return (
     <main className="min-h-screen p-8 section-gradient">
       <AnalyticsBeginCheckout
-        value={cart.total / 100}
+        value={cart.total}
         currency={cart.currency_code.toUpperCase()}
         items={checkoutItems}
       />

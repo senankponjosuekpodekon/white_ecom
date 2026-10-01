@@ -47,7 +47,7 @@ export function StickyATC({
         item_id: variantId,
         item_name: productTitle,
         item_variant: variantTitle,
-        price: amount / 100,
+        price: amount,
         currency: currency.toUpperCase(),
         quantity,
       })

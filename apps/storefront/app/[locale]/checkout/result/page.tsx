@@ -31,7 +31,7 @@ export default async function CheckoutResultPage({
         item_id: item.variant.id,
         item_name: item.title,
         item_variant: item.variant.title,
-        price: item.unit_price / 100,
+        price: item.unit_price,
         quantity: item.quantity,
         currency: order.currency_code.toUpperCase(),
       }))
@@ -42,7 +42,7 @@ export default async function CheckoutResultPage({
       {order && purchaseItems && (
         <AnalyticsPurchase
           orderId={order.id}
-          value={order.total / 100}
+          value={order.total}
           currency={order.currency_code.toUpperCase()}
           items={purchaseItems}
         />

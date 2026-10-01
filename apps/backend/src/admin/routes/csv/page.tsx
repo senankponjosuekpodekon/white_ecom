@@ -103,7 +103,7 @@ const CSV = () => {
           p.title ?? "",
           p.handle ?? "",
           p.description ?? "",
-          price ? (price.amount / 100).toString() : "",
+          price ? price.amount.toString() : "",
           price?.currency_code ?? "",
           variant?.inventory_quantity ?? "",
           p.status ?? "",
@@ -206,7 +206,7 @@ const CSV = () => {
           rowErrors.push(`Ligne ${rowNum}: prix invalide (${title || "sans titre"})`)
           continue
         }
-        const priceCents = Math.round(price * 100)
+        const priceAmount = Math.round(price * 100) / 100
 
         const payload = {
           title,
@@ -228,7 +228,7 @@ const CSV = () => {
               title: "Default",
               sku: sku || undefined,
               options: { Default: "Default" },
-              prices: [{ currency_code: currency, amount: priceCents }],
+              prices: [{ currency_code: currency, amount: priceAmount }],
               manage_inventory: true,
               allow_backorder: false,
             },

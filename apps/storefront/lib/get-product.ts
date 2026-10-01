@@ -1,5 +1,6 @@
 import { unstable_cache } from "next/cache";
 import { medusaClient } from "./medusa-client";
+import { normalizeProductPrices } from "./get-products";
 import type { Product } from "./types";
 
 const fields = [
@@ -14,8 +15,7 @@ const fields = [
   "variants.title",
   "variants.sku",
   "variants.inventory_quantity",
-  "variants.prices.amount",
-  "variants.prices.currency_code",
+  "variants.calculated_price.*",
 ].join(",");
 
 const fetchProduct = unstable_cache(
@@ -26,7 +26,8 @@ const fetchProduct = unstable_cache(
       `/store/products?handle=${encodeURIComponent(handle)}&limit=1&fields=${fields}`,
       { method: "GET" }
     );
-    return products?.[0] ?? null;
+    const product = products?.[0];
+    return product ? normalizeProductPrices(product) : null;
   },
   ["product"],
   { revalidate: 60, tags: ["product"] }

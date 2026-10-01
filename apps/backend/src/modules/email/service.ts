@@ -17,7 +17,7 @@ type Options = {
 type OrderItem = { title?: string; quantity?: number; unit_price?: number }
 
 function money(amount: number | undefined, currency: string): string {
-  return `${((amount ?? 0) / 100).toFixed(2)} ${currency.toUpperCase()}`
+  return `${(amount ?? 0).toFixed(2)} ${currency.toUpperCase()}`
 }
 
 function orderPlacedHtml(

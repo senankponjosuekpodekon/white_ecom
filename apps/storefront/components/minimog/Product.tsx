@@ -66,7 +66,7 @@ export async function MinimogProduct({
                 variantId={firstVariant.id}
                 variantTitle={firstVariant.title}
                 productTitle={product.title}
-                price={firstPrice.amount / 100}
+                price={firstPrice.amount}
                 currency={firstPrice.currency_code}
                 label={t("addToCart")}
                 buyNowLabel={t("buyNow")}

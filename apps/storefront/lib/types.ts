@@ -8,6 +8,11 @@ export type ProductVariant = {
     amount: number;
     currency_code: string;
   }>;
+  calculated_price?: {
+    calculated_amount: number;
+    currency_code: string;
+    original_amount?: number;
+  } | null;
 };
 
 export type Product = {

@@ -16,9 +16,22 @@ const fields = [
   "variants.sku",
   "variants.manage_inventory",
   "variants.inventory_quantity",
-  "variants.prices.amount",
-  "variants.prices.currency_code",
+  "variants.calculated_price.*",
 ].join(",");
+
+// The store API exposes region-aware prices via `calculated_price`, not the
+// raw `prices` relation — normalize so components can keep using `prices[0]`.
+export function normalizeProductPrices(product: Product): Product {
+  for (const variant of product.variants ?? []) {
+    const cp = variant.calculated_price;
+    if (cp && !variant.prices?.length) {
+      variant.prices = [
+        { amount: cp.calculated_amount, currency_code: cp.currency_code },
+      ];
+    }
+  }
+  return product;
+}
 
 type ProductQuery = {
   limit: number;
@@ -46,7 +59,7 @@ const fetchProductsPage = unstable_cache(
       count?: number;
     }>(`/store/products?${params.toString()}`, { method: "GET" });
     return {
-      products: data.products ?? [],
+      products: (data.products ?? []).map(normalizeProductPrices),
       count: data.count ?? (data.products ?? []).length,
     };
   },

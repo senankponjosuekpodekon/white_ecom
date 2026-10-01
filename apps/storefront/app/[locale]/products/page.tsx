@@ -220,7 +220,7 @@ export default async function ProductsPage({
         item_id: variant.id,
         item_name: product.title,
         item_variant: variant.title,
-        price: price.amount / 100,
+        price: price.amount,
         currency: price.currency_code.toUpperCase(),
       } as AnalyticsItem;
     })

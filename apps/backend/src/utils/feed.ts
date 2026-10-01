@@ -34,7 +34,7 @@ export function escapeCsv(value: string): string {
 }
 
 export function formatPrice(amount: number): string {
-  return (amount / 100).toFixed(2)
+  return amount.toFixed(2)
 }
 
 export function getAvailability(variant: ProductVariant): string {

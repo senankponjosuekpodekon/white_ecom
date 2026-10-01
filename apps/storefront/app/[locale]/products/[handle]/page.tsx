@@ -89,7 +89,7 @@ export default async function ProductPage({
     return {
       "@type": "Offer" as const,
       sku: variant.id,
-      price: price ? (price.amount / 100).toFixed(2) : "0.00",
+      price: price ? price.amount.toFixed(2) : "0.00",
       priceCurrency: price ? price.currency_code.toUpperCase() : "EUR",
       availability: "https://schema.org/InStock",
       url: `${siteUrl}/${locale}/products/${handle}`,
@@ -143,7 +143,7 @@ export default async function ProductPage({
         item_id: product.variants[0].id,
         item_name: product.title,
         item_variant: product.variants[0].title,
-        price: product.variants[0].prices[0].amount / 100,
+        price: product.variants[0].prices[0].amount,
         currency: product.variants[0].prices[0].currency_code.toUpperCase(),
       }
     : {

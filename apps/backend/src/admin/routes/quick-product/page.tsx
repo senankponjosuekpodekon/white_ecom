@@ -62,7 +62,7 @@ const QuickProduct = () => {
         setForm({
           title: product.title ?? "",
           description: product.description ?? "",
-          price: price ? (price.amount / 100).toString() : "",
+          price: price ? price.amount.toString() : "",
           stock: variant?.inventory_quantity?.toString() ?? "",
           currency: price?.currency_code ?? form.currency,
           imageUrl: product.thumbnail ?? "",
@@ -101,8 +101,8 @@ const QuickProduct = () => {
     setSaved(false)
     setError(null)
 
-    const priceCents = Math.round(parseFloat(form.price) * 100)
-    if (!form.title || !priceCents || priceCents <= 0) {
+    const priceAmount = Math.round(parseFloat(form.price) * 100) / 100
+    if (!form.title || !priceAmount || priceAmount <= 0) {
       setError("Titre et prix valides requis")
       setLoading(false)
       return
@@ -137,7 +137,7 @@ const QuickProduct = () => {
                   prices: [
                     {
                       currency_code: form.currency,
-                      amount: priceCents,
+                      amount: priceAmount,
                     },
                   ],
                 },
@@ -154,7 +154,7 @@ const QuickProduct = () => {
               prices: [
                 {
                   currency_code: form.currency,
-                  amount: priceCents,
+                  amount: priceAmount,
                 },
               ],
               inventory_quantity: parseInt(form.stock || "0", 10),

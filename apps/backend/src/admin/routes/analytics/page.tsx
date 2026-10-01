@@ -22,7 +22,7 @@ function formatPrice(amount: number) {
   return new Intl.NumberFormat("fr-FR", {
     style: "currency",
     currency: "EUR",
-  }).format(amount / 100)
+  }).format(amount)
 }
 
 function downloadCsv(rows: string[][], filename: string) {
@@ -58,7 +58,7 @@ const Analytics = () => {
       ["commande", "total", "statut", "date"],
       ...data.orders.map((o) => [
         o.display_id,
-        (o.total / 100).toString(),
+        o.total.toString(),
         o.status,
         o.created_at ? new Date(o.created_at).toISOString() : "",
       ]),

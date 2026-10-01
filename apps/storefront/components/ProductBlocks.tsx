@@ -92,7 +92,7 @@ function VariantList({
                   variantId={variant.id}
                   variantTitle={variant.title}
                   productTitle={product.title}
-                  price={price.amount / 100}
+                  price={price.amount}
                   currency={price.currency_code}
                   label={t("addToCart")}
                   buyNowLabel={t("buyNow")}
