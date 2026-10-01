@@ -4,7 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useTranslations } from "next-intl"
-import { medusaClient } from "@/lib/medusa-client"
+import { medusaClientAuth } from "@/lib/medusa-client"
 import type { Locale } from "@/i18n"
 
 export function RegisterForm({ locale }: { locale: Locale }) {
@@ -29,7 +29,7 @@ export function RegisterForm({ locale }: { locale: Locale }) {
     setError(null)
 
     try {
-      const result = await medusaClient.auth.register("customer", "emailpass", {
+      const result = await medusaClientAuth.auth.register("customer", "emailpass", {
         email: form.email,
         password: form.password,
       })
@@ -37,7 +37,7 @@ export function RegisterForm({ locale }: { locale: Locale }) {
       const token =
         typeof result === "string" ? result : (result as { token?: string }).token
 
-      await medusaClient.store.customer.create(
+      await medusaClientAuth.store.customer.create(
         {
           email: form.email,
           first_name: form.firstName,
@@ -47,7 +47,7 @@ export function RegisterForm({ locale }: { locale: Locale }) {
         token ? { Authorization: `Bearer ${token}` } : {}
       )
 
-      await medusaClient.auth.login("customer", "emailpass", {
+      await medusaClientAuth.auth.login("customer", "emailpass", {
         email: form.email,
         password: form.password,
       })

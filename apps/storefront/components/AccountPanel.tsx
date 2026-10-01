@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useTranslations } from "next-intl"
-import { medusaClient } from "@/lib/medusa-client"
+import { medusaClientAuth } from "@/lib/medusa-client"
 import { formatPrice } from "@/lib/format"
 import type { Locale } from "@/i18n"
 
@@ -31,11 +31,11 @@ export function AccountPanel({ locale }: { locale: Locale }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    medusaClient.store.customer
+    medusaClientAuth.store.customer
       .retrieve()
       .then(({ customer }: { customer: Customer }) => {
         setCustomer(customer)
-        return medusaClient.client
+        return medusaClientAuth.client
           .fetch<{ orders: OrderRow[] }>(
             "/store/orders?order=-created_at&limit=20&fields=id,display_id,status,total,currency_code,created_at"
           )
@@ -47,7 +47,7 @@ export function AccountPanel({ locale }: { locale: Locale }) {
   }, [])
 
   const handleLogout = async () => {
-    await medusaClient.auth.logout()
+    await medusaClientAuth.auth.logout()
     router.push(`/${locale}/login`)
   }
 

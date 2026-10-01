@@ -4,7 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useTranslations } from "next-intl"
-import { medusaClient } from "@/lib/medusa-client"
+import { medusaClientAuth } from "@/lib/medusa-client"
 import type { Locale } from "@/i18n"
 
 export function LoginForm({ locale }: { locale: Locale }) {
@@ -24,7 +24,7 @@ export function LoginForm({ locale }: { locale: Locale }) {
     setError(null)
 
     try {
-      const result = await medusaClient.auth.login("customer", "emailpass", {
+      const result = await medusaClientAuth.auth.login("customer", "emailpass", {
         email: form.email,
         password: form.password,
       })
