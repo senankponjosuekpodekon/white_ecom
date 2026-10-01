@@ -39,6 +39,7 @@ type ProductQuery = {
   categoryId?: string;
   order?: string;
   q?: string;
+  locale?: string;
 };
 
 const fetchProductsPage = unstable_cache(
@@ -48,12 +49,14 @@ const fetchProductsPage = unstable_cache(
     categoryId,
     order,
     q,
+    locale,
   }: ProductQuery): Promise<{ products: Product[]; count: number }> => {
     const params = new URLSearchParams({ limit: String(limit), fields });
     if (offset > 0) params.set("offset", String(offset));
     if (categoryId) params.append("category_id[]", categoryId);
     if (order) params.set("order", order);
     if (q) params.set("q", q);
+    if (locale) params.set("locale", locale);
     const data = await medusaClient.client.fetch<{
       products: Product[];
       count?: number;
@@ -83,7 +86,8 @@ export const getProducts = async (
   categoryId?: string,
   offset = 0,
   order?: string,
-  q?: string
+  q?: string,
+  locale?: string
 ): Promise<Product[]> => {
   const { products } = await getProductsPage({
     limit,
@@ -91,6 +95,7 @@ export const getProducts = async (
     categoryId,
     order,
     q,
+    locale,
   });
   return products;
 };

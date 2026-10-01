@@ -6,12 +6,14 @@ import { useRouter } from "next/navigation"
 import { useTranslations } from "next-intl"
 import { medusaClientAuth } from "@/lib/medusa-client"
 import { formatPrice } from "@/lib/format"
+import { AddressBook, type CustomerAddress } from "@/components/AddressBook"
 import type { Locale } from "@/i18n"
 
 type Customer = {
   email: string
   first_name: string | null
   last_name: string | null
+  addresses?: CustomerAddress[]
 }
 
 type OrderRow = {
@@ -32,7 +34,7 @@ export function AccountPanel({ locale }: { locale: Locale }) {
 
   useEffect(() => {
     medusaClientAuth.store.customer
-      .retrieve()
+      .retrieve({ fields: "*addresses" })
       .then(({ customer }: { customer: Customer }) => {
         setCustomer(customer)
         return medusaClientAuth.client
@@ -133,6 +135,8 @@ export function AccountPanel({ locale }: { locale: Locale }) {
           </table>
         </div>
       )}
+
+      <AddressBook initialAddresses={customer.addresses ?? []} />
 
       <button onClick={handleLogout} className="btn-primary">
         {t("logout")}

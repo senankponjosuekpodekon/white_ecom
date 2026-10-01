@@ -15,7 +15,7 @@ export default async function MinimogProductsPage({
 }) {
   const { locale: raw } = await params
   const locale = locales.includes(raw as Locale) ? (raw as Locale) : defaultLocale
-  const products = await getProducts(24)
+  const products = await getProducts(24, undefined, 0, undefined, undefined, locale)
 
   return (
     <>

@@ -121,7 +121,7 @@ async function Recommendations({
   feed: DesignFullConfig["feed"]
   title: string
 }) {
-  const all = await getProducts(5)
+  const all = await getProducts(5, undefined, 0, undefined, undefined, locale)
   const recProducts = all.filter((p) => p.id !== product.id).slice(0, 4)
 
   if (recProducts.length === 0) return null

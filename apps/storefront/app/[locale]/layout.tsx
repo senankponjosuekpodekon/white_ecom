@@ -87,8 +87,24 @@ export default async function LocaleLayout({
 
   const messages = await getMessages();
 
+  // Runtime public config for the browser bundle — NEXT_PUBLIC_* values are
+  // inlined at build time, so per-client containers inject them here instead.
+  const publicConfig = {
+    medusaBackendUrl:
+      process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL ??
+      process.env.MEDUSA_BACKEND_URL,
+    medusaPublishableKey: process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY,
+  };
+
   return (
     <html lang={locale} dir="ltr" style={cssVars}>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.__PUBLIC_CONFIG__=${JSON.stringify(publicConfig).replace(/</g, "\\u003c")}`,
+          }}
+        />
+      </head>
       <body
         className="antialiased min-h-screen flex flex-col"
         style={{ fontFamily: design?.typography?.body ?? "Inter" }}

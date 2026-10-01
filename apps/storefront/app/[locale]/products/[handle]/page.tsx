@@ -18,7 +18,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale: raw, handle } = await params;
   const locale = locales.includes(raw as Locale) ? (raw as Locale) : defaultLocale;
-  const product = await getProduct(handle);
+  const product = await getProduct(handle, locale);
   if (!product) {
     notFound();
   }
@@ -67,7 +67,7 @@ export default async function ProductPage({
   const { locale: raw, handle } = await params;
   const locale = locales.includes(raw as Locale) ? (raw as Locale) : defaultLocale;
   const t = await getTranslations({ locale, namespace: "product" });
-  const [product, config] = await Promise.all([getProduct(handle), getStoreConfig()]);
+  const [product, config] = await Promise.all([getProduct(handle, locale), getStoreConfig()]);
 
   if (!product) {
     notFound();

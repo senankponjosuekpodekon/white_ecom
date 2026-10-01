@@ -19,13 +19,12 @@ const fields = [
 ].join(",");
 
 const fetchProduct = unstable_cache(
-  async (handle: string): Promise<Product | null> => {
+  async (handle: string, locale?: string): Promise<Product | null> => {
+    const params = new URLSearchParams({ handle, limit: "1", fields });
+    if (locale) params.set("locale", locale);
     const { products } = await medusaClient.client.fetch<{
       products: Product[];
-    }>(
-      `/store/products?handle=${encodeURIComponent(handle)}&limit=1&fields=${fields}`,
-      { method: "GET" }
-    );
+    }>(`/store/products?${params.toString()}`, { method: "GET" });
     const product = products?.[0];
     return product ? normalizeProductPrices(product) : null;
   },
@@ -33,9 +32,12 @@ const fetchProduct = unstable_cache(
   { revalidate: 60, tags: ["product"] }
 );
 
-export const getProduct = async (handle: string): Promise<Product | null> => {
+export const getProduct = async (
+  handle: string,
+  locale?: string
+): Promise<Product | null> => {
   try {
-    return await fetchProduct(handle);
+    return await fetchProduct(handle, locale);
   } catch (err) {
     console.error(`[getProduct] Failed to load product ${handle}:`, err);
     return null;

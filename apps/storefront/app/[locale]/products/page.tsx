@@ -153,7 +153,7 @@ export default async function ProductsPage({
   const cols = gridCols[Number(sp.cols) as 2 | 3 | 4] ? (sp.cols as string) : undefined;
 
   const [categories, config] = await Promise.all([
-    getCategories(),
+    getCategories(locale),
     getStoreConfig(),
   ]);
 
@@ -188,6 +188,7 @@ export default async function ProductsPage({
       categoryId,
       order: backendOrder,
       q: search,
+      locale,
     });
     const filtered = applySort(
       applyFilters(window, { stock: stockFilter, min, max }),
@@ -203,6 +204,7 @@ export default async function ProductsPage({
       categoryId,
       order: backendOrder,
       q: search,
+      locale,
     });
     products = applySort(page_, sort);
     totalCount = count;

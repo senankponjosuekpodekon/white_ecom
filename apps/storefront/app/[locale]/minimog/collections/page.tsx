@@ -15,7 +15,7 @@ export default async function MinimogCollectionsPage({
 }) {
   const { locale: raw } = await params
   const locale = locales.includes(raw as Locale) ? (raw as Locale) : defaultLocale
-  const [categories, products] = await Promise.all([getCategories(), getProducts(100)])
+  const [categories, products] = await Promise.all([getCategories(locale), getProducts(100, undefined, 0, undefined, undefined, locale)])
 
   const stats = new Map<string, { count: number; thumbnail?: string | null }>()
   for (const product of products) {

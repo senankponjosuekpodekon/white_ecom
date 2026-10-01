@@ -14,8 +14,9 @@ export async function generateMetadata({
 }: {
   params: Promise<{ locale: string; handle: string }>
 }): Promise<Metadata> {
-  const { handle } = await params
-  const product = await getProduct(handle)
+  const { locale: raw, handle } = await params
+  const locale = locales.includes(raw as Locale) ? (raw as Locale) : defaultLocale
+  const product = await getProduct(handle, locale)
   if (!product) {
     return { title: "Produit introuvable" }
   }
@@ -33,7 +34,7 @@ export default async function MinimogProductPage({
 }) {
   const { locale: raw, handle } = await params
   const locale = locales.includes(raw as Locale) ? (raw as Locale) : defaultLocale
-  const product = await getProduct(handle)
+  const product = await getProduct(handle, locale)
 
   if (!product) {
     notFound()

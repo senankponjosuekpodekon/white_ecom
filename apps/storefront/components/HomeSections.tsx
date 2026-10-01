@@ -52,7 +52,14 @@ export async function HomeSections({
   if (featured) {
     const opts = featured.options ?? {}
     const limit = Number(opts.limit ?? 8)
-    featuredProducts = await getProducts(limit)
+    featuredProducts = await getProducts(
+      limit,
+      undefined,
+      0,
+      undefined,
+      undefined,
+      locale
+    )
   }
 
   return (

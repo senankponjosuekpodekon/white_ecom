@@ -90,11 +90,23 @@ npm run storefront:dev
 
 ## Scripts de déploiement client
 
+Provision complet en une commande (scaffold + stack + seed + clé publishable) :
+
+```bash
+./scripts/provision-client.sh boutique-jean boutique-jean.com \
+  --admin-email jean@boutique-jean.com
+```
+
+Ou manuellement, étape par étape :
+
 ```bash
 ./scripts/new-client.sh boutique-jean boutique-jean.com
 ./scripts/deploy-client.sh boutique-jean
 ./scripts/backup-client.sh boutique-jean
 ```
+
+Options utiles : `BACKUP_S3_BUCKET` (upload offsite), `BACKUP_RETENTION_DAYS`,
+`BACKUP_DRY_RUN=1`, `MEDUSA_FF_TRANSLATION=true` (traductions catalogue).
 
 ---
 

@@ -184,6 +184,20 @@
     "shippingAddress": "Adresse de livraison",
     "orderItems": "Articles",
     "shippingCost": "Livraison",
-    "tax": "Taxes"
+    "tax": "Taxes",
+    "addressesTitle": "Mes adresses",
+    "noAddresses": "Aucune adresse enregistrée.",
+    "addAddress": "Ajouter une adresse",
+    "editAddress": "Modifier",
+    "deleteAddress": "Supprimer",
+    "saveAddress": "Enregistrer",
+    "cancel": "Annuler",
+    "defaultShipping": "Adresse de livraison par défaut",
+    "defaultBadge": "Par défaut",
+    "addressLine": "Adresse",
+    "postalCode": "Code postal",
+    "city": "Ville",
+    "country": "Pays",
+    "phone": "Téléphone"
   }
 }

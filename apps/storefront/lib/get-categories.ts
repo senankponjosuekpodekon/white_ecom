@@ -8,16 +8,20 @@ export type ProductCategory = {
   parent_category_id: string | null;
 };
 
-export const getCategories = cache(async (): Promise<ProductCategory[]> => {
-  try {
-    const { product_categories } = await medusaClient.client.fetch<{
-      product_categories: ProductCategory[];
-    }>(
-      "/store/product-categories?fields=id,name,handle,parent_category_id&include_descendants_tree=false",
-      { method: "GET" }
-    );
-    return product_categories ?? [];
-  } catch {
-    return [];
+export const getCategories = cache(
+  async (locale?: string): Promise<ProductCategory[]> => {
+    try {
+      const params = new URLSearchParams({
+        fields: "id,name,handle,parent_category_id",
+        include_descendants_tree: "false",
+      });
+      if (locale) params.set("locale", locale);
+      const { product_categories } = await medusaClient.client.fetch<{
+        product_categories: ProductCategory[];
+      }>(`/store/product-categories?${params.toString()}`, { method: "GET" });
+      return product_categories ?? [];
+    } catch {
+      return [];
+    }
   }
-});
+);

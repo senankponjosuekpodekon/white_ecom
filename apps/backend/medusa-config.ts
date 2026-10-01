@@ -45,6 +45,12 @@ const modules: Record<string, any>[] = [
   },
 ]
 
+if (process.env.MEDUSA_FF_TRANSLATION === "true") {
+  modules.push({
+    resolve: "@medusajs/medusa/translation",
+  })
+}
+
 if (process.env.S3_BUCKET && process.env.S3_ACCESS_KEY_ID && process.env.S3_SECRET_ACCESS_KEY) {
   modules.push({
     resolve: "@medusajs/medusa/file",

@@ -17,7 +17,7 @@ export default async function MinimogCollectionPage({
 }) {
   const { locale: raw, handle } = await params
   const locale = locales.includes(raw as Locale) ? (raw as Locale) : defaultLocale
-  const [categories, allProducts] = await Promise.all([getCategories(), getProducts(100)])
+  const [categories, allProducts] = await Promise.all([getCategories(locale), getProducts(100, undefined, 0, undefined, undefined, locale)])
 
   const category = categories.find((c) => c.handle === handle)
   if (!category) {
