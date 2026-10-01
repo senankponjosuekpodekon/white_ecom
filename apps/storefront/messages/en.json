@@ -175,6 +175,15 @@
     "resetInvalid": "Invalid or expired reset link.",
     "resetError": "The link is invalid or expired. Please restart the process.",
     "resetMismatch": "Passwords do not match.",
-    "resetTooShort": "Password must be at least 8 characters."
+    "resetTooShort": "Password must be at least 8 characters.",
+    "orderTitle": "Order",
+    "orderNotFound": "Order not found or access denied.",
+    "backToAccount": "Back to my account",
+    "fulfillmentStatus": "Fulfillment",
+    "paymentStatus": "Payment",
+    "shippingAddress": "Shipping address",
+    "orderItems": "Items",
+    "shippingCost": "Shipping",
+    "tax": "Tax"
   }
 }

@@ -109,7 +109,12 @@ export function AccountPanel({ locale }: { locale: Locale }) {
                   className="border-b border-[var(--color-border)] last:border-0"
                 >
                   <td className="px-4 py-3 text-[var(--color-foreground)]">
-                    {order.display_id ?? order.id.slice(-8)}
+                    <Link
+                      href={`/${locale}/account/orders/${order.id}`}
+                      className="underline hover:text-[var(--color-primary)]"
+                    >
+                      {order.display_id ?? order.id.slice(-8)}
+                    </Link>
                   </td>
                   <td className="px-4 py-3 text-[var(--color-muted)]">
                     {order.created_at

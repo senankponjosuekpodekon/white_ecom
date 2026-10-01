@@ -175,6 +175,15 @@
     "resetInvalid": "Lien de réinitialisation invalide ou expiré.",
     "resetError": "Le lien est invalide ou expiré. Recommencez la procédure.",
     "resetMismatch": "Les mots de passe ne correspondent pas.",
-    "resetTooShort": "Le mot de passe doit contenir au moins 8 caractères."
+    "resetTooShort": "Le mot de passe doit contenir au moins 8 caractères.",
+    "orderTitle": "Commande",
+    "orderNotFound": "Commande introuvable ou accès refusé.",
+    "backToAccount": "Retour à mon compte",
+    "fulfillmentStatus": "Expédition",
+    "paymentStatus": "Paiement",
+    "shippingAddress": "Adresse de livraison",
+    "orderItems": "Articles",
+    "shippingCost": "Livraison",
+    "tax": "Taxes"
   }
 }

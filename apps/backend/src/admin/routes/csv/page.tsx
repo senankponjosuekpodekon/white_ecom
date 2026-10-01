@@ -85,9 +85,17 @@ const CSV = () => {
     setLoading(true)
     setError(null)
     try {
-      const res = await fetch("/admin/products?limit=200")
-      const data = await res.json()
-      const products = data.products ?? []
+      const products: any[] = []
+      const pageSize = 200
+      for (let offset = 0; ; offset += pageSize) {
+        const res = await fetch(
+          `/admin/products?limit=${pageSize}&offset=${offset}`
+        )
+        const data = await res.json()
+        products.push(...(data.products ?? []))
+        if (data.count === undefined || products.length >= data.count) break
+        if ((data.products ?? []).length === 0) break
+      }
       const rows = products.map((p: any) => {
         const variant = p.variants?.[0]
         const price = variant?.prices?.[0]

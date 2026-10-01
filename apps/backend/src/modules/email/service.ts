@@ -75,11 +75,25 @@ function buildEmail(
         </div>`,
       }
     }
-    case "order-shipped":
+    case "order-shipped": {
+      const trackingNumber = data?.tracking as string | undefined
+      const trackingUrl = data?.tracking_url as string | undefined
+      const trackingHtml = trackingNumber
+        ? `<p>Numéro de suivi : <strong>${trackingNumber}</strong>${
+            trackingUrl
+              ? ` — <a href="${trackingUrl}">Suivre le colis</a>`
+              : ""
+          }</p>`
+        : ""
       return {
         subject: `${storeName} — Commande #${order.display_id ?? ""} expédiée`.trim(),
-        html: `<div style="font-family:Arial,sans-serif"><p>Votre commande <strong>#${order.display_id ?? ""}</strong> a été expédiée.</p></div>`,
+        html: `<div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto">
+          <h2 style="margin-bottom:4px">${storeName}</h2>
+          <p>Bonne nouvelle ! Votre commande <strong>#${order.display_id ?? ""}</strong> a été expédiée.</p>
+          ${trackingHtml}
+        </div>`,
       }
+    }
     default:
       return {
         subject: `${storeName} — Notification`.trim(),
