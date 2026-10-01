@@ -19,6 +19,10 @@ export async function getCart(): Promise<Cart | null> {
   try {
     const fields = [
       "total",
+      "subtotal",
+      "discount_total",
+      "promotions.id",
+      "promotions.code",
       "currency_code",
       "email",
       "shipping_address.*",
@@ -121,6 +125,40 @@ export async function updateLineItem(
   revalidatePath("/cart");
 
   return updated ?? null;
+}
+
+export async function applyPromoCode(
+  cartId: string,
+  code: string
+): Promise<boolean> {
+  try {
+    await medusaClient.client.fetch(`/store/carts/${cartId}/promotions`, {
+      method: "POST",
+      body: { promo_codes: [code] },
+    });
+    revalidatePath("/checkout");
+    revalidatePath("/cart");
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function removePromoCode(
+  cartId: string,
+  code: string
+): Promise<boolean> {
+  try {
+    await medusaClient.client.fetch(`/store/carts/${cartId}/promotions`, {
+      method: "DELETE",
+      body: { promo_codes: [code] },
+    });
+    revalidatePath("/checkout");
+    revalidatePath("/cart");
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export async function updateCartDetails(

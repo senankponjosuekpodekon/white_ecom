@@ -12,6 +12,8 @@ import { AnalyticsBeginCheckout } from "@/components/AnalyticsBeginCheckout";
 import {
   saveAddressAction,
   setShippingAction,
+  applyPromoAction,
+  removePromoAction,
   completeManualPaymentAction,
 } from "./actions";
 
@@ -103,6 +105,11 @@ export default async function CheckoutPage({
         </h1>
         <p className="mb-6 text-[var(--color-muted)]">
           {t("total")}: {formatPrice(cart.total, cart.currency_code)}
+          {(cart.discount_total ?? 0) > 0 && (
+            <span className="block text-xs">
+              {t("discount")}: -{formatPrice(cart.discount_total ?? 0, cart.currency_code)}
+            </span>
+          )}
         </p>
 
         {sp.error && (
@@ -269,6 +276,47 @@ export default async function CheckoutPage({
             <h2 className="text-lg font-semibold text-[var(--color-foreground)]">
               {t("stepPayment")}
             </h2>
+
+            <div className="rounded-lg border border-[var(--color-border)] p-4 bg-[var(--color-surface)]">
+              <form action={applyPromoAction} className="flex gap-2">
+                <input type="hidden" name="locale" value={locale} />
+                <input
+                  type="text"
+                  name="promo_code"
+                  placeholder={t("promoPlaceholder")}
+                  className={`${inputCls} flex-1`}
+                />
+                <button type="submit" className="btn-primary px-4 py-2 text-sm">
+                  {t("applyPromo")}
+                </button>
+              </form>
+              {(cart.promotions ?? []).length > 0 && (
+                <ul className="mt-3 space-y-1">
+                  {(cart.promotions ?? []).map((promo) => (
+                    <li
+                      key={promo.id}
+                      className="flex items-center justify-between text-sm text-[var(--color-foreground)]"
+                    >
+                      <span className="font-medium">{promo.code}</span>
+                      <form action={removePromoAction}>
+                        <input type="hidden" name="locale" value={locale} />
+                        <input
+                          type="hidden"
+                          name="promo_code"
+                          value={promo.code ?? ""}
+                        />
+                        <button
+                          type="submit"
+                          className="text-xs text-[var(--color-muted)] hover:text-red-600"
+                        >
+                          {t("removePromo")}
+                        </button>
+                      </form>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
             {clientSecret ? (
               <CheckoutForm clientSecret={clientSecret} locale={locale} />
             ) : manualEnabled ? (

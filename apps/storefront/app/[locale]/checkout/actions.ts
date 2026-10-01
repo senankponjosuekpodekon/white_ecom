@@ -3,7 +3,11 @@
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { completeManualPayment, setShippingMethod } from "@/lib/payment";
-import { updateCartDetails } from "@/lib/cart";
+import {
+  updateCartDetails,
+  applyPromoCode,
+  removePromoCode,
+} from "@/lib/cart";
 import { locales, defaultLocale, type Locale } from "@/i18n";
 
 const CART_COOKIE = "cartId";
@@ -75,6 +79,35 @@ export async function setShippingAction(formData: FormData) {
   const ok = await setShippingMethod(cartId, optionId);
   if (!ok) {
     redirect(`/${locale}/checkout?step=shipping&error=1`);
+  }
+
+  redirect(`/${locale}/checkout?step=payment`);
+}
+
+export async function applyPromoAction(formData: FormData) {
+  const locale = safeLocale(formData.get("locale"));
+  const code = field(formData, "promo_code");
+
+  const cookieStore = await cookies();
+  const cartId = cookieStore.get(CART_COOKIE)?.value;
+  if (!cartId || !code) {
+    redirect(`/${locale}/checkout?step=payment&error=promo`);
+  }
+
+  const ok = await applyPromoCode(cartId, code);
+  redirect(
+    `/${locale}/checkout?step=payment${ok ? "" : "&error=promo"}`
+  );
+}
+
+export async function removePromoAction(formData: FormData) {
+  const locale = safeLocale(formData.get("locale"));
+  const code = field(formData, "promo_code");
+
+  const cookieStore = await cookies();
+  const cartId = cookieStore.get(CART_COOKIE)?.value;
+  if (cartId && code) {
+    await removePromoCode(cartId, code);
   }
 
   redirect(`/${locale}/checkout?step=payment`);

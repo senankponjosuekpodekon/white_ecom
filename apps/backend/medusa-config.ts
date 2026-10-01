@@ -27,6 +27,9 @@ const modules: Record<string, any>[] = [
     },
   },
   {
+    resolve: "./src/modules/review",
+  },
+  {
     resolve: "@medusajs/medusa/notification",
     options: {
       providers: [

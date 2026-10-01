@@ -2,7 +2,7 @@ import { unstable_noStore } from "next/cache";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
-import { getProductsPage } from "@/lib/get-products";
+import { getCatalogPage } from "@/lib/get-products";
 import { getCategories } from "@/lib/get-categories";
 import { getStoreConfig } from "@/lib/get-store-config";
 import { locales, defaultLocale, type Locale } from "@/i18n";
@@ -10,7 +10,6 @@ import { ProductCard } from "@/components/ProductCard";
 import { SortSelect } from "@/components/SortSelect";
 import { AnalyticsViewItemList } from "@/components/AnalyticsViewItemList";
 import type { AnalyticsItem } from "@/lib/analytics";
-import type { Product } from "@/lib/types";
 
 const gridCols = {
   2: "grid-cols-1 sm:grid-cols-2",
@@ -69,56 +68,6 @@ export async function generateMetadata({
   };
 }
 
-function firstPrice(product: Product): number | null {
-  return product.variants[0]?.prices?.[0]?.amount ?? null;
-}
-
-function isInStock(product: Product): boolean {
-  const variants = product.variants;
-  if (variants.length === 0) return false;
-  return variants.some(
-    (v) => v.manage_inventory === false || (v.inventory_quantity ?? 0) > 0
-  );
-}
-
-function applyFilters(
-  products: Product[],
-  { stock, min, max }: { stock: boolean; min: number | null; max: number | null }
-): Product[] {
-  return products.filter((product) => {
-    if (stock && !isInStock(product)) return false;
-    const price = firstPrice(product);
-    if (price === null) return false;
-    if (min !== null && price < min) return false;
-    if (max !== null && price > max) return false;
-    return true;
-  });
-}
-
-function applySort(products: Product[], sort: string): Product[] {
-  const list = [...products];
-  switch (sort) {
-    case "newest":
-      return list.sort((a, b) =>
-        (b.created_at ?? "").localeCompare(a.created_at ?? "")
-      );
-    case "price-asc":
-      return list.sort(
-        (a, b) => (firstPrice(a) ?? 0) - (firstPrice(b) ?? 0)
-      );
-    case "price-desc":
-      return list.sort(
-        (a, b) => (firstPrice(b) ?? 0) - (firstPrice(a) ?? 0)
-      );
-    case "title-asc":
-      return list.sort((a, b) => a.title.localeCompare(b.title));
-    case "title-desc":
-      return list.sort((a, b) => b.title.localeCompare(a.title));
-    default:
-      return list;
-  }
-}
-
 function keepParams(
   params: Awaited<SearchParams>,
   overrides: Record<string, string | undefined>
@@ -161,55 +110,35 @@ export default async function ProductsPage({
   const perPage = feed.itemsPerPage ?? 12;
   const page = Math.max(1, Number(sp.page) || 1);
 
-  const backendOrder = (sort === "newest"
+  const catalogOrder = (sort === "newest"
     ? "-created_at"
     : sort === "title-asc"
     ? "title"
     : sort === "title-desc"
     ? "-title"
+    : sort === "price-asc"
+    ? "price_asc"
+    : sort === "price-desc"
+    ? "price_desc"
     : undefined) as string | undefined;
 
-  // Price/stock filters and price sorting are client-side (not supported by the
-  // store API) — fetch a bounded window in that case; otherwise rely on real
-  // server-side pagination.
-  const clientSideFiltering =
-    stockFilter || min !== null || max !== null || sort.startsWith("price-");
   const search = sp.q?.trim() || undefined;
-
-  let products: Product[];
-  let totalCount: number;
-  let hasMore = false;
   const visibleCount = perPage * page;
 
-  if (clientSideFiltering) {
-    const { products: window, count } = await getProductsPage({
-      limit: 500,
-      offset: 0,
-      categoryId,
-      order: backendOrder,
-      q: search,
-      locale,
-    });
-    const filtered = applySort(
-      applyFilters(window, { stock: stockFilter, min, max }),
-      sort
-    );
-    products = filtered.slice(0, visibleCount);
-    totalCount = count;
-    hasMore = filtered.length > visibleCount;
-  } else {
-    const { products: page_, count } = await getProductsPage({
-      limit: visibleCount,
-      offset: 0,
-      categoryId,
-      order: backendOrder,
-      q: search,
-      locale,
-    });
-    products = applySort(page_, sort);
-    totalCount = count;
-    hasMore = count > visibleCount;
-  }
+  // Price/stock filtering and all sorting are handled server-side by
+  // /store/catalog, which also returns an accurate `count` for pagination.
+  const { products, count: totalCount } = await getCatalogPage({
+    limit: visibleCount,
+    offset: 0,
+    categoryId,
+    order: catalogOrder,
+    q: search,
+    locale,
+    minPrice: min,
+    maxPrice: max,
+    inStock: stockFilter,
+  });
+  const hasMore = totalCount > visibleCount;
   const cardsPerRow = (feed.cardsPerRow ?? 3) as 2 | 3 | 4;
   const columns = cols ? gridCols[Number(cols) as 2 | 3 | 4] : gridCols[cardsPerRow] ?? gridCols[3];
 
@@ -254,9 +183,7 @@ export default async function ProductsPage({
             {activeCategory?.name ?? t("title")}
           </h1>
           <p className="text-sm text-[var(--color-muted)] mt-1">
-            {clientSideFiltering
-              ? `${products.length} ${t("results")}`
-              : `${totalCount} ${t("results")}`}
+            {`${totalCount} ${t("results")}`}
           </p>
         </div>
 

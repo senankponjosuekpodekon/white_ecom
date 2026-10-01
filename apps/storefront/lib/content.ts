@@ -42,6 +42,9 @@ export type LocalizedContent = {
     keywords?: string;
     titleTemplate?: string;
   };
+  nav?: {
+    items?: Array<{ label: string; href: string }>;
+  };
   hero?: {
     title?: string;
     subtitle?: string;

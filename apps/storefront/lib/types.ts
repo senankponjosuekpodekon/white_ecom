@@ -55,11 +55,19 @@ export type CartShippingMethod = {
   amount?: number;
 };
 
+export type CartPromotion = {
+  id: string;
+  code?: string;
+};
+
 export type Cart = {
   id: string;
   currency_code: string;
   items: CartLineItem[];
   total: number;
+  subtotal?: number;
+  discount_total?: number;
+  promotions?: CartPromotion[];
   email?: string | null;
   shipping_address?: CartAddress | null;
   billing_address?: CartAddress | null;

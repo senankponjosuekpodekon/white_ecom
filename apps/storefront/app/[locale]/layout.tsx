@@ -116,6 +116,7 @@ export default async function LocaleLayout({
           availableLocales={(config?.supportedLanguages ?? ["fr"]).filter((l) =>
             locales.includes(l)
           )}
+          navItems={localized.nav?.items}
         />
         <NextIntlClientProvider messages={messages} locale={locale}>
           <ConsentGate gtagId={localized.ads?.gtagId} locale={locale} />

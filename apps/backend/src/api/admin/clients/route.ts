@@ -14,6 +14,10 @@ const createSchema = z.object({
     .refine(isValidClientName, {
       message: "Client name must contain only lowercase letters, digits and dashes",
     }),
+  domain: z
+    .string()
+    .regex(/^[a-z0-9.-]+\.[a-z]{2,}$/i, "Invalid domain")
+    .optional(),
 })
 
 export async function GET(req: MedusaRequest, res: MedusaResponse) {
@@ -45,11 +49,14 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
     return
   }
 
-  const { name } = parse.data
+  const { name, domain } = parse.data
 
   try {
     await createClientWorkflow(req.scope).run({ input: { name } })
-    res.json({ success: true, name })
+    const provisionCommand = domain
+      ? `./scripts/provision-client.sh ${name} ${domain}`
+      : `./scripts/provision-client.sh ${name}`
+    res.json({ success: true, name, provision: provisionCommand })
   } catch (error) {
     res.status(500).json({ error: (error as Error).message })
   }

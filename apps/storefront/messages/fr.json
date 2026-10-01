@@ -4,7 +4,29 @@
     "cart": "Panier",
     "login": "Connexion",
     "register": "Inscription",
-    "account": "Compte"
+    "account": "Compte",
+    "wishlist": "Favoris"
+  },
+  "wishlist": {
+    "title": "Mes favoris",
+    "empty": "Votre liste de favoris est vide.",
+    "browse": "Parcourir les produits",
+    "add": "Ajouter aux favoris",
+    "remove": "Retirer des favoris",
+    "loading": "Chargement…"
+  },
+  "reviews": {
+    "title": "Avis clients",
+    "empty": "Aucun avis pour le moment.",
+    "count": "avis",
+    "write": "Donner votre avis",
+    "submit": "Envoyer",
+    "sending": "Envoi…",
+    "submitted": "Merci ! Votre avis sera visible après modération.",
+    "error": "Impossible d'envoyer l'avis. Réessayez.",
+    "namePlaceholder": "Votre nom",
+    "titlePlaceholder": "Titre (optionnel)",
+    "contentPlaceholder": "Votre avis"
   },
   "home": {
     "title": "Bienvenue",
@@ -131,7 +153,11 @@
     "orderNumber": "Commande",
     "continueShopping": "Continuer les achats",
     "selectShipping": "Choisir une livraison",
-    "noShipping": "Aucune option de livraison disponible."
+    "noShipping": "Aucune option de livraison disponible.",
+    "discount": "Réduction",
+    "promoPlaceholder": "Code promo",
+    "applyPromo": "Appliquer",
+    "removePromo": "Retirer"
   },
   "consent": {
     "text": "Nous utilisons des cookies pour mesurer l'audience et améliorer votre expérience.",

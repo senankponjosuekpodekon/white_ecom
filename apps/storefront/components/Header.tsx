@@ -9,13 +9,18 @@ export async function Header({
   logoUrl,
   locale,
   availableLocales,
+  navItems,
 }: {
   name: string;
   logoUrl?: string;
   locale: Locale;
   availableLocales?: string[];
+  navItems?: Array<{ label: string; href: string }>;
 }) {
   const t = await getTranslations({ locale, namespace: "nav" });
+  const customItems = (navItems ?? []).filter(
+    (item) => item?.label && item?.href
+  );
 
   return (
     <header className="border-b border-[var(--color-border)] bg-[var(--color-surface)] sticky top-0 z-50">
@@ -41,11 +46,29 @@ export async function Header({
             <span>{name}</span>
           </Link>
           <nav className="flex gap-6">
+            {customItems.length > 0 ? (
+              customItems.map((item, i) => (
+                <Link
+                  key={`${item.href}-${i}`}
+                  href={item.href}
+                  className="text-sm font-medium text-[var(--color-muted)] hover:text-[var(--color-primary)] transition-colors duration-200"
+                >
+                  {item.label}
+                </Link>
+              ))
+            ) : (
+              <Link
+                href={`/${locale}/products`}
+                className="text-sm font-medium text-[var(--color-muted)] hover:text-[var(--color-primary)] transition-colors duration-200"
+              >
+                {t("products")}
+              </Link>
+            )}
             <Link
-              href={`/${locale}/products`}
+              href={`/${locale}/wishlist`}
               className="text-sm font-medium text-[var(--color-muted)] hover:text-[var(--color-primary)] transition-colors duration-200"
             >
-              {t("products")}
+              {t("wishlist")}
             </Link>
             <Link
               href={`/${locale}/cart`}

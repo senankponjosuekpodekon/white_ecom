@@ -5,9 +5,10 @@ const Clients = () => {
   const [clients, setClients] = useState<string[]>([])
   const [current, setCurrent] = useState<string>("")
   const [newName, setNewName] = useState("")
+  const [newDomain, setNewDomain] = useState("")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [created, setCreated] = useState(false)
+  const [provision, setProvision] = useState<string | null>(null)
 
   const load = () => {
     fetch("/admin/clients")
@@ -32,19 +33,23 @@ const Clients = () => {
     if (!newName.trim()) return
     setLoading(true)
     setError(null)
-    setCreated(false)
+    setProvision(null)
     try {
       const res = await fetch("/admin/clients", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: newName.trim() }),
+        body: JSON.stringify({
+          name: newName.trim(),
+          domain: newDomain.trim() || undefined,
+        }),
       })
       const data = await res.json()
       if (!res.ok) {
         throw new Error(data.error ?? "Erreur lors de la création")
       }
-      setCreated(true)
+      setProvision(data.provision ?? `./scripts/provision-client.sh ${newName.trim()}`)
       setNewName("")
+      setNewDomain("")
       load()
     } catch (err) {
       setError((err as Error).message)
@@ -113,6 +118,23 @@ const Clients = () => {
             }}
           />
         </div>
+        <div>
+          <label style={{ display: "block", marginBottom: "0.25rem", fontWeight: 600 }}>
+            Domaine (optionnel)
+          </label>
+          <input
+            value={newDomain}
+            onChange={(e) => setNewDomain(e.target.value)}
+            placeholder="boutique-exemple.com"
+            style={{
+              width: "100%",
+              padding: "0.5rem",
+              fontSize: "14px",
+              border: "1px solid #e5e7eb",
+              borderRadius: "6px",
+            }}
+          />
+        </div>
         <button
           type="submit"
           disabled={loading}
@@ -128,9 +150,43 @@ const Clients = () => {
         >
           {loading ? "Création..." : "Créer la boutique"}
         </button>
-        {created && <span style={{ color: "#16a34a" }}>Boutique créée ! Redémarrez avec CLIENT_NAME=&lt;nom&gt;.</span>}
         {error && <span style={{ color: "#dc2626" }}>{error}</span>}
       </form>
+
+      {provision && (
+        <div
+          style={{
+            marginTop: "1.5rem",
+            padding: "1rem",
+            background: "#f0fdf4",
+            border: "1px solid #bbf7d0",
+            borderRadius: "6px",
+          }}
+        >
+          <p style={{ marginBottom: "0.5rem", fontWeight: 600 }}>
+            Boutique créée. Pour la provisionner (base, migrations, seed, clés,
+            storefront), lancez sur le serveur :
+          </p>
+          <code
+            style={{
+              display: "block",
+              padding: "0.75rem",
+              background: "#111827",
+              color: "#e5e7eb",
+              borderRadius: "6px",
+              fontSize: "13px",
+              userSelect: "all",
+            }}
+          >
+            {provision}
+          </code>
+          <p style={{ marginTop: "0.5rem", fontSize: "13px", color: "#666" }}>
+            Le script attend que la base soit prête, applique les migrations et
+            le seed, récupère la clé publishable et l'injecte dans{" "}
+            <code>clients/&lt;nom&gt;/.env.storefront</code>.
+          </p>
+        </div>
+      )}
     </div>
   )
 }

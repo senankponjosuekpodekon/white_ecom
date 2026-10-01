@@ -33,3 +33,29 @@ jobs:
       - name: Skip notice
         if: ${{ vars.PROD_SITE_URL == '' && vars.PROD_API_URL == '' }}
         run: echo "PROD_SITE_URL / PROD_API_URL non définies (repo variables) — checks ignorés"
+
+      - name: Alert via Slack
+        if: failure() && secrets.SLACK_WEBHOOK_URL != ''
+        run: |
+          curl -s -X POST "${{ secrets.SLACK_WEBHOOK_URL }}" \
+            -H "Content-Type: application/json" \
+            -d "{\"text\": \"🚨 Uptime check FAILED on ${{ github.repository }} (${{ github.ref_name }}) — run ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}"
+
+      - name: Alert via email (Resend)
+        if: failure() && secrets.RESEND_API_KEY != '' && vars.ALERT_EMAIL != ''
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          ALERT_EMAIL: ${{ vars.ALERT_EMAIL }}
+          ALERT_FROM: ${{ vars.ALERT_FROM }}
+        run: |
+          FROM="${ALERT_FROM:-uptime@stiamond.com}"
+          RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          curl -s -X POST "https://api.resend.com/emails" \
+            -H "Authorization: Bearer $RESEND_API_KEY" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"from\": \"$FROM\",
+              \"to\": [\"$ALERT_EMAIL\"],
+              \"subject\": \"Uptime check failed — ${{ github.repository }}\",
+              \"text\": \"A health check failed on branch ${{ github.ref_name }}.\n\nRun: $RUN_URL\n\nChecked URLs: storefront=${{ vars.PROD_SITE_URL }}, backend=${{ vars.PROD_API_URL }}\"
+            }"

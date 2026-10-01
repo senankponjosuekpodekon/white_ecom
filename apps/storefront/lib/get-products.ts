@@ -2,7 +2,7 @@ import { unstable_cache } from "next/cache";
 import { medusaClient } from "./medusa-client";
 import type { Product } from "./types";
 
-const fields = [
+export const PRODUCT_FIELDS = [
   "id",
   "title",
   "description",
@@ -51,7 +51,7 @@ const fetchProductsPage = unstable_cache(
     q,
     locale,
   }: ProductQuery): Promise<{ products: Product[]; count: number }> => {
-    const params = new URLSearchParams({ limit: String(limit), fields });
+    const params = new URLSearchParams({ limit: String(limit), fields: PRODUCT_FIELDS });
     if (offset > 0) params.set("offset", String(offset));
     if (categoryId) params.append("category_id[]", categoryId);
     if (order) params.set("order", order);
@@ -69,6 +69,59 @@ const fetchProductsPage = unstable_cache(
   ["products"],
   { revalidate: 60, tags: ["products"] }
 );
+
+type CatalogQuery = ProductQuery & {
+  minPrice?: number | null;
+  maxPrice?: number | null;
+  inStock?: boolean;
+};
+
+// Server-side catalogue endpoint: supports price/stock filtering and price
+// ordering, which the default /store/products API cannot do.
+const fetchCatalogPage = unstable_cache(
+  async ({
+    limit,
+    offset = 0,
+    categoryId,
+    order,
+    q,
+    locale,
+    minPrice,
+    maxPrice,
+    inStock,
+  }: CatalogQuery): Promise<{ products: Product[]; count: number }> => {
+    const params = new URLSearchParams({ limit: String(limit) });
+    if (offset > 0) params.set("offset", String(offset));
+    if (categoryId) params.append("category_id[]", categoryId);
+    if (order) params.set("order", order);
+    if (q) params.set("q", q);
+    if (locale) params.set("locale", locale);
+    if (minPrice != null) params.set("min_price", String(minPrice));
+    if (maxPrice != null) params.set("max_price", String(maxPrice));
+    if (inStock) params.set("in_stock", "true");
+    const data = await medusaClient.client.fetch<{
+      products: Product[];
+      count?: number;
+    }>(`/store/catalog?${params.toString()}`, { method: "GET" });
+    return {
+      products: (data.products ?? []).map(normalizeProductPrices),
+      count: data.count ?? (data.products ?? []).length,
+    };
+  },
+  ["catalog"],
+  { revalidate: 60, tags: ["products"] }
+);
+
+export const getCatalogPage = async (
+  query: CatalogQuery
+): Promise<{ products: Product[]; count: number }> => {
+  try {
+    return await fetchCatalogPage(query);
+  } catch (err) {
+    console.error("[getCatalog] Failed to load products:", err);
+    return { products: [], count: 0 };
+  }
+};
 
 export const getProductsPage = async (
   query: ProductQuery

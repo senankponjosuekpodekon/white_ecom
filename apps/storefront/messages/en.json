@@ -4,7 +4,29 @@
     "cart": "Cart",
     "login": "Login",
     "register": "Register",
-    "account": "Account"
+    "account": "Account",
+    "wishlist": "Wishlist"
+  },
+  "wishlist": {
+    "title": "My wishlist",
+    "empty": "Your wishlist is empty.",
+    "browse": "Browse products",
+    "add": "Add to wishlist",
+    "remove": "Remove from wishlist",
+    "loading": "Loading…"
+  },
+  "reviews": {
+    "title": "Customer reviews",
+    "empty": "No reviews yet.",
+    "count": "reviews",
+    "write": "Write a review",
+    "submit": "Send",
+    "sending": "Sending…",
+    "submitted": "Thank you! Your review will appear after moderation.",
+    "error": "Could not submit your review. Please try again.",
+    "namePlaceholder": "Your name",
+    "titlePlaceholder": "Title (optional)",
+    "contentPlaceholder": "Your review"
   },
   "home": {
     "title": "Welcome",
@@ -131,7 +153,11 @@
     "orderNumber": "Order",
     "continueShopping": "Continue shopping",
     "selectShipping": "Choose a shipping option",
-    "noShipping": "No shipping option available."
+    "noShipping": "No shipping option available.",
+    "discount": "Discount",
+    "promoPlaceholder": "Promo code",
+    "applyPromo": "Apply",
+    "removePromo": "Remove"
   },
   "consent": {
     "text": "We use cookies to measure traffic and improve your experience.",

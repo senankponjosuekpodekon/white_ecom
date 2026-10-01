@@ -8,6 +8,7 @@ import { locales, defaultLocale, type Locale } from "@/i18n";
 import { JsonLd } from "@/components/JsonLd";
 import { ProductBlocks } from "@/components/ProductBlocks";
 import { AnalyticsViewItem } from "@/components/AnalyticsViewItem";
+import { ProductReviews } from "@/components/ProductReviews";
 
 export const dynamic = "force-dynamic";
 
@@ -159,6 +160,7 @@ export default async function ProductPage({
       <AnalyticsViewItem item={viewItemData} />
       <div className="max-w-5xl mx-auto">
         <ProductBlocks product={product} locale={locale} content={localized} design={config.design} siteUrl={siteUrl} t={t} />
+        <ProductReviews productId={product.id} locale={locale} />
       </div>
     </main>
   );

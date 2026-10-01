@@ -1,4 +1,5 @@
 import { FadeImage } from "@/components/FadeImage";
+import { WishlistButton } from "@/components/WishlistButton";
 import Link from "next/link";
 import { DesignFullConfig } from "@/lib/design";
 import { formatPrice } from "@/lib/format";
@@ -28,7 +29,8 @@ export function ProductCard({
       : "";
 
   return (
-    <article className="group card-design overflow-hidden" data-testid="product-card">
+    <article className="group card-design overflow-hidden relative" data-testid="product-card">
+      <WishlistButton productId={product.id} />
       <Link href={`/${locale}/products/${product.handle}`} className="block" data-testid="product-link">
         <div className="relative overflow-hidden h-56">
           {product.thumbnail ? (
