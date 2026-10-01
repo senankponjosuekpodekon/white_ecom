@@ -1,0 +1,8 @@
+import { Module } from "@medusajs/framework/utils"
+import ClientModuleService from "./service"
+
+export const CLIENT_MODULE = "client"
+
+export default Module(CLIENT_MODULE, {
+  service: ClientModuleService,
+})

@@ -7,6 +7,7 @@ import { getLocalizedContent } from "@/lib/content";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ConsentGate } from "@/components/ConsentGate";
+import { WhatsAppButton } from "@/components/WhatsAppButton";
 
 export async function generateMetadata({
   params,
@@ -126,6 +127,12 @@ export default async function LocaleLayout({
           <Footer
             name={config?.name ?? "White Shop"}
             content={localized.footer}
+          />
+        )}
+        {config?.whatsapp?.enabled && config.whatsapp.number && (
+          <WhatsAppButton
+            number={config.whatsapp.number}
+            message={config.whatsapp.message}
           />
         )}
       </body>

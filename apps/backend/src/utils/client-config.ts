@@ -8,6 +8,7 @@ import {
 import type { MedusaContainer } from "@medusajs/framework/types"
 import { defaultContent, mergeContent, type ClientContent } from "./default-content"
 import { deepMerge } from "./merge"
+import type { ClientRecord } from "./client-resolver"
 
 export const WL_CONFIG_KEY = "whitelabel_config"
 export const WL_CONTENT_KEY = "whitelabel_content"
@@ -57,14 +58,32 @@ export async function loadDbContent(scope: MedusaContainer): Promise<ClientConte
 }
 
 export async function resolveClientConfig(
-  scope: MedusaContainer
+  scope: MedusaContainer,
+  client?: ClientRecord | null
 ): Promise<Record<string, unknown>> {
+  if (client) {
+    return deepMerge(
+      client.slug === process.env.CLIENT_NAME ? loadClientConfig() : {},
+      (client.config ?? {}) as Record<string, unknown>
+    )
+  }
   return deepMerge(loadClientConfig(), await loadDbConfig(scope))
 }
 
 export async function resolveClientContent(
-  scope: MedusaContainer
+  scope: MedusaContainer,
+  client?: ClientRecord | null
 ): Promise<ClientContent> {
+  if (client) {
+    const fileOverride =
+      client.slug === process.env.CLIENT_NAME
+        ? loadJsonFile<ClientContent>(clientConfigPath("content.json"))
+        : undefined
+    return mergeContent(
+      mergeContent(defaultContent, fileOverride),
+      (client.content ?? {}) as ClientContent
+    )
+  }
   const fileOverride = loadJsonFile<ClientContent>(clientConfigPath("content.json"))
   const dbOverride = await loadDbContent(scope)
   return mergeContent(mergeContent(defaultContent, fileOverride), dbOverride)

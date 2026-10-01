@@ -225,5 +225,27 @@
     "city": "City",
     "country": "Country",
     "phone": "Phone"
+  },
+  "whatsapp": {
+    "ariaLabel": "Chat on WhatsApp"
+  },
+  "onboarding": {
+    "title": "Open my shop",
+    "subtitle": "Create your online store in minutes. Every request is reviewed by our team.",
+    "name": "Shop name",
+    "namePlaceholder": "My Shop",
+    "slug": "Identifier (slug)",
+    "slugPlaceholder": "my-shop",
+    "slugHelp": "Lowercase letters, digits and dashes only.",
+    "email": "Contact email",
+    "emailPlaceholder": "you@example.com",
+    "domain": "Domain (optional)",
+    "domainPlaceholder": "my-shop.com",
+    "submit": "Send my request",
+    "sending": "Sending…",
+    "successTitle": "Request sent",
+    "successText": "We will review your request and get back to you by email.",
+    "errorTaken": "This identifier is already taken.",
+    "error": "Something went wrong, please try again."
   }
 }

@@ -17,6 +17,11 @@ export type StoreConfig = {
   currencies: string[];
   defaultCountry: string;
   defaultRegion: string;
+  whatsapp?: {
+    enabled?: boolean;
+    number?: string;
+    message?: string;
+  };
   design: DesignFullConfig;
   content: ClientContent;
 };
@@ -82,6 +87,7 @@ export const getStoreConfig = cache(async (): Promise<StoreConfig> => {
       currencies: config.currencies ?? defaultConfig.currencies,
       defaultCountry: config.defaultCountry ?? defaultConfig.defaultCountry,
       defaultRegion: config.defaultRegion ?? defaultConfig.defaultRegion,
+      whatsapp: config.whatsapp,
       design,
       content: config.content ?? defaultConfig.content,
     };

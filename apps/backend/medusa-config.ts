@@ -33,6 +33,9 @@ const modules: Record<string, any>[] = [
     resolve: "./src/modules/embedding",
   },
   {
+    resolve: "./src/modules/client",
+  },
+  {
     resolve: "@medusajs/medusa/notification",
     options: {
       providers: [

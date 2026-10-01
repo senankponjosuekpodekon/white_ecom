@@ -1,20 +1,27 @@
 import { z } from "@medusajs/framework/zod"
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import { CLIENT_MODULE } from "../../../../modules/client"
+import type ClientModuleService from "../../../../modules/client/service"
+import type { ClientRecord } from "../../../../utils/client-resolver"
+import { provisionClientWorkflow } from "../../../../workflows/provision-client"
+import { updateClientWorkflow } from "../../../../workflows/update-client"
 import { requireSuperAdmin, isValidClientName } from "../../utils"
 
 const provisionSchema = z.object({
-  name: z.string().min(1).refine(isValidClientName),
+  slug: z.string().min(1).refine(isValidClientName),
+  name: z.string().min(1).optional(),
+  contact_email: z.string().email().optional(),
   domain: z
     .string()
     .regex(/^[a-z0-9.-]+\.[a-z]{2,}$/i, "Invalid domain")
     .optional(),
-  admin_email: z.string().email().optional(),
 })
 
-// Self-service provisioning: dispatch the `provision-client.yml` GitHub
-// Actions workflow, which SSHes into the VPS and runs the provisioning
-// pipeline. Requires a GITHUB_PROVISION_TOKEN secret (fine-grained PAT with
-// actions:write on this repo) and GITHUB_REPO (owner/repo) env vars.
+// Provisioning control plane: runs the provisioning workflow in-process —
+// creates/updates the client row, a dedicated sales channel, a publishable
+// API key linked to it, and (when VERCEL_TOKEN/VERCEL_GIT_REPO are set) a
+// Vercel project wired to that key. No containers are spawned from this
+// backend; hosted APIs do the work.
 export async function POST(req: MedusaRequest, res: MedusaResponse) {
   if (!requireSuperAdmin(req, res)) return
 
@@ -24,48 +31,38 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
     return
   }
 
-  const token = process.env.GITHUB_PROVISION_TOKEN
-  const repo = process.env.GITHUB_REPO
-  if (!token || !repo) {
-    res.status(503).json({
-      error:
-        "Provisioning not configured: set GITHUB_PROVISION_TOKEN and GITHUB_REPO",
-    })
-    return
-  }
-
-  const { name, domain, admin_email } = parse.data
+  const { slug, name, contact_email, domain } = parse.data
+  const service = req.scope.resolve<ClientModuleService>(CLIENT_MODULE)
 
   try {
-    const gh = await fetch(
-      `https://api.github.com/repos/${repo}/actions/workflows/provision-client.yml/dispatches`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: "application/vnd.github+json",
-          "Content-Type": "application/json",
-          "User-Agent": "white-ecom-admin",
-        },
-        body: JSON.stringify({
-          ref: "dev",
-          inputs: {
-            client: name,
-            domain: domain ?? "",
-            admin_email: admin_email ?? "",
-          },
-        }),
-      }
-    )
-
-    if (!gh.ok) {
-      const detail = await gh.text()
-      res.status(502).json({ error: `GitHub dispatch failed: ${gh.status}`, detail })
-      return
-    }
-
-    res.json({ dispatched: true, workflow: "provision-client.yml", client: name })
+    const { result } = await provisionClientWorkflow(req.scope).run({
+      input: {
+        slug,
+        name,
+        contactEmail: contact_email,
+        domains: domain ? [domain] : [],
+      },
+    })
+    const [client] = (await service.listClients(
+      { id: result.id },
+      {}
+    )) as unknown as ClientRecord[]
+    res.json({ success: true, client })
   } catch (error) {
+    const existing = (await service
+      .listClients({ slug }, {})
+      .catch(() => [])) as unknown as ClientRecord[]
+    if (existing[0]) {
+      await updateClientWorkflow(req.scope)
+        .run({
+          input: {
+            id: existing[0].id,
+            status: "failed",
+            error: (error as Error).message,
+          },
+        })
+        .catch(() => undefined)
+    }
     res.status(500).json({ error: (error as Error).message })
   }
 }

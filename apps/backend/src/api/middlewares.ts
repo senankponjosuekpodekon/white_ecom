@@ -53,5 +53,11 @@ export default defineMiddlewares({
         createIpRateLimiter({ windowMs: 60_000, max: 60, prefix: "carts" }),
       ],
     },
+    {
+      matcher: "/store/onboarding",
+      middlewares: [
+        createIpRateLimiter({ windowMs: 3_600_000, max: 5, prefix: "onboarding" }),
+      ],
+    },
   ],
 })

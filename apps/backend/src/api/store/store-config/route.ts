@@ -3,10 +3,12 @@ import {
   resolveClientConfig,
   resolveClientContent,
 } from "../../../utils/client-config"
+import { resolveRequestClient } from "../../../utils/client-resolver"
 
 export async function GET(req: MedusaRequest, res: MedusaResponse) {
-  const fileConfig = await resolveClientConfig(req.scope)
-  const content = await resolveClientContent(req.scope)
+  const client = await resolveRequestClient(req)
+  const fileConfig = await resolveClientConfig(req.scope, client)
+  const content = await resolveClientContent(req.scope, client)
 
   const {
     STORE_NAME,
@@ -82,6 +84,11 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
       ["eur"],
     defaultCountry: (fileConfig.defaultCountry as string) ?? DEFAULT_COUNTRY ?? "FR",
     defaultRegion: (fileConfig.defaultRegion as string) ?? DEFAULT_REGION ?? "EU",
+    whatsapp:
+      (fileConfig.whatsapp as Record<string, unknown>) ?? {
+        enabled: process.env.WHATSAPP_ENABLED === "true",
+        number: process.env.WHATSAPP_NUMBER ?? "",
+      },
     design: resolvedDesign,
     content,
   })

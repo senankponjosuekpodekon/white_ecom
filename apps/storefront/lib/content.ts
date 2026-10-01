@@ -25,6 +25,24 @@ export type MinimogSection = {
   block_order?: string[]
 }
 
+
+export type CustomPageSection = {
+  type: "hero" | "text" | "image" | "cta" | "products";
+  title?: string;
+  subtitle?: string;
+  text?: string;
+  image?: string;
+  ctaLabel?: string;
+  ctaHref?: string;
+  categoryHandle?: string;
+  limit?: number;
+}
+
+export type CustomPage = {
+  title?: string;
+  sections?: CustomPageSection[];
+}
+
 export type LocalizedContent = {
   minimog?: {
     sections?: MinimogSection[]
@@ -45,6 +63,7 @@ export type LocalizedContent = {
   nav?: {
     items?: Array<{ label: string; href: string }>;
   };
+  pages?: Record<string, CustomPage>;
   hero?: {
     title?: string;
     subtitle?: string;

@@ -225,5 +225,27 @@
     "city": "Ville",
     "country": "Pays",
     "phone": "Téléphone"
+  },
+  "whatsapp": {
+    "ariaLabel": "Discuter sur WhatsApp"
+  },
+  "onboarding": {
+    "title": "Ouvrir ma boutique",
+    "subtitle": "Créez votre boutique en ligne en quelques minutes. Notre équipe valide chaque demande.",
+    "name": "Nom de la boutique",
+    "namePlaceholder": "Ma Boutique",
+    "slug": "Identifiant (slug)",
+    "slugPlaceholder": "ma-boutique",
+    "slugHelp": "Lettres minuscules, chiffres et tirets uniquement.",
+    "email": "Email de contact",
+    "emailPlaceholder": "vous@exemple.com",
+    "domain": "Domaine (optionnel)",
+    "domainPlaceholder": "ma-boutique.com",
+    "submit": "Envoyer ma demande",
+    "sending": "Envoi…",
+    "successTitle": "Demande envoyée",
+    "successText": "Nous étudions votre demande et revenons vers vous par email.",
+    "errorTaken": "Cet identifiant est déjà pris.",
+    "error": "Une erreur est survenue, réessayez."
   }
 }
