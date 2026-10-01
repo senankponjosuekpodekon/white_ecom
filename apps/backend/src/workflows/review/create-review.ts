@@ -1,5 +1,6 @@
 import { createStep, StepResponse, createWorkflow, WorkflowResponse } from "@medusajs/framework/workflows-sdk"
 import { REVIEW_MODULE } from "../../modules/review"
+import type ReviewModuleService from "../../modules/review/service"
 
 type CreateReviewInput = {
   product_id: string
@@ -13,7 +14,7 @@ type CreateReviewInput = {
 const createReviewStep = createStep(
   "create-review",
   async (input: CreateReviewInput, { container }) => {
-    const service = container.resolve(REVIEW_MODULE)
+    const service = container.resolve<ReviewModuleService>(REVIEW_MODULE)
     const review = await service.createReviews({
       ...input,
       status: "pending",
@@ -21,7 +22,7 @@ const createReviewStep = createStep(
     return new StepResponse(review, review.id)
   },
   async (id: string, { container }) => {
-    const service = container.resolve(REVIEW_MODULE)
+    const service = container.resolve<ReviewModuleService>(REVIEW_MODULE)
     await service.deleteReviews(id)
   }
 )
