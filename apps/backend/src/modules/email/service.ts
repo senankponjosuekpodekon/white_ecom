@@ -63,6 +63,18 @@ function buildEmail(
         subject: `${storeName} — Confirmation de commande #${order.display_id ?? ""}`.trim(),
         html: orderPlacedHtml(data, storeName),
       }
+    case "password-reset": {
+      const resetUrl = (data?.reset_url as string | undefined) ?? ""
+      return {
+        subject: `${storeName} — Réinitialisation du mot de passe`.trim(),
+        html: `<div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto">
+          <h2 style="margin-bottom:4px">${storeName}</h2>
+          <p>Une demande de réinitialisation de mot de passe a été effectuée pour votre compte.</p>
+          <p><a href="${resetUrl}" style="display:inline-block;padding:10px 20px;background:#111827;color:#ffffff;text-decoration:none;border-radius:6px">Réinitialiser mon mot de passe</a></p>
+          <p style="color:#6b7280;font-size:13px">Si vous n'êtes pas à l'origine de cette demande, ignorez cet email.</p>
+        </div>`,
+      }
+    }
     case "order-shipped":
       return {
         subject: `${storeName} — Commande #${order.display_id ?? ""} expédiée`.trim(),

@@ -24,4 +24,21 @@ test.describe("Customer auth", () => {
 
     await expect(page).toHaveURL(/\/fr\/account/, { timeout: 30000 });
   });
+
+  test("forgot-password page renders and submits", async ({ page }) => {
+    await page.goto("/fr/forgot-password");
+    await expect(page.locator("h1")).toContainText("Mot de passe oublié");
+    await page.locator('input[type="email"]').fill(`e2e-${Date.now()}@example.com`);
+    await page.getByRole("button", { name: "Envoyer le lien" }).click();
+    await expect(
+      page.getByText(/lien de réinitialisation/i)
+    ).toBeVisible({ timeout: 15000 });
+  });
+
+  test("reset-password page rejects invalid link", async ({ page }) => {
+    await page.goto("/fr/reset-password");
+    await expect(
+      page.getByText(/invalide|expiré/i)
+    ).toBeVisible({ timeout: 15000 });
+  });
 });

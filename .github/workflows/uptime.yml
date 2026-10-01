@@ -1,0 +1,35 @@
+name: Uptime check
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check storefront
+        if: ${{ vars.PROD_SITE_URL != '' }}
+        run: |
+          code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 20 "${{ vars.PROD_SITE_URL }}/fr")
+          if [ "$code" != "200" ]; then
+            echo "::error::Storefront ${PROD_SITE_URL:-} returned $code"
+            exit 1
+          fi
+          echo "Storefront OK ($code)"
+
+      - name: Check backend health
+        if: ${{ vars.PROD_API_URL != '' }}
+        run: |
+          code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 20 "${{ vars.PROD_API_URL }}/health")
+          if [ "$code" != "200" ]; then
+            echo "::error::Backend ${PROD_API_URL:-} health returned $code"
+            exit 1
+          fi
+          echo "Backend OK ($code)"
+
+      - name: Skip notice
+        if: ${{ vars.PROD_SITE_URL == '' && vars.PROD_API_URL == '' }}
+        run: echo "PROD_SITE_URL / PROD_API_URL non définies (repo variables) — checks ignorés"

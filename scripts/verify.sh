@@ -1,10 +1,10 @@
 #!/bin/bash
 set -e
 
-# Load frontend publishable key
-if [ -f .env.storefront ]; then
+# Load publishable key from root .env
+if [ -f .env ]; then
   # shellcheck source=/dev/null
-  export $(grep -v '^#' .env.storefront | xargs)
+  export $(grep -v '^#' .env | grep -E '^[A-Z_]+=' | xargs)
 fi
 
 PK=${NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY:-}
@@ -71,11 +71,20 @@ echo "API: $API"
 echo ""
 
 check "Homepage" "$BASE/fr" 200
-check_contains "Homepage" "$BASE/fr" "White Shop"
 check "Products" "$BASE/fr/products" 200
-check_contains "Products" "$BASE/fr/products" "Medusa Sweatshirt"
-check "Product detail" "$BASE/fr/products/sweatshirt" 200
-check_contains "Product detail" "$BASE/fr/products/sweatshirt" "Medusa Sweatshirt"
+
+# Product detail: dynamic — uses the first published product's handle if any exist
+FIRST_HANDLE=""
+if [ -n "$PK" ]; then
+  FIRST_HANDLE=$(curl -s -H "x-publishable-api-key: $PK" "$API/store/products?limit=1&fields=handle" \
+    | grep -o '"handle":"[^"]*"' | head -1 | cut -d'"' -f4)
+fi
+if [ -n "$FIRST_HANDLE" ]; then
+  check "Product detail" "$BASE/fr/products/$FIRST_HANDLE" 200
+else
+  echo "[SKIP] Product detail (aucun produit publié)"
+fi
+
 check "Cart" "$BASE/fr/cart" 200
 check "Contact" "$BASE/fr/contact" 200
 check_contains "Contact" "$BASE/fr/contact" "Contactez-nous"

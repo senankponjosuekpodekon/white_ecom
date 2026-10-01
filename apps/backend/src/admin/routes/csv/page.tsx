@@ -47,6 +47,11 @@ function parseCsv(text: string): string[][] {
   return rows
 }
 
+function escapeCsvCell(value: unknown): string {
+  const s = String(value ?? "")
+  return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s
+}
+
 function stripHtml(html: string): string {
   return html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim()
 }
@@ -95,7 +100,9 @@ const CSV = () => {
           variant?.inventory_quantity ?? "",
           p.status ?? "",
           p.thumbnail ?? "",
-        ].join(",")
+        ]
+          .map(escapeCsvCell)
+          .join(",")
       })
       const header = "title,handle,description,price,currency,stock,status,thumbnail"
       const csv = [header, ...rows].join("\n")
@@ -133,6 +140,7 @@ const CSV = () => {
     setResult(null)
 
     let created = 0
+    const rowErrors: string[] = []
     let salesChannelId = ""
     try {
       const scRes = await fetch("/admin/sales-channels?limit=1")
@@ -143,7 +151,8 @@ const CSV = () => {
     }
 
     try {
-      for (const line of rows.slice(1)) {
+      for (const [rowIndex, line] of rows.slice(1).entries()) {
+        const rowNum = rowIndex + 2
         const get = (name: string) => {
           const i = idx(name)
           return i >= 0 ? (line[i] ?? "").trim() : ""
@@ -185,7 +194,10 @@ const CSV = () => {
 
         if (!title) continue
         const price = parsePrice(priceStr)
-        if (!price || price <= 0) continue
+        if (!price || price <= 0) {
+          rowErrors.push(`Ligne ${rowNum}: prix invalide (${title || "sans titre"})`)
+          continue
+        }
         const priceCents = Math.round(price * 100)
 
         const payload = {
@@ -219,7 +231,13 @@ const CSV = () => {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         })
-        if (!res.ok) continue
+        if (!res.ok) {
+          const body = await res.json().catch(() => null)
+          rowErrors.push(
+            `Ligne ${rowNum}: ${title} — ${body?.message ?? `HTTP ${res.status}`}`
+          )
+          continue
+        }
         created++
 
         const productData = await res.json()
@@ -251,7 +269,11 @@ const CSV = () => {
           }
         }
       }
-      setResult(`Importé : ${created} produit(s)`)
+      setResult(
+        rowErrors.length
+          ? `Importé : ${created} produit(s) — ${rowErrors.length} erreur(s) :\n${rowErrors.slice(0, 10).join("\n")}`
+          : `Importé : ${created} produit(s)`
+      )
       setCsvText("")
     } catch (err) {
       setError((err as Error).message)

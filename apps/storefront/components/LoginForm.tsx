@@ -90,6 +90,14 @@ export function LoginForm({ locale }: { locale: Locale }) {
           {t("register")}
         </Link>
       </p>
+      <p className="mt-2 text-sm">
+        <Link
+          href={`/${locale}/forgot-password`}
+          className="text-[var(--color-primary)] underline"
+        >
+          {t("forgotPassword")}
+        </Link>
+      </p>
     </div>
   )
 }

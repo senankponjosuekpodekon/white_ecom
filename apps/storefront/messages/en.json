@@ -48,7 +48,9 @@
     "filterMax": "Max",
     "filterApply": "OK",
     "columnsTitle": "Columns",
-    "loadMore": "Load more"
+    "loadMore": "Load more",
+    "searchPlaceholder": "Search products...",
+    "searchButton": "Search"
   },
   "collections": {
     "title": "All categories",
@@ -158,6 +160,21 @@
     "noOrders": "No orders yet.",
     "orderDate": "Date",
     "orderStatus": "Status",
-    "orderTotal": "Total"
+    "orderTotal": "Total",
+    "forgotPassword": "Forgot password?",
+    "forgotTitle": "Forgot password",
+    "forgotText": "Enter your email to receive a reset link.",
+    "forgotSend": "Send reset link",
+    "forgotSent": "If an account exists for this email, a reset link has been sent.",
+    "backToLogin": "Back to login",
+    "resetTitle": "New password",
+    "resetNewPassword": "New password",
+    "resetConfirm": "Confirm password",
+    "resetSubmit": "Reset password",
+    "resetDone": "Password updated. You can now log in.",
+    "resetInvalid": "Invalid or expired reset link.",
+    "resetError": "The link is invalid or expired. Please restart the process.",
+    "resetMismatch": "Passwords do not match.",
+    "resetTooShort": "Password must be at least 8 characters."
   }
 }

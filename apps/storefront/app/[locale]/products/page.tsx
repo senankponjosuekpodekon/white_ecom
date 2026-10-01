@@ -2,7 +2,7 @@ import { unstable_noStore } from "next/cache";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
-import { getProducts } from "@/lib/get-products";
+import { getProductsPage } from "@/lib/get-products";
 import { getCategories } from "@/lib/get-categories";
 import { getStoreConfig } from "@/lib/get-store-config";
 import { locales, defaultLocale, type Locale } from "@/i18n";
@@ -35,6 +35,7 @@ type SearchParams = Promise<{
   sort?: string;
   cols?: string;
   page?: string;
+  q?: string;
 }>;
 
 export const dynamic = "force-dynamic";
@@ -159,7 +160,6 @@ export default async function ProductsPage({
   const feed = config.design.feed;
   const perPage = feed.itemsPerPage ?? 12;
   const page = Math.max(1, Number(sp.page) || 1);
-  const feedLimit = perPage * page;
 
   const backendOrder = (sort === "newest"
     ? "-created_at"
@@ -169,14 +169,45 @@ export default async function ProductsPage({
     ? "-title"
     : undefined) as string | undefined;
 
-  const allProducts = await getProducts(feedLimit, categoryId, 0, backendOrder);
+  // Price/stock filters and price sorting are client-side (not supported by the
+  // store API) — fetch a bounded window in that case; otherwise rely on real
+  // server-side pagination.
+  const clientSideFiltering =
+    stockFilter || min !== null || max !== null || sort.startsWith("price-");
+  const search = sp.q?.trim() || undefined;
 
+  let products: Product[];
+  let totalCount: number;
+  let hasMore = false;
   const visibleCount = perPage * page;
 
-  const products = applySort(
-    applyFilters(allProducts, { stock: stockFilter, min, max }),
-    sort
-  );
+  if (clientSideFiltering) {
+    const { products: window, count } = await getProductsPage({
+      limit: 500,
+      offset: 0,
+      categoryId,
+      order: backendOrder,
+      q: search,
+    });
+    const filtered = applySort(
+      applyFilters(window, { stock: stockFilter, min, max }),
+      sort
+    );
+    products = filtered.slice(0, visibleCount);
+    totalCount = count;
+    hasMore = filtered.length > visibleCount;
+  } else {
+    const { products: page_, count } = await getProductsPage({
+      limit: visibleCount,
+      offset: 0,
+      categoryId,
+      order: backendOrder,
+      q: search,
+    });
+    products = applySort(page_, sort);
+    totalCount = count;
+    hasMore = count > visibleCount;
+  }
   const cardsPerRow = (feed.cardsPerRow ?? 3) as 2 | 3 | 4;
   const columns = cols ? gridCols[Number(cols) as 2 | 3 | 4] : gridCols[cardsPerRow] ?? gridCols[3];
 
@@ -221,9 +252,25 @@ export default async function ProductsPage({
             {activeCategory?.name ?? t("title")}
           </h1>
           <p className="text-sm text-[var(--color-muted)] mt-1">
-            {products.length} {t("results")}
+            {clientSideFiltering
+              ? `${products.length} ${t("results")}`
+              : `${totalCount} ${t("results")}`}
           </p>
         </div>
+
+        <form method="GET" action={`/${locale}/products`} className="mb-8 flex gap-2 max-w-md">
+          {categoryId && <input type="hidden" name="cat" value={categoryId} />}
+          <input
+            type="search"
+            name="q"
+            defaultValue={search ?? ""}
+            placeholder={t("searchPlaceholder")}
+            className="flex-1 px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-sm text-[var(--color-foreground)]"
+          />
+          <button type="submit" className="btn-primary px-4 py-2 text-sm">
+            {t("searchButton")}
+          </button>
+        </form>
 
         <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-8 items-start">
           <aside className="space-y-6 lg:sticky lg:top-8">
@@ -284,6 +331,7 @@ export default async function ProductsPage({
                   name="cat"
                   value={categoryId ?? ""}
                 />
+                {search && <input type="hidden" name="q" value={search} />}
                 <input
                   type="number"
                   name="min"
@@ -337,13 +385,13 @@ export default async function ProductsPage({
             ) : (
               <>
                 <ul className={`grid ${columns} gap-8`}>
-                  {products.slice(0, visibleCount).map((product) => (
+                  {products.map((product) => (
                     <li key={product.id}>
                       <ProductCard product={product} locale={locale} feed={feed} />
                     </li>
                   ))}
                 </ul>
-                {products.length > visibleCount && (
+                {hasMore && (
                   <div className="text-center mt-10">
                     <Link
                       href={keepParams(sp, { page: String(page + 1) })}
