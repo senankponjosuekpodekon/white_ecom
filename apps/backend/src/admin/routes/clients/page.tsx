@@ -9,6 +9,8 @@ const Clients = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [provision, setProvision] = useState<string | null>(null)
+  const [provisionResult, setProvisionResult] = useState<string | null>(null)
+  const [provisioning, setProvisioning] = useState<string | null>(null)
 
   const load = () => {
     fetch("/admin/clients")
@@ -27,6 +29,33 @@ const Clients = () => {
   useEffect(() => {
     load()
   }, [])
+
+  const handleProvision = async (name: string) => {
+    setProvisioning(name)
+    setError(null)
+    setProvisionResult(null)
+    try {
+      const res = await fetch("/admin/clients/provision", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name,
+          domain: newDomain.trim() || undefined,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        throw new Error(data.error ?? "Provisioning impossible")
+      }
+      setProvisionResult(
+        `Workflow provision-client.yml déclenché pour ${name} — voir GitHub Actions.`
+      )
+    } catch (err) {
+      setError((err as Error).message)
+    } finally {
+      setProvisioning(null)
+    }
+  }
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -90,9 +119,30 @@ const Clients = () => {
                   background: client === current ? "#e0f2fe" : "white",
                   borderRadius: "6px",
                   marginBottom: "0.5rem",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
                 }}
               >
-                {client} {client === current && "(actif)"}
+                <span>
+                  {client} {client === current && "(actif)"}
+                </span>
+                <button
+                  onClick={() => handleProvision(client)}
+                  disabled={provisioning === client}
+                  style={{
+                    padding: "0.25rem 0.75rem",
+                    fontSize: "13px",
+                    background: "#111827",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "6px",
+                    cursor: "pointer",
+                    opacity: provisioning === client ? 0.6 : 1,
+                  }}
+                >
+                  {provisioning === client ? "Envoi…" : "Provisionner"}
+                </button>
               </li>
             ))}
           </ul>
@@ -152,6 +202,10 @@ const Clients = () => {
         </button>
         {error && <span style={{ color: "#dc2626" }}>{error}</span>}
       </form>
+
+      {provisionResult && (
+        <p style={{ marginTop: "1rem", color: "#16a34a" }}>{provisionResult}</p>
+      )}
 
       {provision && (
         <div

@@ -1,0 +1,56 @@
+name: Provision client
+
+on:
+  workflow_dispatch:
+    inputs:
+      client:
+        description: "Client slug (e.g. boutique-jean)"
+        required: true
+      domain:
+        description: "Client domain (optional)"
+        required: false
+        default: ""
+      admin_email:
+        description: "Admin email override (optional)"
+        required: false
+        default: ""
+
+jobs:
+  provision:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      SSH_HOST: ${{ secrets.VPS_SSH_HOST }}
+      SSH_USER: ${{ secrets.VPS_SSH_USER }}
+      SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+      PROJECT_DIR: ${{ vars.VPS_PROJECT_DIR }}
+      CLIENT: ${{ github.event.inputs.client }}
+      DOMAIN: ${{ github.event.inputs.domain }}
+      ADMIN_EMAIL: ${{ github.event.inputs.admin_email }}
+    steps:
+      - name: Validate inputs
+        run: |
+          case "$CLIENT" in (*[!a-z0-9-]*) echo "Invalid client slug"; exit 1;; esac
+          if [ -z "$PROJECT_DIR" ]; then
+            echo "VPS_PROJECT_DIR repo variable not set"
+            exit 1
+          fi
+          if [ -z "$SSH_HOST" ] || [ -z "$SSH_USER" ] || [ -z "$SSH_KEY" ]; then
+            echo "VPS_SSH_* secrets missing"
+            exit 1
+          fi
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
+
+      - name: Provision on VPS
+        run: |
+          ARGS="$CLIENT"
+          [ -n "$DOMAIN" ] && ARGS="$ARGS $DOMAIN"
+          [ -n "$ADMIN_EMAIL" ] && ARGS="$ARGS --admin-email $ADMIN_EMAIL"
+          ssh -i ~/.ssh/id_rsa "$SSH_USER@$SSH_HOST" \
+            "cd '$PROJECT_DIR' && ./scripts/provision-client.sh $ARGS"

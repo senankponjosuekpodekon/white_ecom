@@ -68,16 +68,26 @@ export function useAnalyticsData(
   days: number,
   refreshMs?: number
 ): { data: AnalyticsData | null; loading: boolean } {
-  const [orders, setOrders] = useState<Order[]>([])
+  const [data, setData] = useState<AnalyticsData | null>(null)
   const [loading, setLoading] = useState(true)
 
   const load = () => {
-    fetch(
-      "/admin/orders?limit=200&order=-created_at&fields=id,total,status,created_at,items.title,items.quantity"
-    )
-      .then((res) => res.json())
-      .then((data) => setOrders(data.orders ?? []))
-      .catch(() => {})
+    // Server-side aggregation — accurate regardless of order volume.
+    // Falls back to the 200-order client fetch if the endpoint is missing.
+    fetch(`/admin/analytics?days=${days}`)
+      .then((res) => {
+        if (!res.ok) throw new Error("no endpoint")
+        return res.json()
+      })
+      .then((d) => setData(d as AnalyticsData))
+      .catch(() =>
+        fetch(
+          "/admin/orders?limit=200&order=-created_at&fields=id,total,status,created_at,items.title,items.quantity"
+        )
+          .then((res) => res.json())
+          .then((d) => setData(buildAnalytics(d.orders ?? [], days)))
+          .catch(() => {})
+      )
       .finally(() => setLoading(false))
   }
 
@@ -87,7 +97,7 @@ export function useAnalyticsData(
       const interval = setInterval(load, refreshMs)
       return () => clearInterval(interval)
     }
-  }, [refreshMs])
+  }, [refreshMs, days])
 
-  return { data: buildAnalytics(orders, days), loading }
+  return { data, loading }
 }

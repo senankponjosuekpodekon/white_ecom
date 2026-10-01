@@ -48,10 +48,14 @@ export function LoginForm({ locale }: { locale: Locale }) {
       </h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium mb-1 text-[var(--color-foreground)]">
+          <label
+            htmlFor="login-email"
+            className="block text-sm font-medium mb-1 text-[var(--color-foreground)]"
+          >
             {t("email")}
           </label>
           <input
+            id="login-email"
             type="email"
             name="email"
             value={form.email}
@@ -61,10 +65,14 @@ export function LoginForm({ locale }: { locale: Locale }) {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1 text-[var(--color-foreground)]">
+          <label
+            htmlFor="login-password"
+            className="block text-sm font-medium mb-1 text-[var(--color-foreground)]"
+          >
             {t("password")}
           </label>
           <input
+            id="login-password"
             type="password"
             name="password"
             value={form.password}

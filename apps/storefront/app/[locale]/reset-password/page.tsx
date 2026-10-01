@@ -67,10 +67,14 @@ function ResetPasswordForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="block text-sm font-medium mb-1 text-[var(--color-foreground)]">
+        <label
+          htmlFor="reset-password"
+          className="block text-sm font-medium mb-1 text-[var(--color-foreground)]"
+        >
           {t("resetNewPassword")}
         </label>
         <input
+          id="reset-password"
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
@@ -80,10 +84,14 @@ function ResetPasswordForm() {
         />
       </div>
       <div>
-        <label className="block text-sm font-medium mb-1 text-[var(--color-foreground)]">
+        <label
+          htmlFor="reset-confirm"
+          className="block text-sm font-medium mb-1 text-[var(--color-foreground)]"
+        >
           {t("resetConfirm")}
         </label>
         <input
+          id="reset-confirm"
           type="password"
           value={confirm}
           onChange={(e) => setConfirm(e.target.value)}

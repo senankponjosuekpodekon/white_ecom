@@ -67,10 +67,11 @@ export function RegisterForm({ locale }: { locale: Locale }) {
       </h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium mb-1 text-[var(--color-foreground)]">
+          <label htmlFor="reg-firstName" className="block text-sm font-medium mb-1 text-[var(--color-foreground)]">
             {t("firstName")}
           </label>
           <input
+            id="reg-firstName"
             name="firstName"
             value={form.firstName}
             onChange={handleChange}
@@ -78,10 +79,11 @@ export function RegisterForm({ locale }: { locale: Locale }) {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1 text-[var(--color-foreground)]">
+          <label htmlFor="reg-lastName" className="block text-sm font-medium mb-1 text-[var(--color-foreground)]">
             {t("lastName")}
           </label>
           <input
+            id="reg-lastName"
             name="lastName"
             value={form.lastName}
             onChange={handleChange}
@@ -89,10 +91,11 @@ export function RegisterForm({ locale }: { locale: Locale }) {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1 text-[var(--color-foreground)]">
+          <label htmlFor="reg-email" className="block text-sm font-medium mb-1 text-[var(--color-foreground)]">
             {t("email")}
           </label>
           <input
+            id="reg-email"
             type="email"
             name="email"
             value={form.email}
@@ -102,10 +105,11 @@ export function RegisterForm({ locale }: { locale: Locale }) {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1 text-[var(--color-foreground)]">
+          <label htmlFor="reg-password" className="block text-sm font-medium mb-1 text-[var(--color-foreground)]">
             {t("password")}
           </label>
           <input
+            id="reg-password"
             type="password"
             name="password"
             value={form.password}

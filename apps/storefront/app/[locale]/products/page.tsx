@@ -2,7 +2,7 @@ import { unstable_noStore } from "next/cache";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
-import { getCatalogPage } from "@/lib/get-products";
+import { getCatalogPage, semanticSearch } from "@/lib/get-products";
 import { getCategories } from "@/lib/get-categories";
 import { getStoreConfig } from "@/lib/get-store-config";
 import { locales, defaultLocale, type Locale } from "@/i18n";
@@ -125,19 +125,36 @@ export default async function ProductsPage({
   const search = sp.q?.trim() || undefined;
   const visibleCount = perPage * page;
 
-  // Price/stock filtering and all sorting are handled server-side by
-  // /store/catalog, which also returns an accurate `count` for pagination.
-  const { products, count: totalCount } = await getCatalogPage({
-    limit: visibleCount,
-    offset: 0,
-    categoryId,
-    order: catalogOrder,
-    q: search,
-    locale,
-    minPrice: min,
-    maxPrice: max,
-    inStock: stockFilter,
-  });
+  // Semantic search first (embeddings) when a query is present and no filters
+  // are active — it ranks by meaning, not just keywords. Falls back to the
+  // catalog endpoint which handles price/stock filtering and all sorting.
+  let products: Awaited<ReturnType<typeof getCatalogPage>>["products"];
+  let totalCount: number;
+
+  const plainSearch =
+    !!search && !categoryId && !stockFilter && min === null && max === null;
+  const semantic = plainSearch
+    ? await semanticSearch(search, locale)
+    : null;
+
+  if (semantic !== null) {
+    products = semantic.slice(0, visibleCount);
+    totalCount = semantic.length;
+  } else {
+    const result = await getCatalogPage({
+      limit: visibleCount,
+      offset: 0,
+      categoryId,
+      order: catalogOrder,
+      q: search,
+      locale,
+      minPrice: min,
+      maxPrice: max,
+      inStock: stockFilter,
+    });
+    products = result.products;
+    totalCount = result.count;
+  }
   const hasMore = totalCount > visibleCount;
   const cardsPerRow = (feed.cardsPerRow ?? 3) as 2 | 3 | 4;
   const columns = cols ? gridCols[Number(cols) as 2 | 3 | 4] : gridCols[cardsPerRow] ?? gridCols[3];
@@ -193,6 +210,7 @@ export default async function ProductsPage({
             type="search"
             name="q"
             defaultValue={search ?? ""}
+            aria-label={t("searchPlaceholder")}
             placeholder={t("searchPlaceholder")}
             className="flex-1 px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-sm text-[var(--color-foreground)]"
           />
@@ -265,6 +283,7 @@ export default async function ProductsPage({
                   type="number"
                   name="min"
                   defaultValue={sp.min ?? ""}
+                  aria-label={t("filterMin")}
                   placeholder={t("filterMin")}
                   className="w-full px-2 py-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-sm"
                 />
@@ -273,6 +292,7 @@ export default async function ProductsPage({
                   type="number"
                   name="max"
                   defaultValue={sp.max ?? ""}
+                  aria-label={t("filterMax")}
                   placeholder={t("filterMax")}
                   className="w-full px-2 py-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-sm"
                 />

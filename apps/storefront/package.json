@@ -19,6 +19,7 @@
     "react-dom": "^18"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.10.2",
     "@eslint/eslintrc": "^3.3.7",
     "@next/eslint-plugin-next": "^15.5.25",
     "@playwright/test": "^1.62.1",

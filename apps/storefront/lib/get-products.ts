@@ -112,6 +112,26 @@ const fetchCatalogPage = unstable_cache(
   { revalidate: 60, tags: ["products"] }
 );
 
+// Semantic search over product embeddings (if an AI provider is configured on
+// the backend). Returns null when semantic search is unavailable.
+export async function semanticSearch(
+  q: string,
+  locale?: string
+): Promise<Product[] | null> {
+  try {
+    const params = new URLSearchParams({ q });
+    if (locale) params.set("locale", locale);
+    const data = await medusaClient.client.fetch<{
+      products: Product[];
+      semantic: boolean;
+    }>(`/store/search?${params.toString()}`, { method: "GET" });
+    if (!data.semantic) return null;
+    return (data.products ?? []).map(normalizeProductPrices);
+  } catch {
+    return null;
+  }
+}
+
 export const getCatalogPage = async (
   query: CatalogQuery
 ): Promise<{ products: Product[]; count: number }> => {

@@ -71,9 +71,9 @@ export default async function LocaleLayout({
     : getLocalizedContent({}, locale);
 
   const cssVars = {
-    "--color-primary": design?.colors?.primary ?? "#3B82F6",
+    "--color-primary": design?.colors?.primary ?? "#1D4ED8",
     "--color-secondary": design?.colors?.secondary ?? "#1F2937",
-    "--color-accent": design?.colors?.accent ?? "#10B981",
+    "--color-accent": design?.colors?.accent ?? "#047857",
     "--color-surface": design?.colors?.surface ?? "#F8FAFC",
     "--color-background": design?.colors?.background ?? "#FFFFFF",
     "--color-foreground": design?.colors?.foreground ?? "#111827",

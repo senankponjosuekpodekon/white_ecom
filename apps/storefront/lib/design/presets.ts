@@ -40,9 +40,9 @@ export const presets: Record<string, DesignFullConfig> = {
   modern: {
     preset: "modern",
     colors: {
-      primary: "#3B82F6",
+      primary: "#1D4ED8",
       secondary: "#1F2937",
-      accent: "#10B981",
+      accent: "#047857",
       surface: "#F8FAFC",
       background: "#FFFFFF",
       foreground: "#111827",

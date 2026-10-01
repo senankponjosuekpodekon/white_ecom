@@ -1,0 +1,56 @@
+name: Client backups
+
+on:
+  schedule:
+    - cron: "15 3 * * *"
+  workflow_dispatch:
+    inputs:
+      client:
+        description: "Client slug (empty = all)"
+        required: false
+        default: ""
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      SSH_HOST: ${{ secrets.VPS_SSH_HOST }}
+      SSH_USER: ${{ secrets.VPS_SSH_USER }}
+      SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+      PROJECT_DIR: ${{ vars.VPS_PROJECT_DIR }}
+      BACKUP_CLIENT: ${{ github.event.inputs.client }}
+    steps:
+      - name: Skip if not configured
+        if: ${{ vars.VPS_PROJECT_DIR == '' || env.SSH_HOST == '' }}
+        run: |
+          echo "VPS_PROJECT_DIR (repo var) ou VPS_SSH_* (secrets) manquants — backups ignorés"
+          exit 0
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
+
+      - name: Run backups on VPS
+        run: |
+          ssh -i ~/.ssh/id_rsa "$SSH_USER@$SSH_HOST" \
+            "PROJECT_DIR='$PROJECT_DIR' BACKUP_CLIENT='$BACKUP_CLIENT' bash -s" <<'EOS'
+          set -e
+          cd "$PROJECT_DIR"
+          if [ -n "$BACKUP_CLIENT" ]; then
+            CLIENTS="$BACKUP_CLIENT"
+          else
+            CLIENTS=$(ls -d clients/*/ 2>/dev/null | xargs -n1 basename)
+          fi
+          if [ -z "$CLIENTS" ]; then
+            echo "Aucun dossier clients/ trouvé"
+            exit 0
+          fi
+          for client in $CLIENTS; do
+            echo "=== Backup $client ==="
+            ./scripts/backup-client.sh "$client"
+          done
+          EOS
