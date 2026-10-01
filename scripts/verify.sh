@@ -1,10 +1,16 @@
 #!/bin/bash
 set -e
 
-# Load publishable key from root .env
+# Load defaults from root .env — explicitly-set env vars take precedence
 if [ -f .env ]; then
-  # shellcheck source=/dev/null
-  export $(grep -v '^#' .env | grep -E '^[A-Z_]+=' | xargs)
+  while IFS= read -r line; do
+    case "$line" in ""|\#*) continue ;; esac
+    var="${line%%=*}"
+    case "$var" in *[!A-Z0-9_]*) continue ;; esac
+    if [ -z "${!var+x}" ]; then
+      export "$line"
+    fi
+  done < .env
 fi
 
 PK=${NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY:-}
@@ -20,7 +26,7 @@ check() {
   local expected=${3:-200}
   local code
 
-  code=$(curl -s -o /dev/null -w "%{http_code}" "$url")
+  code=$(curl -s -o /dev/null -w "%{http_code}" "$url" || true)
   if [ "$code" = "$expected" ]; then
     echo "[OK] $name ($code)"
     PASS=$((PASS + 1))
@@ -41,7 +47,7 @@ check_auth() {
     return
   fi
 
-  code=$(curl -s -H "x-publishable-api-key: $PK" -o /dev/null -w "%{http_code}" "$url")
+  code=$(curl -s -H "x-publishable-api-key: $PK" -o /dev/null -w "%{http_code}" "$url" || true)
   if [ "$code" = "$expected" ]; then
     echo "[OK] $name ($code)"
     PASS=$((PASS + 1))
@@ -56,7 +62,7 @@ check_contains() {
   local url=$2
   local text=$3
 
-  if curl -s "$url" | grep -q "$text"; then
+  if curl -s --max-time 30 "$url" | grep -q "$text"; then
     echo "[OK] $name contains '$text'"
     PASS=$((PASS + 1))
   else
@@ -76,8 +82,8 @@ check "Products" "$BASE/fr/products" 200
 # Product detail: dynamic — uses the first published product's handle if any exist
 FIRST_HANDLE=""
 if [ -n "$PK" ]; then
-  FIRST_HANDLE=$(curl -s -H "x-publishable-api-key: $PK" "$API/store/products?limit=1&fields=handle" \
-    | grep -o '"handle":"[^"]*"' | head -1 | cut -d'"' -f4)
+  FIRST_HANDLE=$(curl -s --max-time 30 -H "x-publishable-api-key: $PK" "$API/store/products?limit=1&fields=handle" \
+    | grep -o '"handle":"[^"]*"' | head -1 | cut -d'"' -f4 || true)
 fi
 if [ -n "$FIRST_HANDLE" ]; then
   check "Product detail" "$BASE/fr/products/$FIRST_HANDLE" 200

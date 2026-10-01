@@ -73,3 +73,5 @@ apps/storefront/test-results/
 ehthumbs.db
 Thumbs.db
 **/.DS_Store
+clients/*/white-*.sql.gz
+clients/*/backups/
