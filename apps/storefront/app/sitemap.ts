@@ -1,4 +1,6 @@
 import { getProducts } from "@/lib/get-products";
+import type { Product } from "@/lib/types";
+import type { StoreConfig } from "@/lib/get-store-config";
 import { getStoreConfig } from "@/lib/get-store-config";
 import { getLocalizedContent, getSiteUrl } from "@/lib/content";
 import { locales, defaultLocale, type Locale } from "@/i18n";
@@ -7,10 +9,26 @@ const staticPages = ["", "/products", "/shipping", "/returns", "/privacy", "/con
 
 export const revalidate = 3600;
 
+// Build environments (e.g. preview deploys) may not reach the backend:
+// bail out to static pages instead of hanging the route generation.
+const FETCH_TIMEOUT_MS = 15_000;
+
+const timeout = <T>(fallback: T): Promise<T> =>
+  new Promise((resolve) => setTimeout(() => resolve(fallback), FETCH_TIMEOUT_MS));
+
 export default async function sitemap() {
-  const [products, config] = await Promise.all([getProducts(), getStoreConfig()]);
-  const defaultLoc = (config.defaultLanguage as Locale) ?? defaultLocale;
-  const localized = getLocalizedContent(config.content, defaultLoc, defaultLoc);
+  const [products, config] = await Promise.all([
+    Promise.race<Product[]>([getProducts(), timeout<Product[]>([])]).catch(
+      () => [] as Product[]
+    ),
+    Promise.race<StoreConfig | undefined>([
+      getStoreConfig(),
+      timeout<StoreConfig | undefined>(undefined),
+    ]).catch(() => undefined),
+  ]);
+  const defaultLoc =
+    (config?.defaultLanguage as Locale | undefined) ?? defaultLocale;
+  const localized = getLocalizedContent(config?.content, defaultLoc, defaultLoc);
   const base = getSiteUrl(
     localized,
     process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:8080"
