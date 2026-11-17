@@ -13,6 +13,7 @@
     "@medusajs/js-sdk": "^2.22.7",
     "@stripe/react-stripe-js": "^6.8.2",
     "@stripe/stripe-js": "^9.15.0",
+    "@vercel/speed-insights": "^2.1.0",
     "next": "^15.5.25",
     "next-intl": "^4.14.2",
     "react": "^18",
