@@ -84,7 +84,18 @@
     "orderNumber": "Commande",
     "continueShopping": "Continuer les achats",
     "selectShipping": "Choisir une livraison",
-    "noShipping": "Aucune option de livraison disponible."
+    "noShipping": "Aucune option de livraison disponible.",
+    "detailsIntro": "Renseignez vos coordonnées pour continuer.",
+    "email": "Email",
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "address": "Adresse",
+    "address2": "Complément d'adresse (optionnel)",
+    "postalCode": "Code postal",
+    "city": "Ville",
+    "country": "Pays (code ISO, ex. FR)",
+    "phone": "Téléphone (optionnel)",
+    "continue": "Continuer"
   },
   "account": {
     "registerTitle": "Créer un compte",

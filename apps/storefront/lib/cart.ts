@@ -20,12 +20,15 @@ export async function getCart(): Promise<Cart | null> {
     const fields = [
       "total",
       "currency_code",
+      "email",
       "items.*",
       "items.variant.id",
       "items.variant.title",
       "items.variant.sku",
       "items.product.title",
       "items.product.thumbnail",
+      "shipping_address.*",
+      "billing_address.*",
     ].join(",")
     const { cart } = await medusaClient.client.fetch<{ cart: Cart }>(
       `/store/carts/${cartId}?fields=${fields}`,
@@ -37,14 +40,47 @@ export async function getCart(): Promise<Cart | null> {
   }
 }
 
+type Region = {
+  id: string;
+  currency_code: string;
+  countries?: Array<{ iso_2: string }>;
+};
+
+async function getRegionId(config: {
+  defaultCurrency: string;
+  defaultCountry: string;
+}): Promise<string | undefined> {
+  try {
+    const { regions } = await medusaClient.client.fetch<{
+      regions: Region[];
+    }>("/store/regions?limit=100&fields=id,currency_code,countries.iso_2");
+
+    const currency = config.defaultCurrency?.toLowerCase();
+    const country = config.defaultCountry?.toLowerCase();
+    const currencyMatches = (regions ?? []).filter(
+      (r) => r.currency_code?.toLowerCase() === currency
+    );
+
+    return (
+      currencyMatches.find((r) =>
+        r.countries?.some((c) => c.iso_2?.toLowerCase() === country)
+      ) ?? currencyMatches[0]
+    )?.id;
+  } catch {
+    return undefined;
+  }
+}
+
 export async function createCart(): Promise<Cart> {
   const config = await getStoreConfig();
+  const regionId = await getRegionId(config);
   const { cart } = await medusaClient.client.fetch<{ cart: Cart }>(
     "/store/carts",
     {
       method: "POST",
       body: {
         currency_code: config.defaultCurrency,
+        ...(regionId ? { region_id: regionId } : {}),
       },
     }
   );
@@ -80,4 +116,47 @@ export async function addToCart(
   revalidatePath("/cart");
 
   return updated;
+}
+
+export type CartDetails = {
+  email: string;
+  first_name: string;
+  last_name: string;
+  address_1: string;
+  address_2?: string;
+  postal_code: string;
+  city: string;
+  country_code: string;
+  phone?: string;
+};
+
+export async function updateCartDetails(
+  cartId: string,
+  details: CartDetails
+): Promise<boolean> {
+  const address = {
+    first_name: details.first_name,
+    last_name: details.last_name,
+    address_1: details.address_1,
+    address_2: details.address_2 || undefined,
+    postal_code: details.postal_code,
+    city: details.city,
+    country_code: details.country_code.toLowerCase(),
+    phone: details.phone || undefined,
+  };
+
+  try {
+    await medusaClient.client.fetch(`/store/carts/${cartId}`, {
+      method: "POST",
+      body: {
+        email: details.email,
+        shipping_address: address,
+        billing_address: address,
+      },
+    });
+    revalidatePath("/checkout");
+    return true;
+  } catch {
+    return false;
+  }
 }

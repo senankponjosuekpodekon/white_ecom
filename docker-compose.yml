@@ -46,7 +46,8 @@ services:
       context: .
       dockerfile: apps/backend/Dockerfile
     env_file:
-      - .env.backend
+      - path: .env.backend
+        required: false
     environment:
       DATABASE_URL: postgres://postgres:postgres@postgres:5432/white_local?ssl=false&sslmode=disable
       REDIS_URL: redis://redis:6379
@@ -96,7 +97,8 @@ services:
         NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: ${NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY:-pk_5c328ce90bc55ba4df7101f655c08b7e4b870875051600e69ef40f671bcab75b}
         NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:8080}
     env_file:
-      - .env.storefront
+      - path: .env.storefront
+        required: false
     environment:
       MEDUSA_BACKEND_URL: http://backend:9000
       NEXT_PUBLIC_SITE_URL: http://localhost:8080
