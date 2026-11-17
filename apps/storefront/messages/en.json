@@ -84,7 +84,19 @@
     "orderNumber": "Order",
     "continueShopping": "Continue shopping",
     "selectShipping": "Choose a shipping option",
-    "noShipping": "No shipping option available."
+    "noShipping": "No shipping option available.",
+    "detailsIntro": "Enter your details to continue.",
+    "email": "Email",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "address": "Address",
+    "address2": "Address line 2 (optional)",
+    "postalCode": "Postal code",
+    "city": "City",
+    "country": "Country (ISO code, e.g. FR)",
+    "phone": "Phone (optional)",
+    "continue": "Continue",
+    "editDetails": "Edit details"
   },
   "account": {
     "registerTitle": "Create account",

@@ -17,6 +17,17 @@ test.describe("Checkout", () => {
     await page.goto("/fr/checkout");
 
     await expect(page.locator("h1")).toContainText("Paiement", { timeout: 30000 });
+
+    // Customer details are required before payment.
+    await page.locator('input[name="email"]').fill("test@example.com");
+    await page.locator('input[name="first_name"]').fill("Test");
+    await page.locator('input[name="last_name"]').fill("User");
+    await page.locator('input[name="address_1"]').fill("1 rue de Test");
+    await page.locator('input[name="postal_code"]').fill("75001");
+    await page.locator('input[name="city"]').fill("Paris");
+    await page.locator('input[name="country_code"]').fill("fr");
+    await page.getByRole("button", { name: "Continuer" }).click();
+
     await page.getByRole("button", { name: "Payer manuellement (test)" }).click();
 
     await expect(page).toHaveURL(/\/fr\/checkout\/result\?order_id=/);

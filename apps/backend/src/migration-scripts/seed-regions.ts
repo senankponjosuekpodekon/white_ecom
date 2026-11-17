@@ -31,13 +31,21 @@ export default async function seed_regions({
 
   const { data: regions } = await query.graph({
     entity: "region",
-    fields: ["id", "name"],
+    fields: ["id", "name", "countries.iso_2"],
   })
   const existingNames = new Set(regions.map((r: { name: string }) => r.name))
+  const assignedCountries = new Set(
+    regions.flatMap((r) =>
+      (r.countries ?? []).flatMap((c) => (c?.iso_2 ? [c.iso_2] : []))
+    )
+  )
+  // Only seed countries not already owned by another region: region creation
+  // rejects re-assignment, and migration scripts may re-run after a crash.
+  const freeCountries = countries.filter((c) => !assignedCountries.has(c))
 
   for (const currency of currencies) {
     const name = `Region ${currency.toUpperCase()}`
-    if (existingNames.has(name)) {
+    if (existingNames.has(name) || freeCountries.length === 0) {
       continue
     }
 
@@ -47,8 +55,11 @@ export default async function seed_regions({
           {
             name,
             currency_code: currency,
-            countries,
-            payment_providers: ["pp_system_default"],
+            countries: freeCountries,
+            payment_providers:
+              process.env.MANUAL_PAYMENT_ENABLED === "false"
+                ? []
+                : ["pp_system_default"],
           },
         ],
       },
@@ -60,7 +71,7 @@ export default async function seed_regions({
     }
 
     await createTaxRegionsWorkflow(container).run({
-      input: countries.map((country_code) => ({
+      input: freeCountries.map((country_code) => ({
         country_code,
         provider_id: "tp_system",
       })),

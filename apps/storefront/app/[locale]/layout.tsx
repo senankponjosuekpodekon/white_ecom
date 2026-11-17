@@ -7,6 +7,7 @@ import { getLocalizedContent, getSiteUrl } from "@/lib/content";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { GoogleTag } from "@/components/GoogleTag";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export async function generateMetadata({
   params,
@@ -108,6 +109,7 @@ export default async function LocaleLayout({
             content={localized.footer}
           />
         )}
+        <SpeedInsights />
       </body>
     </html>
   );

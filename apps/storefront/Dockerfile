@@ -1,4 +1,4 @@
-FROM node:20 AS builder
+FROM node:22 AS builder
 
 WORKDIR /app
 
@@ -12,7 +12,7 @@ RUN npm ci
 ENV NODE_ENV=production
 RUN npm run build -w @dtc/storefront
 
-FROM node:20 AS runner
+FROM node:22 AS runner
 
 WORKDIR /app
 ENV NODE_ENV=production
