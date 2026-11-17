@@ -22,7 +22,6 @@
     }
   },
   "devDependencies": {
-    "@medusajs/admin-sdk": "^2.22.7",
     "@medusajs/eslint-plugin": "^2.20.1",
     "ajv": "^8.20.0",
     "eslint": "^9.39.4",

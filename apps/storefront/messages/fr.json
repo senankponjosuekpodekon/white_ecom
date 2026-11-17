@@ -95,7 +95,8 @@
     "city": "Ville",
     "country": "Pays (code ISO, ex. FR)",
     "phone": "Téléphone (optionnel)",
-    "continue": "Continuer"
+    "continue": "Continuer",
+    "editDetails": "Modifier"
   },
   "account": {
     "registerTitle": "Créer un compte",

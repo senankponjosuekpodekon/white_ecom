@@ -23,11 +23,16 @@ const labelClass = "block text-sm font-medium mb-1 text-[var(--color-foreground)
 
 export default async function CheckoutPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ edit?: string }>;
 }) {
   unstable_noStore();
-  const { locale: raw } = await params;
+  const [{ locale: raw }, { edit }] = await Promise.all([
+    params,
+    searchParams,
+  ]);
   const locale = locales.includes(raw as Locale) ? (raw as Locale) : defaultLocale;
   const t = await getTranslations({ locale, namespace: "checkout" });
   const [cart, config] = await Promise.all([getCart(), getStoreConfig()]);
@@ -43,6 +48,7 @@ export default async function CheckoutPage({
   const hasEmail = Boolean(cart.email);
   const hasAddress = isDigital || Boolean(cart.shipping_address?.address_1);
   const detailsComplete = hasEmail && hasAddress;
+  const showDetailsForm = !detailsComplete || edit === "1";
 
   const [clientSecret, shippingOptions] = detailsComplete
     ? await Promise.all([
@@ -75,7 +81,7 @@ export default async function CheckoutPage({
           {t("total")}: {formatPrice(cart.total, cart.currency_code)}
         </p>
 
-        {!detailsComplete ? (
+        {showDetailsForm ? (
           <form action={updateCartDetailsAction} className="space-y-4">
             <input type="hidden" name="cartId" value={cart.id} />
             <input type="hidden" name="locale" value={locale} />
@@ -192,6 +198,21 @@ export default async function CheckoutPage({
           </form>
         ) : (
           <>
+            <div className="mb-6 flex items-center justify-between text-sm">
+              <p className="text-[var(--color-muted)]">
+                {cart.email}
+                {cart.shipping_address?.address_1
+                  ? ` · ${cart.shipping_address.address_1}`
+                  : ""}
+              </p>
+              <a
+                href={`/${locale}/checkout?edit=1`}
+                className="underline text-[var(--color-foreground)]"
+              >
+                {t("editDetails")}
+              </a>
+            </div>
+
             {clientSecret ? (
               <CheckoutForm clientSecret={clientSecret} locale={locale} />
             ) : (
