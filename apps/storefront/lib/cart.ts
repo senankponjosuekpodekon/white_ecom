@@ -25,6 +25,7 @@ export async function getCart(): Promise<Cart | null> {
       "items.*",
       "items.variant_id",
       "items.product_title",
+      "items.subtitle",
       "items.product.title",
       "items.product.thumbnail",
       "shipping_address.*",
@@ -40,7 +41,7 @@ export async function getCart(): Promise<Cart | null> {
       if (!item.variant) {
         item.variant = {
           id: item.variant_id ?? item.id,
-          title: item.product_title ?? item.title,
+          title: item.subtitle ?? item.product_title ?? item.title,
         };
       }
     }
