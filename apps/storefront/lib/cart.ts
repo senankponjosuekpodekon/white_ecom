@@ -23,9 +23,8 @@ export async function getCart(): Promise<Cart | null> {
       "currency_code",
       "email",
       "items.*",
-      "items.variant.id",
-      "items.variant.title",
-      "items.variant.sku",
+      "items.variant_id",
+      "items.product_title",
       "items.product.title",
       "items.product.thumbnail",
       "shipping_address.*",
@@ -35,6 +34,16 @@ export async function getCart(): Promise<Cart | null> {
       `/store/carts/${cartId}?fields=${fields}`,
       { method: "GET" }
     );
+    // Medusa v2 cart line items don't expose a nested variant object;
+    // callers expect item.variant.{id,title,sku}.
+    for (const item of cart?.items ?? []) {
+      if (!item.variant) {
+        item.variant = {
+          id: item.variant_id ?? item.id,
+          title: item.product_title ?? item.title,
+        };
+      }
+    }
     return cart ?? null;
   } catch {
     return null;
