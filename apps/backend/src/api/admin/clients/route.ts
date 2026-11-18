@@ -36,7 +36,7 @@ function sanitizeClient(client: ClientRecord) {
 }
 
 export async function GET(req: MedusaRequest, res: MedusaResponse) {
-  if (!requireSuperAdmin(req, res)) {
+  if (!(await requireSuperAdmin(req, res))) {
     return
   }
 
@@ -65,7 +65,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
 }
 
 export async function POST(req: MedusaRequest, res: MedusaResponse) {
-  if (!requireSuperAdmin(req, res)) {
+  if (!(await requireSuperAdmin(req, res))) {
     return
   }
 

@@ -30,7 +30,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
   const ranked = embeddings
     .map((row) => ({
       product_id: row.product_id,
-      score: cosineSimilarity(queryVector, row.embedding as number[]),
+      score: cosineSimilarity(queryVector, row.embedding as unknown as number[]),
     }))
     .filter((row) => row.score >= MIN_SCORE)
     .sort((a, b) => b.score - a.score)

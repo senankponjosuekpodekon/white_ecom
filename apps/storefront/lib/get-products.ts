@@ -1,5 +1,7 @@
 import { unstable_cache } from "next/cache";
 import { medusaClient } from "./medusa-client";
+import { getStoreConfig } from "./get-store-config";
+import { getRegionId } from "./regions";
 import type { Product } from "./types";
 
 export const PRODUCT_FIELDS = [
@@ -53,6 +55,10 @@ const fetchProductsPage = unstable_cache(
   }: ProductQuery): Promise<{ products: Product[]; count: number }> => {
     const params = new URLSearchParams({ limit: String(limit), fields: PRODUCT_FIELDS });
     if (offset > 0) params.set("offset", String(offset));
+    // calculated_price is region-scoped: without region_id the API returns
+    // no usable price for region-priced catalogs.
+    const regionId = await getRegionId(await getStoreConfig());
+    if (regionId) params.set("region_id", regionId);
     if (categoryId) params.append("category_id[]", categoryId);
     if (order) params.set("order", order);
     if (q) params.set("q", q);

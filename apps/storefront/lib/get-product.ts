@@ -1,6 +1,8 @@
 import { unstable_cache } from "next/cache";
 import { medusaClient } from "./medusa-client";
 import { normalizeProductPrices } from "./get-products";
+import { getStoreConfig } from "./get-store-config";
+import { getRegionId } from "./regions";
 import type { Product } from "./types";
 
 const fields = [
@@ -22,6 +24,8 @@ const fetchProduct = unstable_cache(
   async (handle: string, locale?: string): Promise<Product | null> => {
     const params = new URLSearchParams({ handle, limit: "1", fields });
     if (locale) params.set("locale", locale);
+    const regionId = await getRegionId(await getStoreConfig());
+    if (regionId) params.set("region_id", regionId);
     const { products } = await medusaClient.client.fetch<{
       products: Product[];
     }>(`/store/products?${params.toString()}`, { method: "GET" });

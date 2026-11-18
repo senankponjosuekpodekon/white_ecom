@@ -109,10 +109,20 @@ export async function initiatePaymentSession(
   }
 }
 
+export function isManualPaymentEnabled(): boolean {
+  // Manual payment (cash on delivery / "pay later") lets a customer place an
+  // order without paying online. Disable with MANUAL_PAYMENT_ENABLED=false.
+  return process.env.MANUAL_PAYMENT_ENABLED !== "false";
+}
+
 export async function completeManualPayment(
   cartId: string,
   shippingOptionId: string
 ): Promise<string | null> {
+  if (!isManualPaymentEnabled()) {
+    return null;
+  }
+
   if (shippingOptionId !== "none" && !shippingOptionId) {
     return null;
   }

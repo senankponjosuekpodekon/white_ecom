@@ -12,7 +12,7 @@ type UpdateClientInput = {
   name?: string
   contact_email?: string | null
   domains?: string[]
-  status?: string
+  status?: "pending" | "provisioning" | "active" | "suspended" | "rejected" | "failed"
   config?: Record<string, unknown>
   content?: Record<string, unknown>
   error?: string | null
@@ -28,7 +28,7 @@ const updateClientRecordStep = createStep(
       ...(input.contact_email !== undefined
         ? { contact_email: input.contact_email }
         : {}),
-      ...(input.domains !== undefined ? { domains: input.domains } : {}),
+      ...(input.domains !== undefined ? { domains: input.domains as unknown as Record<string, unknown> } : {}),
       ...(input.status !== undefined ? { status: input.status } : {}),
       ...(input.config !== undefined ? { config: input.config } : {}),
       ...(input.content !== undefined ? { content: input.content } : {}),

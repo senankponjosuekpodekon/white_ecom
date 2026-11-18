@@ -47,13 +47,13 @@ export async function embedProduct(
   if (existing[0]) {
     await service.updateProductEmbeddings({
       id: existing[0].id,
-      embedding,
+      embedding: embedding as unknown as Record<string, unknown>,
       text_hash: hash,
     })
   } else {
     await service.createProductEmbeddings({
       product_id: product.id,
-      embedding,
+      embedding: embedding as unknown as Record<string, unknown>,
       text_hash: hash,
     })
   }

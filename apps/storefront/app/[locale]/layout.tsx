@@ -8,6 +8,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ConsentGate } from "@/components/ConsentGate";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export async function generateMetadata({
   params,
@@ -135,6 +136,7 @@ export default async function LocaleLayout({
             message={config.whatsapp.message}
           />
         )}
+        <SpeedInsights />
       </body>
     </html>
   );

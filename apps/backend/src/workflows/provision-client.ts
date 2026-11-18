@@ -48,7 +48,7 @@ const upsertClientStep = createStep(
         id: current.id,
         name: input.name ?? current.name,
         contact_email: input.contactEmail ?? current.contact_email,
-        domains: input.domains ?? current.domains,
+        domains: (input.domains ?? current.domains) as unknown as Record<string, unknown>,
         status: "provisioning",
         error: null,
       })
@@ -62,7 +62,7 @@ const upsertClientStep = createStep(
       slug: input.slug,
       name: input.name ?? input.slug,
       contact_email: input.contactEmail ?? null,
-      domains: input.domains ?? [],
+      domains: (input.domains ?? []) as unknown as Record<string, unknown>,
       config: input.config ?? {},
       content: input.content ?? {},
       status: "provisioning",
@@ -81,7 +81,7 @@ const upsertClientStep = createStep(
     } else {
       await service.updateClients({
         id: prev.id,
-        status: prev.previousStatus,
+        status: prev.previousStatus as "pending" | "provisioning" | "active" | "suspended" | "rejected" | "failed",
       })
     }
   }

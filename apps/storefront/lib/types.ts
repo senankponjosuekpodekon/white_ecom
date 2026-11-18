@@ -31,6 +31,9 @@ export type CartLineItem = {
   id: string;
   title: string;
   quantity: number;
+  variant_id?: string;
+  product_title?: string;
+  subtitle?: string;
   variant: ProductVariant;
   product?: {
     title: string;
@@ -43,6 +46,7 @@ export type CartAddress = {
   first_name?: string | null;
   last_name?: string | null;
   address_1?: string | null;
+  address_2?: string | null;
   city?: string | null;
   postal_code?: string | null;
   country_code?: string | null;
@@ -63,12 +67,12 @@ export type CartPromotion = {
 export type Cart = {
   id: string;
   currency_code: string;
+  email?: string | null;
   items: CartLineItem[];
   total: number;
   subtotal?: number;
   discount_total?: number;
   promotions?: CartPromotion[];
-  email?: string | null;
   shipping_address?: CartAddress | null;
   billing_address?: CartAddress | null;
   shipping_methods?: CartShippingMethod[];
