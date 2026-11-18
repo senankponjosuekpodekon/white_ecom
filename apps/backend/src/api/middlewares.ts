@@ -56,6 +56,14 @@ declare module "@medusajs/framework/http" {
   }
 }
 
+function requestEmail(req: MedusaRequest): string | undefined {
+  const ctx = (req as unknown as {
+    auth_context?: { app_metadata?: { email?: string }; user_metadata?: { email?: string } }
+  }).auth_context
+  const raw = ctx?.user_metadata?.email ?? ctx?.app_metadata?.email
+  return typeof raw === "string" ? raw.toLowerCase().trim() : undefined
+}
+
 async function resolveTenantContext(
   req: MedusaRequest
 ): Promise<TenantContext | null> {
@@ -69,6 +77,32 @@ async function resolveTenantContext(
     return null
   }
   try {
+    const service = req.scope.resolve<ClientModuleService>(CLIENT_MODULE)
+
+    // God-mode: a super-admin sends x-admin-client: <id|slug> to operate
+    // inside a tenant's scope (same filters as a merchant of that tenant).
+    const superAdminEmail = process.env.SUPER_ADMIN_EMAIL?.toLowerCase().trim()
+    const requested = req.headers["x-admin-client"]
+    const target = Array.isArray(requested) ? requested[0] : requested
+    if (target && superAdminEmail && requestEmail(req) === superAdminEmail) {
+      const clients = (await service.listClients(
+        { id: target },
+        {}
+      )) as unknown as ClientRecord[]
+      const client =
+        clients[0] ??
+        ((
+          await service.listClients({ slug: target }, {})
+        ) as unknown as ClientRecord[])[0]
+      if (client) {
+        req.tenant_context = {
+          clientId: client.id,
+          salesChannelId: client.sales_channel_id ?? null,
+        }
+        return req.tenant_context
+      }
+    }
+
     const userModule = req.scope.resolve(Modules.USER) as {
       retrieveUser: (id: string) => Promise<{
         id: string
@@ -80,7 +114,6 @@ async function resolveTenantContext(
     if (!clientId) {
       return null
     }
-    const service = req.scope.resolve<ClientModuleService>(CLIENT_MODULE)
     const clients = (await service.listClients(
       { id: clientId },
       {}

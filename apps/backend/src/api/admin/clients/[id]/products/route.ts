@@ -6,12 +6,14 @@ import type ClientModuleService from "../../../../../modules/client/service"
 import type { ClientRecord } from "../../../../../utils/client-resolver"
 import { requireSuperAdmin } from "../../../utils"
 import { assignClientProductsWorkflow } from "../../../../../workflows/assign-client-products"
+import { cloneClientProductsWorkflow } from "../../../../../workflows/clone-client-products"
 
 const assignSchema = z
   .object({
     product_ids: z.array(z.string()).optional(),
     collection_id: z.string().optional(),
     category_id: z.string().optional(),
+    mode: z.enum(["link", "clone"]).optional(),
   })
   .refine(
     (d) => d.product_ids?.length || d.collection_id || d.category_id,
@@ -32,7 +34,8 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
     res.status(400).json({ error: "Invalid body" })
     return
   }
-  const { product_ids, collection_id, category_id } = parse.data
+  const { product_ids, collection_id, category_id, mode = "link" } =
+    parse.data
 
   const service = req.scope.resolve<ClientModuleService>(CLIENT_MODULE)
   const clients = (await service.listClients(
@@ -73,11 +76,25 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
   }
 
   try {
+    if (mode === "clone") {
+      const { result } = await cloneClientProductsWorkflow(req.scope).run({
+        input: { clientId: client.id, productIds: ids },
+      })
+      res.json({
+        success: true,
+        mode,
+        sales_channel_id: result.channelId,
+        cloned: result.cloned,
+      })
+      return
+    }
+
     const { result } = await assignClientProductsWorkflow(req.scope).run({
       input: { clientId: client.id, productIds: ids },
     })
     res.json({
       success: true,
+      mode,
       sales_channel_id: result.channelId,
       assigned: result.linked.length,
       skipped: result.skipped,
