@@ -5,7 +5,8 @@ import {
   saveClientContentDb,
 } from "../../../utils/client-config"
 import type { ClientContent } from "../../../utils/default-content"
-import { requireUser } from "../utils"
+import { requireUser, tenantClient } from "../utils"
+import { updateClientWorkflow } from "../../../workflows/update-client"
 
 const contentSchema = z.object({
   content: z
@@ -21,7 +22,8 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
     return
   }
 
-  const content = await resolveClientContent(req.scope)
+  const client = await tenantClient(req)
+  const content = await resolveClientContent(req.scope, client)
   res.json({ content })
 }
 
@@ -42,7 +44,14 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
   const { content } = parse.data
 
   try {
-    await saveClientContentDb(req.scope, content as ClientContent)
+    const client = await tenantClient(req)
+    if (client) {
+      await updateClientWorkflow(req.scope).run({
+        input: { id: client.id, content },
+      })
+    } else {
+      await saveClientContentDb(req.scope, content as ClientContent)
+    }
     res.json({ success: true })
   } catch (error) {
     res.status(500).json({ error: (error as Error).message })

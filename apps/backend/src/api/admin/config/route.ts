@@ -4,7 +4,8 @@ import {
   resolveClientConfig,
   saveClientConfigDb,
 } from "../../../utils/client-config"
-import { requireUser } from "../utils"
+import { requireUser, tenantClient } from "../utils"
+import { updateClientWorkflow } from "../../../workflows/update-client"
 
 const configSchema = z.object({
   config: z.record(z.string(), z.any()),
@@ -15,7 +16,8 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
     return
   }
 
-  const config = await resolveClientConfig(req.scope)
+  const client = await tenantClient(req)
+  const config = await resolveClientConfig(req.scope, client)
   res.json({ config })
 }
 
@@ -36,7 +38,16 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
   const { config } = parse.data
 
   try {
-    await saveClientConfigDb(req.scope, config)
+    // Tenant scope: write to client.config so the tenant's storefront picks
+    // it up; platform scope: legacy store metadata.
+    const client = await tenantClient(req)
+    if (client) {
+      await updateClientWorkflow(req.scope).run({
+        input: { id: client.id, config },
+      })
+    } else {
+      await saveClientConfigDb(req.scope, config)
+    }
     res.json({ success: true })
   } catch (error) {
     res.status(500).json({ error: (error as Error).message })

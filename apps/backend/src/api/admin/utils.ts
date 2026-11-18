@@ -1,5 +1,8 @@
 import path from "path"
 import { MedusaRequest, MedusaResponse, AuthenticatedMedusaRequest } from "@medusajs/framework/http"
+import { CLIENT_MODULE } from "../../modules/client"
+import type ClientModuleService from "../../modules/client/service"
+import type { ClientRecord } from "../../utils/client-resolver"
 
 const clientsDir = path.resolve(process.cwd(), "clients")
 
@@ -38,6 +41,30 @@ export function requireSuperAdmin(req: MedusaRequest, res: MedusaResponse): bool
     return false
   }
   return true
+}
+
+// Returns the tenant (client record) this admin request operates on: the
+// merchant's own tenant, or the one a super-admin selected via
+// x-admin-client. Undefined means "platform scope" (no tenant context).
+export async function tenantClient(
+  req: MedusaRequest
+): Promise<ClientRecord | undefined> {
+  const clientId = (
+    req as MedusaRequest & { tenant_context?: { clientId?: string } }
+  ).tenant_context?.clientId
+  if (!clientId) {
+    return undefined
+  }
+  try {
+    const service = req.scope.resolve<ClientModuleService>(CLIENT_MODULE)
+    const clients = (await service.listClients(
+      { id: clientId },
+      {}
+    )) as unknown as ClientRecord[]
+    return clients[0]
+  } catch {
+    return undefined
+  }
 }
 
 export function isValidClientName(name: string): boolean {
