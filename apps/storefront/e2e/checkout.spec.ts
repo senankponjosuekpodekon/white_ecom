@@ -13,7 +13,14 @@ test.describe("Checkout", () => {
 
     await productLink.click();
     await page.getByRole("button", { name: "Ajouter au panier" }).first().click();
-    await page.waitForTimeout(2000);
+    // Wait for the server action to set the cart cookie (slow on cold backends).
+    await expect
+      .poll(
+        async () =>
+          (await page.context().cookies()).some((c) => c.name === "cartId"),
+        { timeout: 30000 }
+      )
+      .toBe(true);
     await page.goto("/fr/checkout");
 
     // Step 1: contact + address
@@ -27,14 +34,14 @@ test.describe("Checkout", () => {
     await page.getByRole("button", { name: "Continuer" }).click();
 
     // Step 2: shipping (skipped for digital catalogs — straight to payment)
-    await page.waitForURL(/step=(shipping|payment)/, { timeout: 15000 });
+    await page.waitForURL(/step=(shipping|payment)/, { timeout: 60000 });
     if (page.url().includes("step=shipping")) {
       const radio = page.locator('input[name="optionId"]').first();
       if ((await radio.count()) > 0) {
         await radio.check();
       }
       await page.getByRole("button", { name: "Continuer" }).click();
-      await page.waitForURL(/step=payment/, { timeout: 15000 });
+      await page.waitForURL(/step=payment/, { timeout: 60000 });
     }
 
     // Step 3: payment

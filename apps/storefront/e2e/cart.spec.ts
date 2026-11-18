@@ -11,7 +11,14 @@ test.describe("Cart and checkout", () => {
 
     await productLink.click();
     await page.getByRole("button", { name: "Ajouter au panier" }).first().click();
-    await page.waitForTimeout(2000);
+    // Wait for the server action to set the cart cookie (slow on cold backends).
+    await expect
+      .poll(
+        async () =>
+          (await page.context().cookies()).some((c) => c.name === "cartId"),
+        { timeout: 30000 }
+      )
+      .toBe(true);
     await page.goto("/fr/cart");
 
     await expect(page.locator("h1")).toContainText("Votre panier", { timeout: 15000 });
