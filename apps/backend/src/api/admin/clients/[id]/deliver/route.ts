@@ -11,6 +11,7 @@ import { updateClientWorkflow } from "../../../../../workflows/update-client"
 import { assignClientProductsWorkflow } from "../../../../../workflows/assign-client-products"
 import { cloneClientProductsWorkflow } from "../../../../../workflows/clone-client-products"
 import { addVercelDomain, vercelConfigured } from "../../../../../utils/vercel"
+import { generateClientContentWorkflow } from "../../../../../workflows/generate-client-content"
 
 const deliverSchema = z.object({
   products: z
@@ -40,6 +41,7 @@ const deliverSchema = z.object({
     .optional(),
   config: z.record(z.string(), z.unknown()).optional(),
   content: z.record(z.string(), z.unknown()).optional(),
+  generate_content: z.boolean().optional(),
 })
 
 function vercelProjectName(slug: string): string {
@@ -65,7 +67,8 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
     res.status(400).json({ error: "Invalid body", issues: parse.error.issues })
     return
   }
-  const { products, member, domain, config, content } = parse.data
+  const { products, member, domain, config, content, generate_content } =
+    parse.data
 
   const service = req.scope.resolve<ClientModuleService>(CLIENT_MODULE)
   const clients = (await service.listClients(
@@ -119,6 +122,20 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
     {}
   )) as unknown as ClientRecord[]
   client = refreshed[0]
+
+  if (generate_content !== false) {
+    try {
+      const { result } = await generateClientContentWorkflow(req.scope).run({
+        input: { clientId: client.id },
+      })
+      steps["ai_content"] =
+        result.written.length > 0
+          ? { written: result.written }
+          : "skipped (no AI provider configured)"
+    } catch (error) {
+      steps["ai_content"] = { error: (error as Error).message }
+    }
+  }
 
   if (products) {
     const productModule = req.scope.resolve(Modules.PRODUCT) as {

@@ -13,6 +13,7 @@ export type AiAction =
   | "review-summary"
   | "legal-page"
   | "alt-tags"
+  | "storefront-content"
 
 export interface AiRequestBody {
   type?: AiAction
@@ -170,16 +171,17 @@ export function buildPrompt(body: AiRequestBody): { prompt: string; system?: str
 export async function generate(
   provider: AiProvider,
   prompt: string,
-  system?: string
+  system?: string,
+  maxTokens = 1000
 ): Promise<string> {
   if (provider === "openai") {
-    return generateOpenAI(prompt, system)
+    return generateOpenAI(prompt, system, maxTokens)
   }
   if (provider === "workers-ai") {
-    return generateWorkersAI(prompt, system)
+    return generateWorkersAI(prompt, system, maxTokens)
   }
   if (provider === "ollama") {
-    return generateOllama(prompt, system)
+    return generateOllama(prompt, system, maxTokens)
   }
   throw new MedusaError(
     MedusaError.Types.INVALID_DATA,
@@ -187,7 +189,62 @@ export async function generate(
   )
 }
 
-async function generateOpenAI(prompt: string, system?: string): Promise<string> {
+export function resolveProvider(): AiProvider {
+  const requested = (process.env.AI_PROVIDER ?? "").trim() as AiProvider
+  if (requested && requested !== "none" && isProviderConfigured(requested)) {
+    return requested
+  }
+  for (const p of ["openai", "workers-ai", "ollama"] as const) {
+    if (isProviderConfigured(p)) return p
+  }
+  return "none"
+}
+
+export interface StorefrontContentInput {
+  name: string
+  niche?: string
+  businessModel?: string
+  locale: string
+}
+
+// One-shot brand copy for a turnkey boutique: tagline, hero, about, SEO and
+// the standard legal pages, in the requested locale. Returns parsed JSON —
+// the caller decides what to persist into client.content.
+export async function generateStorefrontContent(
+  input: StorefrontContentInput
+): Promise<Record<string, unknown> | null> {
+  const provider = resolveProvider()
+  if (provider === "none") return null
+
+  const system =
+    "You are an e-commerce branding expert delivering turnkey boutiques. " +
+    `Write all texts in ${input.locale}. ` +
+    "Return ONLY a JSON object with keys: tagline (short slogan), " +
+    "description (2-3 sentences shop presentation), hero_title, hero_subtitle, " +
+    "cta_label (short call-to-action), about (one paragraph), " +
+    "seo_title (max 60 chars), seo_description (max 160 chars), " +
+    "legal_terms (standard CGV text), legal_privacy (standard privacy policy). " +
+    "No markdown, no commentary, valid JSON only."
+  const prompt =
+    `Boutique : ${input.name}` +
+    (input.niche ? `\nNiche : ${input.niche}` : "") +
+    (input.businessModel ? `\nModèle : ${input.businessModel}` : "")
+
+  try {
+    const raw = await generate(provider, prompt, system, 3000)
+    const match = raw.match(/\{[\s\S]*\}/)
+    if (!match) return null
+    return JSON.parse(match[0]) as Record<string, unknown>
+  } catch {
+    return null
+  }
+}
+
+async function generateOpenAI(
+  prompt: string,
+  system?: string,
+  maxTokens = 1000
+): Promise<string> {
   const key = process.env.OPENAI_API_KEY
   if (!key) {
     throw new MedusaError(
@@ -215,7 +272,7 @@ async function generateOpenAI(prompt: string, system?: string): Promise<string> 
       model,
       messages,
       temperature: 0.7,
-      max_tokens: 1000,
+      max_tokens: maxTokens,
     }),
     signal: AbortSignal.timeout(30000),
   })
@@ -232,7 +289,8 @@ async function generateOpenAI(prompt: string, system?: string): Promise<string> 
 
 async function generateWorkersAI(
   prompt: string,
-  system?: string
+  system?: string,
+  maxTokens = 1000
 ): Promise<string> {
   const accountId = process.env.CLOUDFLARE_ACCOUNT_ID
   const token = process.env.CLOUDFLARE_API_TOKEN
@@ -257,7 +315,7 @@ async function generateWorkersAI(
           ...(system ? [{ role: "system", content: system }] : []),
           { role: "user", content: prompt },
         ],
-        max_tokens: 1000,
+        max_tokens: maxTokens,
       }),
       signal: AbortSignal.timeout(30000),
     }
@@ -275,7 +333,8 @@ async function generateWorkersAI(
 
 async function generateOllama(
   prompt: string,
-  system?: string
+  system?: string,
+  maxTokens = 1000
 ): Promise<string> {
   const baseUrl = process.env.OLLAMA_BASE_URL
   if (!baseUrl) {
@@ -303,7 +362,7 @@ async function generateOllama(
       system,
       stream: false,
       options: {
-        num_predict: 1000,
+        num_predict: maxTokens,
       },
     }),
     signal: AbortSignal.timeout(30000),
