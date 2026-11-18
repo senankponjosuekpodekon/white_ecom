@@ -14,6 +14,8 @@ type ClientRequestInput = {
   name: string
   contactEmail?: string
   domains?: string[]
+  config?: Record<string, unknown>
+  content?: Record<string, unknown>
 }
 
 const createClientRequestStep = createStep(
@@ -35,6 +37,8 @@ const createClientRequestStep = createStep(
       name: input.name,
       contact_email: input.contactEmail ?? null,
       domains: (input.domains ?? []) as unknown as Record<string, unknown>,
+      config: input.config ?? {},
+      content: input.content ?? {},
       status: "pending",
     })) as unknown as ClientRecord
     return new StepResponse({ id: created.id })

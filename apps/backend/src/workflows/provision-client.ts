@@ -49,6 +49,8 @@ const upsertClientStep = createStep(
         name: input.name ?? current.name,
         contact_email: input.contactEmail ?? current.contact_email,
         domains: (input.domains ?? current.domains) as unknown as Record<string, unknown>,
+        config: { ...(current.config ?? {}), ...(input.config ?? {}) },
+        content: { ...(current.content ?? {}), ...(input.content ?? {}) },
         status: "provisioning",
         error: null,
       })
