@@ -26,22 +26,18 @@ test.describe("Checkout", () => {
     await page.getByLabel(/Ville/i).fill("Paris");
     await page.getByRole("button", { name: "Continuer" }).click();
 
-    // Step 2: shipping (may be skipped for digital catalogs)
-    const continueBtn = page.getByRole("button", { name: "Continuer" });
+    // Step 2: shipping (skipped for digital catalogs — straight to payment)
     const manualPayBtn = page.getByRole("button", {
       name: /Payer à la livraison|virement/i,
     });
-    await Promise.race([
-      continueBtn.waitFor({ state: "visible", timeout: 15000 }),
-      manualPayBtn.waitFor({ state: "visible", timeout: 15000 }),
-    ]);
-
-    if (await continueBtn.isVisible()) {
+    await page.waitForURL(/step=(shipping|payment)/, { timeout: 15000 });
+    if (page.url().includes("step=shipping")) {
       const radio = page.locator('input[name="optionId"]').first();
       if ((await radio.count()) > 0) {
         await radio.check();
       }
-      await continueBtn.click();
+      await page.getByRole("button", { name: "Continuer" }).click();
+      await page.waitForURL(/step=payment/, { timeout: 15000 });
     }
 
     // Step 3: payment

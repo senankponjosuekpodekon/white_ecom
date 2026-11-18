@@ -18,6 +18,6 @@ test.describe("Cart and checkout", () => {
     await expect(page.locator("main").nth(1)).toContainText("Quantité", { timeout: 15000 });
 
     await page.goto("/fr/checkout");
-    await expect(page.locator("h1")).toContainText("Paiement", { timeout: 30000 });
+    await expect(page.locator("h1")).toContainText("Commande", { timeout: 30000 });
   });
 });
