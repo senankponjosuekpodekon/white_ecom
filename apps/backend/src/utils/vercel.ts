@@ -107,6 +107,31 @@ export async function triggerVercelDeploy(
   return result
 }
 
+// Registers a custom domain on the tenant's Vercel project. The caller still
+// has to point the domain's DNS at Vercel (CNAME cname.vercel-dns.com).
+export async function addVercelDomain(
+  projectName: string,
+  domain: string
+): Promise<void> {
+  await vercelFetch(
+    `/v10/projects/${encodeURIComponent(projectName)}/domains`,
+    {
+      method: "POST",
+      body: JSON.stringify({ name: domain }),
+    }
+  )
+}
+
+export async function removeVercelDomain(
+  projectName: string,
+  domain: string
+): Promise<void> {
+  await vercelFetch(
+    `/v10/projects/${encodeURIComponent(projectName)}/domains/${encodeURIComponent(domain)}`,
+    { method: "DELETE" }
+  )
+}
+
 export async function deleteVercelProject(name: string): Promise<void> {
   await vercelFetch(`/v9/projects/${encodeURIComponent(name)}`, {
     method: "DELETE",

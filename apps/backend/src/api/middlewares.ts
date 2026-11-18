@@ -5,6 +5,41 @@ import type {
   MedusaResponse,
 } from "@medusajs/framework/http"
 import { createIpRateLimiter } from "../utils/rate-limit"
+import { CLIENT_MODULE } from "../modules/client"
+import type ClientModuleService from "../modules/client/service"
+import type { ClientRecord } from "../utils/client-resolver"
+
+// Reject store calls whose publishable key belongs to a tenant that is no
+// longer active (suspended/rejected/failed). Keys not owned by a tenant
+// (e.g. the platform key) are unaffected.
+const BLOCKED_CLIENT_STATUSES = new Set(["suspended", "rejected", "failed"])
+async function activeTenantGuard(
+  req: MedusaRequest,
+  res: MedusaResponse,
+  next: MedusaNextFunction
+) {
+  const header = req.headers["x-publishable-api-key"]
+  const key = Array.isArray(header) ? header[0] : header
+  if (!key) {
+    next()
+    return
+  }
+  try {
+    const service = req.scope.resolve<ClientModuleService>(CLIENT_MODULE)
+    const clients = (await service.listClients(
+      { publishable_key: key },
+      {}
+    )) as unknown as ClientRecord[]
+    const client = clients[0]
+    if (client && BLOCKED_CLIENT_STATUSES.has(client.status)) {
+      res.status(403).json({ message: "This store is not available" })
+      return
+    }
+  } catch {
+    // Client module unavailable: do not block the store.
+  }
+  next()
+}
 
 // Structured error log for every 5xx — readable via docker logs / Render logs.
 // Function matcher so it applies to all routes (store, admin, auth, feeds).
@@ -46,6 +81,10 @@ export default defineMiddlewares({
       middlewares: [
         createIpRateLimiter({ windowMs: 60_000, max: 10, prefix: "auth" }),
       ],
+    },
+    {
+      matcher: "/store/*",
+      middlewares: [activeTenantGuard],
     },
     {
       matcher: "/store/carts*",
