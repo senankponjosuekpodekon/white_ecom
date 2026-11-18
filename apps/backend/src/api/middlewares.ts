@@ -4,6 +4,7 @@ import type {
   MedusaRequest,
   MedusaResponse,
 } from "@medusajs/framework/http"
+import { Modules } from "@medusajs/framework/utils"
 import { createIpRateLimiter } from "../utils/rate-limit"
 import { CLIENT_MODULE } from "../modules/client"
 import type ClientModuleService from "../modules/client/service"
@@ -41,6 +42,165 @@ async function activeTenantGuard(
   next()
 }
 
+// --- Merchant scoping -------------------------------------------------------
+// A "merchant" is an admin user bound to a tenant via user metadata
+// client_id. Every /admin/* request of such a user is scoped to the tenant's
+// sales channel: list reads get a forced sales_channel_id filter and detail
+// reads/writes are checked against the tenant's channel.
+
+type TenantContext = { clientId: string; salesChannelId: string | null }
+
+declare module "@medusajs/framework/http" {
+  interface MedusaRequest {
+    tenant_context?: TenantContext
+  }
+}
+
+async function resolveTenantContext(
+  req: MedusaRequest
+): Promise<TenantContext | null> {
+  if (req.tenant_context) {
+    return req.tenant_context
+  }
+  const authContext = (
+    req as unknown as { auth_context?: { actor_id?: string; actor_type?: string } }
+  ).auth_context
+  if (authContext?.actor_type !== "user" || !authContext.actor_id) {
+    return null
+  }
+  try {
+    const userModule = req.scope.resolve(Modules.USER) as {
+      retrieveUser: (id: string) => Promise<{
+        id: string
+        metadata?: { client_id?: string } | null
+      }>
+    }
+    const user = await userModule.retrieveUser(authContext.actor_id)
+    const clientId = user?.metadata?.client_id
+    if (!clientId) {
+      return null
+    }
+    const service = req.scope.resolve<ClientModuleService>(CLIENT_MODULE)
+    const clients = (await service.listClients(
+      { id: clientId },
+      {}
+    )) as unknown as ClientRecord[]
+    const client = clients[0]
+    if (!client) {
+      return null
+    }
+    req.tenant_context = {
+      clientId: client.id,
+      salesChannelId: client.sales_channel_id ?? null,
+    }
+    return req.tenant_context
+  } catch {
+    return null
+  }
+}
+
+async function tenantContext(
+  req: MedusaRequest,
+  res: MedusaResponse,
+  next: MedusaNextFunction
+) {
+  await resolveTenantContext(req)
+  next()
+}
+
+// "/admin/products/prod_1/variants" -> "prod_1", null when the path is the
+// collection itself.
+function resourceId(req: MedusaRequest, prefix: string): string | null {
+  const rest = req.path.slice(prefix.length).split("/").filter(Boolean)
+  return rest[0] ?? null
+}
+
+async function scopeProducts(
+  req: MedusaRequest,
+  res: MedusaResponse,
+  next: MedusaNextFunction
+) {
+  const tenant = await resolveTenantContext(req)
+  if (!tenant || !tenant.salesChannelId) {
+    next()
+    return
+  }
+
+  const id = resourceId(req, "/admin/products")
+  if (!id) {
+    // Collection endpoints: force the channel filter on reads; a product a
+    // merchant creates goes straight into their channel.
+    if (req.method === "GET") {
+      req.query.sales_channel_id = tenant.salesChannelId
+    } else if (req.method === "POST") {
+      const body = req.body as { sales_channels?: { id: string }[] }
+      if (!body?.sales_channels?.length) {
+        body.sales_channels = [{ id: tenant.salesChannelId }]
+      }
+    }
+    next()
+    return
+  }
+
+  // Detail endpoints: the product must be linked to the tenant's channel.
+  try {
+    const productModule = req.scope.resolve(Modules.PRODUCT) as {
+      listProducts: (
+        filters: Record<string, unknown>,
+        config?: { select?: string[] }
+      ) => Promise<{ id: string }[]>
+    }
+    const rows = await productModule.listProducts(
+      { id, sales_channels: { id: tenant.salesChannelId } },
+      { select: ["id"] }
+    )
+    if (!rows.length) {
+      res.status(403).json({ message: "Product outside your sales channel" })
+      return
+    }
+  } catch {
+    res.status(500).json({ message: "Tenant scoping failed" })
+    return
+  }
+  next()
+}
+
+async function scopeOrders(
+  req: MedusaRequest,
+  res: MedusaResponse,
+  next: MedusaNextFunction
+) {
+  const tenant = await resolveTenantContext(req)
+  if (!tenant || !tenant.salesChannelId) {
+    next()
+    return
+  }
+
+  const id = resourceId(req, "/admin/orders")
+  if (!id) {
+    if (req.method === "GET") {
+      req.query.sales_channel_id = tenant.salesChannelId
+    }
+    next()
+    return
+  }
+
+  try {
+    const orderModule = req.scope.resolve(Modules.ORDER) as {
+      retrieveOrder: (id: string) => Promise<{ sales_channel_id?: string | null }>
+    }
+    const order = await orderModule.retrieveOrder(id)
+    if (order.sales_channel_id !== tenant.salesChannelId) {
+      res.status(403).json({ message: "Order outside your sales channel" })
+      return
+    }
+  } catch {
+    res.status(404).json({ message: "Order not found" })
+    return
+  }
+  next()
+}
+
 // Structured error log for every 5xx — readable via docker logs / Render logs.
 // Function matcher so it applies to all routes (store, admin, auth, feeds).
 function errorLogger(
@@ -74,7 +234,15 @@ export default defineMiddlewares({
     },
     {
       matcher: "/admin/*",
-      middlewares: [authenticate("user", ["session", "bearer"])],
+      middlewares: [authenticate("user", ["session", "bearer"]), tenantContext],
+    },
+    {
+      matcher: "/admin/products*",
+      middlewares: [scopeProducts],
+    },
+    {
+      matcher: "/admin/orders*",
+      middlewares: [scopeOrders],
     },
     {
       matcher: "/auth/*",
