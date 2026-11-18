@@ -27,9 +27,6 @@ test.describe("Checkout", () => {
     await page.getByRole("button", { name: "Continuer" }).click();
 
     // Step 2: shipping (skipped for digital catalogs — straight to payment)
-    const manualPayBtn = page.getByRole("button", {
-      name: /Payer à la livraison|virement/i,
-    });
     await page.waitForURL(/step=(shipping|payment)/, { timeout: 15000 });
     if (page.url().includes("step=shipping")) {
       const radio = page.locator('input[name="optionId"]').first();
