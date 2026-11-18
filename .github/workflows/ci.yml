@@ -113,7 +113,9 @@ jobs:
           EOF
 
       - name: Start postgres, redis and backend
-        run: COMPOSE_BAKE=0 docker compose up -d --build postgres redis backend
+        run: |
+          docker compose build --allow network.host backend
+          docker compose up -d postgres redis backend
 
       - name: Extract publishable key
         id: pkey
@@ -129,12 +131,12 @@ jobs:
           exit 1
 
       - name: Build storefront with publishable key
-        run: COMPOSE_BAKE=0 docker compose build storefront
+        run: docker compose build --allow network.host storefront
         env:
           NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: ${{ steps.pkey.outputs.key }}
 
       - name: Start storefront
-        run: COMPOSE_BAKE=0 docker compose up -d storefront
+        run: docker compose up -d storefront
 
       - name: Wait for storefront
         run: |
