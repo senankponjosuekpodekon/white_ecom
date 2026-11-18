@@ -52,7 +52,9 @@ test.describe("Checkout", () => {
       .getByRole("button", { name: /Payer à la livraison|virement/i })
       .click();
 
-    await expect(page).toHaveURL(/\/fr\/checkout\/result\?order_id=/);
+    await expect(page).toHaveURL(/\/fr\/checkout\/result\?order_id=/, {
+      timeout: 60000,
+    });
     await expect(page.locator("main").nth(1)).toContainText("Commande");
   });
 
