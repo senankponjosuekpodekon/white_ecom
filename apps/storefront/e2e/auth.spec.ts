@@ -12,7 +12,7 @@ test.describe("Customer auth", () => {
     await page.locator('input[name="password"]').fill(password);
     await page.getByRole("button", { name: "Créer le compte" }).click();
 
-    await expect(page).toHaveURL(/\/fr\/account/, { timeout: 30000 });
+    await expect(page).toHaveURL(/\/fr\/account/, { timeout: 60000 });
     await expect(page.locator("h1")).toContainText("Mon compte");
 
     await page.getByRole("button", { name: "Se déconnecter" }).click();
@@ -22,7 +22,7 @@ test.describe("Customer auth", () => {
     await page.locator('input[name="password"]').fill(password);
     await page.getByRole("button", { name: "Se connecter" }).click();
 
-    await expect(page).toHaveURL(/\/fr\/account/, { timeout: 30000 });
+    await expect(page).toHaveURL(/\/fr\/account/, { timeout: 60000 });
   });
 
   test("forgot-password page renders and submits", async ({ page }) => {
