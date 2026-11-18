@@ -122,7 +122,22 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
     }),
   }
 
-  const { data: products } = await query.index(
+  // query.index() is deprecated and requires the Index module, which is not
+  // loaded in this deployment — use query.graph() with linked-model filters.
+  if (q) {
+    delete filters.q
+    filters.title = { $ilike: `%${q}%` }
+  }
+  if (isPresent(params.sales_channel_id)) {
+    delete filters.sales_channel_id
+    filters.sales_channels = {
+      id: Array.isArray(params.sales_channel_id)
+        ? params.sales_channel_id
+        : [params.sales_channel_id],
+    }
+  }
+
+  const { data: products } = await query.graph(
     {
       entity: "product",
       fields: FIELDS,
